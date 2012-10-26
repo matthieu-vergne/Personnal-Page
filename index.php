@@ -6,6 +6,6 @@
 	</head>
 	<body>
 		<p>Coming soon.</p>
-		<?php require_once("copyright.html"); ?>
+		<div id="copyright"><?php require_once("copyright.html"); ?></div>
 	</body>
 </html>
