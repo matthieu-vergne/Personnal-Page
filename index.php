@@ -6,8 +6,8 @@ require_once('baseImport.php');
 	<head>
 		<title>Matthieu's personal page</title>
 		<meta charset="utf-8">
-		<meta name="description" content="">
-		<meta name="keywords" content="">
+		<meta name="description" content="Matthieu's personal page">
+		<meta name="keywords" content="personal page">
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		<?php
 			if (TEST_MODE_ACTIVATED) {
