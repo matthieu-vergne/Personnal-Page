@@ -7,7 +7,7 @@ require_once('baseImport.php');
 		<title>Matthieu's Homepage</title>
 		<meta charset="utf-8">
 		<meta name="description" content="Matthieu's personal page">
-		<meta name="keywords" content="personal homepage">
+		<meta name="keywords" content="Matthieu Vergne, personal homepage">
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		<?php
 			if (TEST_MODE_ACTIVATED) {
