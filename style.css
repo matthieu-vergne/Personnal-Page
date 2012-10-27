@@ -41,7 +41,7 @@ nav a.selected {
 \*********************************/
 
 article {
-	width: 85%;
+	width: 84%;
 	float: right;
 }
 
@@ -59,6 +59,7 @@ article img#photo {
 footer {
 	position: fixed;
 	bottom: 0;
+	background-color: white;
 	width: 100%;
 	font-size: 75%;
 }
