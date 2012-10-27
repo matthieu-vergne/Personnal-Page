@@ -1,12 +1,29 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<?php
+require_once('baseImport.php');
+?>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
 		<title>Matthieu's personal page</title>
-		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-		<link href="style.css" rel="stylesheet" type="text/css">
+		<meta charset="utf-8">
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+		<link href="style.css" rel="stylesheet" type="text/css" />
+		<?php
+			if (TEST_MODE_ACTIVATED) {
+				echo '<link href="debug-style.css" rel="stylesheet" type="text/css" />';
+			} else {
+				// do not use the debug style
+			}
+		?>
+		<!--[if lt IE 9]>
+			<script src="//html5shim.googlecode.com/sin/trunk/html5.js"></script>
+		<![endif]-->
 	</head>
 	<body>
-		<p>Coming soon.</p>
-		<div id="copyright"><?php require_once("copyright.html"); ?></div>
+		<header><?php require_once("header.php"); ?></header>
+		<nav><?php require_once("menu.php"); ?></nav>
+		<article><?php require_once("content.php"); ?></article>
+		<footer><?php require_once("copyright.php"); ?></footer>
 	</body>
 </html>

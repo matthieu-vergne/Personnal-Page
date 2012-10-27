@@ -1,0 +1,27 @@
+/*********************************\
+              DEBUG
+\*********************************/
+
+* {
+	border: 1px dotted gray;
+}
+
+header {
+	border: 0;
+	background-color: yellow;
+}
+
+nav {
+	border: 0;
+	background-color: red;
+}
+
+article {
+	border: 0;
+	background-color: blue;
+}
+
+footer {
+	border: 0;
+	background-color: green;
+} 

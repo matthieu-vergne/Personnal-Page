@@ -1,3 +1,73 @@
-div#copyright {
-	font-size: 50%;
-} 
+/*********************************\
+              GLOBAL
+\*********************************/
+
+body {
+}
+
+div {
+	margin: 0;
+	padding: 0;
+}
+
+/*********************************\
+              HEADER
+\*********************************/
+
+header {
+	text-align: center;
+}
+
+/*********************************\
+              MENU
+\*********************************/
+
+nav {
+	width: 15%;
+	position: fixed;
+	text-align: center;
+}
+
+nav a {
+	display: block;
+}
+
+nav a.selected {
+	background-color: yellow;
+}
+
+/*********************************\
+              CONTENT
+\*********************************/
+
+article {
+	width: 85%;
+	float: right;
+}
+
+article img#photo {
+	float: left;
+	max-width: 15%;
+	margin-right: 1em;
+	margin-bottom: 1em;
+}
+
+/*********************************\
+            COPYRIGHT
+\*********************************/
+
+footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	font-size: 75%;
+}
+
+footer p {
+	margin: 0;
+	text-align: center;
+}
+
+footer img {
+	vertical-align: middle;
+}
