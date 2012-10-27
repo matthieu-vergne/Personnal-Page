@@ -53,6 +53,12 @@ article img#photo {
 	margin-bottom: 1em;
 }
 
+article div#lastUpdateTime {
+	float: right;
+	font-size: 75%;
+	color: gray;
+}
+
 /*********************************\
             COPYRIGHT
 \*********************************/
