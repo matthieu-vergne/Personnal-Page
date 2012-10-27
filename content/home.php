@@ -2,7 +2,7 @@
 <?php
 $data = array(
 	'Surname' => 'Matthieu',
-	'Family name' => 'VERGNE',
+	'Family name' => 'Vergne',
 	'Nationality' => 'French',
 	'E-mail' => Format::toHtmlEmail('matthieu.vergne@gmail.com'),
 	'Google+' => Format::toHtmlUrl('https://plus.google.com/113987650579242368833'),

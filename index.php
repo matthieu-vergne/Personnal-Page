@@ -4,10 +4,10 @@ require_once('baseImport.php');
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Matthieu's personal page</title>
+		<title>Matthieu's Homepage</title>
 		<meta charset="utf-8">
 		<meta name="description" content="Matthieu's personal page">
-		<meta name="keywords" content="personal page">
+		<meta name="keywords" content="personal homepage">
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		<?php
 			if (TEST_MODE_ACTIVATED) {
