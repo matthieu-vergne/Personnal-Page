@@ -8,20 +8,20 @@
 
 header {
 	border: 0;
-	background-color: yellow;
+	background-color: #FFFFAA;
 }
 
 nav {
 	border: 0;
-	background-color: red;
+	background-color: #FFAAAA;
 }
 
 article {
 	border: 0;
-	background-color: blue;
+	background-color: #AAAAFF;
 }
 
 footer {
 	border: 0;
-	background-color: green;
+	background-color: #AAFFAA;
 } 
