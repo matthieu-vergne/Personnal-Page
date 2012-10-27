@@ -1,4 +1,4 @@
-<img id="photo" src="content/home/photo.jpg" alt="Photo"/>
+<img src="content/home/photo.jpg" alt="Photo" style="float: left; max-width: 15%; margin-right: 1em; margin-bottom: 1em;"/>
 <?php
 $data = array(
 	'Surname' => 'Matthieu',
