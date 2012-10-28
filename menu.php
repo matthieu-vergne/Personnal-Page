@@ -1,16 +1,12 @@
 <?php
-$pages = array(
-	'home' => 'Home',
-	'papers' => 'Papers',
-	'thinking' => 'Personal Thinking',
-);
 $url = Url::getCurrentUrl();
 $askedPage = $url->hasQueryVar('page')
 		? $url->getQueryVar('page')
-		: 'home';
-foreach($pages as $page => $title) {
+		: Page::getDefaultPageId();
+$displayedPage = Page::getDisplayedPage();
+foreach(Page::getAvailablePages() as $page) {
 	$url = new Url();
-	$url->setQueryVar('page', $page);
-	echo '<a '.($askedPage == $page ? 'class="selected"' : '').' href="'.$url.'">'.$title.'</a>';
+	$url->setQueryVar('page', $page->getId());
+	echo '<a '.($displayedPage == $page ? 'class="selected"' : '').' href="'.$url.'">'.$page->getMenuTitle().'</a>';
 }
 ?>
