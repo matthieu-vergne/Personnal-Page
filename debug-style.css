@@ -25,3 +25,24 @@ footer {
 	border: 0;
 	background-color: #AAFFAA;
 } 
+
+div#test {
+	color: red;
+	border: 1px solid red;
+	text-align: center;
+}
+
+div#test * {
+	color: red;
+	border: 0;
+	text-decoration: none;
+	padding: 0 1em;
+}
+
+div#test *:before {
+	content: '[';
+}
+
+div#test *:after {
+	content: ']';
+}

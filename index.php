@@ -21,6 +21,17 @@ require_once('baseImport.php');
 		<![endif]-->
 	</head>
 	<body>
+		<?php
+			if (TEST_MODE_ACTIVATED) {
+				echo '<div id="test">';
+				$url = Url::getCurrentUrl();
+				$url->setQueryVar('noTest');
+				echo '<a href="'.$url.'">Deactivate testing mode</a>';
+				echo '</div>';
+			} else {
+				// do not display testing stuff
+			}
+		?>
 		<header><?php require_once("header.php"); ?></header>
 		<nav><?php require_once("menu.php"); ?></nav>
 		<article><?php require_once("content.php"); ?></article>
