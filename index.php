@@ -32,9 +32,28 @@ require_once('baseImport.php');
 				// do not display testing stuff
 			}
 		?>
-		<header><?php require_once("header.php"); ?></header>
-		<nav><?php require_once("menu.php"); ?></nav>
-		<article><?php require_once("content.php"); ?></article>
+		<header>
+			<h1>Matthieu Vergne</h1>
+			<h2>Personal Homepage</h2>
+		</header>
+		<nav>
+			<?php
+				$url = Url::getCurrentUrl();
+				$displayedPage = Page::getDisplayedPage();
+				foreach(Page::getAvailablePages() as $page) {
+					$url = new Url();
+					$url->setQueryVar('page', $page->getId());
+					echo '<a '.($displayedPage == $page ? 'class="selected"' : '').' href="'.$url.'">'.$page->getMenuTitle().'</a>';
+				}
+			?>
+		</nav>
+		<article>
+			<?php
+				$page = Page::getDisplayedPage();
+				echo '<div id="lastUpdateTime">Last update: '.date ("d/m/Y H:i:s", $page->getLastUpdateTime()).'</div>';
+				echo $page->getContent();
+			?>
+		</article>
 		<footer><?php require_once("copyright.php"); ?></footer>
 	</body>
 </html>
