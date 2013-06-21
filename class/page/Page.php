@@ -4,9 +4,11 @@ abstract class Page {
 		$pages = array();
 		foreach(glob('class/page/*.php') as $path) {
 			$file = basename($path);
-			$class = substr($file, 0, strlen($file)-4);
-			if (is_subclass_of($class, get_class())) {
-				$pages[] = new $class();
+			$className = substr($file, 0, strlen($file)-4);
+			$class = new ReflectionClass($className);
+			
+			if ($class->isSubclassOf(get_class()) && $class->isInstantiable()) {
+				$pages[] = new $className();
 			} else {
 				continue;
 			}
@@ -45,7 +47,6 @@ abstract class Page {
 	
 	public abstract function getId();
 	public abstract function getMenuTitle();
-	public abstract function getContent();
 	
 	public function getLastUpdateTime() {
 		$reflection = new ReflectionClass($this);

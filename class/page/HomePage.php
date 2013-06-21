@@ -1,5 +1,5 @@
 <?php
-class HomePage extends Page {
+class HomePage extends InternalPage {
 	public function getId() {
 		return 'home';
 	}

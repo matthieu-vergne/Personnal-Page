@@ -1,5 +1,5 @@
 <?php
-class ThinkingPage extends Page {
+class ThinkingPage extends InternalPage {
 	public function getId() {
 		return 'thinking';
 	}

@@ -1,5 +1,5 @@
 <?php
-class PapersPage extends Page {
+class PapersPage extends ExternalPage {
 	public function getId() {
 		return 'papers';
 	}
@@ -8,9 +8,8 @@ class PapersPage extends Page {
 		return 'Papers';
 	}
 	
-	public function getContent() {
-		$content = '<p>Coming soon.</p>';
-		return $content;
+	public function getUrl() {
+		return 'http://scholar.google.it/citations?user=qpUf7jQAAAAJ';
 	}
 }
 ?>
