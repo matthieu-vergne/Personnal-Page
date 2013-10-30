@@ -16,7 +16,7 @@ class HomePage extends InternalPage {
 			'Family name' => 'Vergne',
 			'Nationality' => 'French',
 			'E-mail' => Format::toHtmlEmail('matthieu.vergne@gmail.com'),
-			'Google+' => Format::toHtmlUrl('https://plus.google.com/113987650579242368833'),
+			'Google+' => Format::toHtmlUrl('https://www.google.com/+MatthieuVergne'),
 			'LinkedIn' => Format::toHtmlUrl('http://www.linkedin.com/pub/matthieu-vergne/41/832/bb8'),
 			'ArnetMiner' => Format::toHtmlUrl('http://arnetminer.org/person/matthieu-vergne-14332114.html'),
 			'GitHub' => Format::toHtmlUrl('https://github.com/matthieu-vergne'),
