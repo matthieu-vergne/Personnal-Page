@@ -13,10 +13,12 @@ class PapersPage extends InternalPage {
 		$bib[] = array(
 			'paper' => "I. Morales-Ramirez, M. Vergne, M. Morandini, L. Sabatucci, A. Perini, et A. Susi, « Revealing the obvious?: A retrospective artefact analysis for an ambient assisted-living project », in 2012 IEEE Second International Workshop on Empirical Requirements Engineering (EmpiRE), 2012, p. 41 ‑48.",
 			'doi' => "10.1109/EmpiRE.2012.6347681",
+			'pdf' => Resource::getResource(1)->getFileUrl(),
 		);
 		$bib[] = array(
 			'paper' => "I. Morales-Ramirez, M. Vergne, M. Morandini, L. Sabatucci, A. Perini, et A. Susi, « Where Did the Requirements Come from? A Retrospective Case Study », in Advances in Conceptual Modeling, S. Castano, P. Vassiliadis, L. V. Lakshmanan, et M. L. Lee, Éd. Springer Berlin Heidelberg, 2012, p. 185‑194.",
 			'doi' => "10.1007/978-3-642-33999-8_23",
+			'pdf' => Resource::getResource(2)->getFileUrl(),
 		);
 		$bib[] = array(
 			'paper' => "M. Vergne, I. Morales-Ramirez, M. Morandini, A. Susi, et A. Perini, « Analysing User Feedback and Finding Experts: Can Goal-Orientation Help? », in 6th International i* Workshop, Valencia, Spain, 2013, vol. 978, p. 49‑54.",
@@ -31,6 +33,7 @@ class PapersPage extends InternalPage {
 		$bib[] = array(
 			'paper' => "M. Vergne et A. Susi, « Expert Finding Using Markov Networks in Open Source Communities », in Advanced Information Systems Engineering, M. Jarke, J. Mylopoulos, C. Quix, C. Rolland, Y. Manolopoulos, H. Mouratidis, et J. Horkoff, Éd. Springer International Publishing, 2014, p. 196‑210.",
 			'doi' => "10.1007/978-3-319-07881-6_14",
+			'pdf' => Resource::getResource(3)->getFileUrl(),
 		);
 		$bib[] = array(
 			'paper' => "A. J. Nebro, J. J. Durillo, et M. Vergne, « Redesigning the jMetal Multi-Objective Optimization Framework », in Companion Publication of the 2015 Annual Conference on Genetic and Evolutionary Computation, 2015, p. 1093‑1100.",
@@ -40,6 +43,7 @@ class PapersPage extends InternalPage {
 		$bib[] = array(
 			'paper' => "M. Vergne et A. Susi, « Breaking the Recursivity: Towards a Model to Analyse Expert Finders », in Conceptual Modeling, vol. 9381, P. Johannesson, M. L. Lee, S. W. Liddle, A. L. Opdahl, et Ó. P. López, Éd. Cham: Springer International Publishing, 2015, p. 539‑547.",
 			'doi' => "10.1007/978-3-319-25264-3_40",
+			'pdf' => Resource::getResource(4)->getFileUrl(),
 		);
 		
 		$content = "";
