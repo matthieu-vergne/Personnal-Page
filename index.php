@@ -1,5 +1,14 @@
 <?php
 require_once('baseImport.php');
+
+// Redirection for ACM Authorizer links
+$url = Url::getCurrentUrl();
+if ($url->get(URL_SERVER) == 'matthieu-vergne.fr') {
+	$url->set(URL_SERVER, 'www.matthieu-vergne.fr');
+	header("HTTP/1.1 301 Moved Permanently", false, 301);
+	header('Location: '.$url->toString());
+	exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
