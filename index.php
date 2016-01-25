@@ -52,13 +52,11 @@ require_once('baseImport.php');
 				}
 			?>
 		</nav>
-		<article>
-			<?php
-				$page = Page::getDisplayedPage();
-				echo '<div id="lastUpdateTime">Last update: '.date ("d/m/Y H:i:s", $page->getLastUpdateTime()).'</div>';
-				echo $page->getContent();
-			?>
-		</article>
+		<?php
+			$page = Page::getDisplayedPage();
+			echo '<div id="lastUpdateTime">Last update: '.date ("d/m/Y H:i:s", $page->getLastUpdateTime()).'</div>';
+			echo '<article id="'.$page->getId().'">'.$page->getContent().'</article>';
+		?>
 		<footer><?php require_once("copyright.php"); ?></footer>
 	</body>
 </html>
