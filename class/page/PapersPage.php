@@ -46,7 +46,7 @@ class PapersPage extends InternalPage {
 			'pdf' => Resource::getResource(4)->getFileUrl(),
 		);
 		
-		$content = "";
+		$table = "";
 		$counter = 0;
 		krsort($bib);
 		foreach($bib as $entry) {
@@ -70,10 +70,19 @@ class PapersPage extends InternalPage {
 			$row = "<td class='counter'>[".$counter."]</td>";
 			$row .= "<td>".$entry['paper']."<br/><span class='links'>".$links."</span></td>";
 			
-			$content .= "<tr>".$row."</tr>";
+			$table .= "<tr>".$row."</tr>";
 		}
+		$table = "<table width='100%'>".$table."</table>";
 		
-		return "<table width='100%'>".$content."</table>";
+		$external = "See also on:";
+		$external .= "<a class='external' href='http://scholar.google.it/citations?user=qpUf7jQAAAAJ'>Google Scholar</a>";
+		$external .= "<a class='external' href='http://dblp.uni-trier.de/pers/hd/v/Vergne:Matthieu'>DBLP</a>";
+		
+		$content = "";
+		$content .= "<p>".$external."</p>";
+		$content .= $table;
+		
+		return $content;
 	}
 }
 ?>

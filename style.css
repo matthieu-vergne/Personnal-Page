@@ -58,6 +58,16 @@ article div#lastUpdateTime {
 	color: gray;
 }
 
+#papers .external {
+	display: inline-block;
+	margin: 0.5em;
+}
+#papers .external:before {
+	content: "[";
+}
+#papers .external:after {
+	content: "]";
+}
 #papers .counter {
 	vertical-align: top;
 }
