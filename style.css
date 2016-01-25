@@ -58,6 +58,17 @@ article div#lastUpdateTime {
 	color: gray;
 }
 
+#papers .counter {
+	vertical-align: top;
+}
+#papers .links a {
+	display: inline-block;
+	margin: 0.5em;
+}
+#papers .links a img {
+	height: 1.5em;
+}
+
 /*********************************\
             COPYRIGHT
 \*********************************/
