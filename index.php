@@ -54,8 +54,10 @@ require_once('baseImport.php');
 		</nav>
 		<?php
 			$page = Page::getDisplayedPage();
+			echo '<article id="'.$page->getId().'">';
 			echo '<div id="lastUpdateTime">Last update: '.date ("d/m/Y H:i:s", $page->getLastUpdateTime()).'</div>';
-			echo '<article id="'.$page->getId().'">'.$page->getContent().'</article>';
+			echo $page->getContent();
+			echo '</article>';
 		?>
 		<footer><?php require_once("copyright.php"); ?></footer>
 	</body>
