@@ -12,7 +12,7 @@ class PapersPage extends InternalPage {
 		$bib = Paper::getAllPapers();
 		$table = "";
 		$counter = 0;
-		krsort($bib);
+		krsort($bib);// TODO Sort anti-chronologically, don't assume it is sorted chronologically.
 		foreach($bib as $entry) {
 			$links = "";
 			
