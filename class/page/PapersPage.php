@@ -24,6 +24,11 @@ class PapersPage extends InternalPage {
 				// no PDF
 			}
 			
+			$permalink = Url::getCurrentUrl();
+			$permalink->setQueryVars(array());
+			$permalink->setQueryVar('accessPaperPDF', $entry->getID());
+			$links .= "<a class='url' href='".$permalink."' style='float:right'>[PDF Permalink]</a>";
+			
 			$counter++;
 			$row = "<td class='counter'>[".$counter."]</td>";
 			$row .= "<td>".$entry->getDescription()."<br/><span class='links'>".$links."</span></td>";
