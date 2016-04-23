@@ -1,7 +1,7 @@
 <?php
 require_once('baseImport.php');
 
-// Redirection for ACM Authorizer links
+// Redirection to activate ACM Authorizer links
 $url = Url::getCurrentUrl();
 if ($url->get(URL_SERVER) == 'matthieu-vergne.fr') {
 	$url->set(URL_SERVER, 'www.matthieu-vergne.fr');
