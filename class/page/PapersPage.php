@@ -36,7 +36,7 @@ class PapersPage extends InternalPage {
 					$links .= $form;
 				} else if (isset($_POST['redirect']) && $_POST['redirect'] == $paper->getID()) {
 					$form = "";
-					$form .= "<form name='autoRedirect' action='".$paper->getPDF()."' method='get'></form>";
+					$form .= "<form name='autoRedirect' action='".$paper->getPDF()."' method='post'></form>";
 					$form .= "<script language='JavaScript'>";
 					$form .= "document.autoRedirect.submit();";
 					$form .= "</script>";
