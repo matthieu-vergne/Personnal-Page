@@ -9,6 +9,28 @@ if ($url->get(URL_SERVER) == 'matthieu-vergne.fr') {
 	header('Location: '.$url->toString());
 	exit();
 }
+
+// Redirection requests
+$url = Url::getCurrentUrl();
+if ($url->hasQueryVar('redirect')) {
+	$id = $url->getQueryVar('redirect');
+	if ($url->getQueryVar('page') == 'papers') {
+		$paper = Paper::getPaper($id);
+		$target = $paper->getPDF();
+		if(stripos($target, "http://dl.acm.org/authorize?") === 0) {
+			/*
+			ACM Authorizer link. Let the inner implementation of the
+			paper page manage this case to maintain the right referer.
+			*/
+		} else {
+			// General case, supposed to work in a simpler way
+			header('Location: '.$target);
+			exit();
+		}
+	} else {
+		throw new Exception("This URL is not valid.");
+	}
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
