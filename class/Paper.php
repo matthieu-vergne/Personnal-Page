@@ -103,6 +103,18 @@ class Paper {
 			$paper->setPDF(Resource::getResource(4)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
+			$paper = new Paper('arXiv-2016a');
+			$paper->setDescription("M. Vergne, « Gold Standard for Expert Ranking: A Survey on the XWiki Dataset », in arXiv.org, 2016.");
+			$paper->setURL("https://arxiv.org/abs/1603.03809");
+			$paper->setPDF("https://arxiv.org/pdf/1603.03809");
+			Paper::$allPapers[] = $paper;
+			
+			$paper = new Paper('arXiv-2016b');
+			$paper->setDescription("M. Vergne, « Mitigation Procedures to Rank Experts through Information Retrieval Measures », in arXiv.org, 2016.");
+			$paper->setURL("https://arxiv.org/abs/1603.04953");
+			$paper->setPDF("https://arxiv.org/pdf/1603.04953");
+			Paper::$allPapers[] = $paper;
+			
 			// Check unique IDs
 			$ids = array();
 			foreach(Paper::$allPapers as $paper) {
