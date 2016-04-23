@@ -9,14 +9,6 @@ if ($url->get(URL_SERVER) == 'matthieu-vergne.fr') {
 	header('Location: '.$url->toString());
 	exit();
 }
-
-// Automatic redirection to papers PDF
-$url = Url::getCurrentUrl();
-if ($url->hasQueryVar('accessPaperPDF')) {
-	$paper = Paper::getPaper($url->getQueryVar('accessPaperPDF'));
-	header('Location: '.$paper->getPDF());
-	exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
