@@ -115,6 +115,12 @@ class Paper {
 			$paper->setPDF("https://arxiv.org/pdf/1603.04953");
 			Paper::$allPapers[] = $paper;
 			
+			$paper = new Paper('thesis-2016');
+			$paper->setDescription("M. Vergne, « Expert Finding for Requirements Engineering », Ph.D. thesis in University of Trento, 2016.");
+			$paper->setURL("http://eprints-phd.biblio.unitn.it/1703/");
+			$paper->setPDF(Resource::getResource(5)->getFileUrl());
+			Paper::$allPapers[] = $paper;
+			
 			// Check unique IDs
 			$ids = array();
 			foreach(Paper::$allPapers as $paper) {
