@@ -19,8 +19,6 @@ class PapersPage extends InternalPage {
 			$links .= "<a class='url' href='".$paper->getURL()."'><img src='https://upload.wikimedia.org/wikipedia/commons/9/93/Internet_link.png'></img></a>";
 			
 			if ($paper->getPDF() != null) {
-				$links .= "<a class='pdf' href='".$paper->getPDF()."'><img src='https://upload.wikimedia.org/wikipedia/commons/2/22/Pdf_icon.png'></img></a>";
-				
 				if (isset($_GET['redirect']) && $_GET['redirect'] == $paper->getID()) {
 					$target = Url::getCurrentUrl();
 					$target->removeQueryVar('redirect');
@@ -45,7 +43,7 @@ class PapersPage extends InternalPage {
 				} else {
 					$permalink = Url::getCurrentUrl();
 					$permalink->setQueryVar('redirect', $paper->getID());
-					$links .= "<a class='url' href='".$permalink."' style='float:right'>[PDF Permalink]</a>";
+					$links .= "<a class='pdf' href='".$permalink."'><img src='https://upload.wikimedia.org/wikipedia/commons/2/22/Pdf_icon.png'></img></a>";
 				}
 			} else {
 				// no PDF
