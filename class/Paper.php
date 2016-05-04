@@ -62,55 +62,55 @@ class Paper {
 			Paper::$allPapers = array();
 			
 			$paper = new Paper('EmpiRE-2012');
-			$paper->setDescription("I. Morales-Ramirez, M. Vergne, M. Morandini, L. Sabatucci, A. Perini, et A. Susi, « Revealing the obvious?: A retrospective artefact analysis for an ambient assisted-living project », in 2012 IEEE Second International Workshop on Empirical Requirements Engineering (EmpiRE), 2012, p. 41 ‑48.");
+			$paper->setDescription("I. Morales-Ramirez, M. Vergne, M. Morandini, L. Sabatucci, A. Perini, and A. Susi, « Revealing the obvious?: A retrospective artefact analysis for an ambient assisted-living project », article in 2012 IEEE Second International Workshop on Empirical Requirements Engineering (EmpiRE), 2012, p. 41 ‑48.");
 			$paper->setDOI("10.1109/EmpiRE.2012.6347681");
 			$paper->setPDF(Resource::getResource(1)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('RIGiM-2012');
-			$paper->setDescription("I. Morales-Ramirez, M. Vergne, M. Morandini, L. Sabatucci, A. Perini, et A. Susi, « Where Did the Requirements Come from? A Retrospective Case Study », in Advances in Conceptual Modeling, S. Castano, P. Vassiliadis, L. V. Lakshmanan, et M. L. Lee, Éd. Springer Berlin Heidelberg, 2012, p. 185‑194.");
+			$paper->setDescription("I. Morales-Ramirez, M. Vergne, M. Morandini, L. Sabatucci, A. Perini, and A. Susi, « Where Did the Requirements Come from? A Retrospective Case Study », article in Advances in Conceptual Modeling, S. Castano, P. Vassiliadis, L. V. Lakshmanan, and M. L. Lee, Ed. Springer Berlin Heidelberg, 2012, p. 185‑194.");
 			$paper->setDOI("10.1007/978-3-642-33999-8_23");
 			$paper->setPDF(Resource::getResource(2)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('iStar-2013');
-			$paper->setDescription("M. Vergne, I. Morales-Ramirez, M. Morandini, A. Susi, et A. Perini, « Analysing User Feedback and Finding Experts: Can Goal-Orientation Help? », in 6th International i* Workshop, Valencia, Spain, 2013, vol. 978, p. 49‑54.");
+			$paper->setDescription("M. Vergne, I. Morales-Ramirez, M. Morandini, A. Susi, and A. Perini, « Analysing User Feedback and Finding Experts: Can Goal-Orientation Help? », article in 6th International i* Workshop, Valencia, Spain, 2013, vol. 978, p. 49‑54.");
 			$paper->setURL("http://ceur-ws.org/Vol-978/paper_9.pdf");
 			$paper->setPDF("http://ceur-ws.org/Vol-978/paper_9.pdf");
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('ICSE-2014');
-			$paper->setDescription("I. Morales-Ramirez, M. Vergne, M. Morandini, A. Siena, A. Perini, et A. Susi, « Who is the Expert? Combining Intention and Knowledge of Online Discussants in Collaborative RE Tasks », in Companion Proceedings of the 36th International Conference on Software Engineering, New York, NY, USA, 2014, p. 452–455.");
+			$paper->setDescription("I. Morales-Ramirez, M. Vergne, M. Morandini, A. Siena, A. Perini, and A. Susi, « Who is the Expert? Combining Intention and Knowledge of Online Discussants in Collaborative RE Tasks », article in Companion Proceedings of the 36th International Conference on Software Engineering, New York, NY, USA, 2014, p. 452–455.");
 			$paper->setDOI("10.1145/2591062.2591103");
 			$paper->setPDF("http://dl.acm.org/authorize?N08506");
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('CAISE-2014');
-			$paper->setDescription("M. Vergne et A. Susi, « Expert Finding Using Markov Networks in Open Source Communities », in Advanced Information Systems Engineering, M. Jarke, J. Mylopoulos, C. Quix, C. Rolland, Y. Manolopoulos, H. Mouratidis, et J. Horkoff, Éd. Springer International Publishing, 2014, p. 196‑210.");
+			$paper->setDescription("M. Vergne and A. Susi, « Expert Finding Using Markov Networks in Open Source Communities », article in Advanced Information Systems Engineering, M. Jarke, J. Mylopoulos, C. Quix, C. Rolland, Y. Manolopoulos, H. Mouratidis, and J. Horkoff, Ed. Springer International Publishing, 2014, p. 196‑210.");
 			$paper->setDOI("10.1007/978-3-319-07881-6_14");
 			$paper->setPDF(Resource::getResource(3)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('EvoSoft-2014');
-			$paper->setDescription("A. J. Nebro, J. J. Durillo, et M. Vergne, « Redesigning the jMetal Multi-Objective Optimization Framework », in Companion Publication of the 2015 Annual Conference on Genetic and Evolutionary Computation, 2015, p. 1093‑1100.");
+			$paper->setDescription("A. J. Nebro, J. J. Durillo, and M. Vergne, « Redesigning the jMetal Multi-Objective Optimization Framework », article in Companion Publication of the 2015 Annual Conference on Genetic and Evolutionary Computation, 2015, p. 1093‑1100.");
 			$paper->setDOI("10.1145/2739482.2768462");
 			$paper->setPDF("http://dl.acm.org/authorize?N08507");
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('ER-2015');
-			$paper->setDescription("M. Vergne et A. Susi, « Breaking the Recursivity: Towards a Model to Analyse Expert Finders », in Conceptual Modeling, vol. 9381, P. Johannesson, M. L. Lee, S. W. Liddle, A. L. Opdahl, et Ó. P. López, Éd. Cham: Springer International Publishing, 2015, p. 539‑547.");
+			$paper->setDescription("M. Vergne and A. Susi, « Breaking the Recursivity: Towards a Model to Analyse Expert Finders », article in Conceptual Modeling, vol. 9381, P. Johannesson, M. L. Lee, S. W. Liddle, A. L. Opdahl, and Ó. P. López, Ed. Cham: Springer International Publishing, 2015, p. 539‑547.");
 			$paper->setDOI("10.1007/978-3-319-25264-3_40");
 			$paper->setPDF(Resource::getResource(4)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('arXiv-2016a');
-			$paper->setDescription("M. Vergne, « Gold Standard for Expert Ranking: A Survey on the XWiki Dataset », in arXiv.org, 2016.");
+			$paper->setDescription("M. Vergne, « Gold Standard for Expert Ranking: A Survey on the XWiki Dataset », technical report in arXiv.org, 2016.");
 			$paper->setURL("https://arxiv.org/abs/1603.03809");
 			$paper->setPDF("https://arxiv.org/pdf/1603.03809");
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('arXiv-2016b');
-			$paper->setDescription("M. Vergne, « Mitigation Procedures to Rank Experts through Information Retrieval Measures », in arXiv.org, 2016.");
+			$paper->setDescription("M. Vergne, « Mitigation Procedures to Rank Experts through Information Retrieval Measures », technical report in arXiv.org, 2016.");
 			$paper->setURL("https://arxiv.org/abs/1603.04953");
 			$paper->setPDF("https://arxiv.org/pdf/1603.04953");
 			Paper::$allPapers[] = $paper;
