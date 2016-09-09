@@ -37,6 +37,8 @@ class HomePage extends InternalPage {
 			"matthieu.vergne@alumni.unitn.it" => true,
 			
 			"matthieu.vergne@grenoble-inp.org" => true,
+			
+			"vergne@is.naist.jp" => true,
 		);
 		$list = "";
 		ksort($data, SORT_NATURAL | SORT_FLAG_CASE);
