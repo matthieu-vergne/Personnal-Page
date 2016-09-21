@@ -49,6 +49,12 @@ class PapersPage extends InternalPage {
 				// no PDF
 			}
 			
+			if ($paper->getSlides() != null) {
+				$links .= "<a class='slides' href='".$paper->getSlides()."'><img src='https://upload.wikimedia.org/wikipedia/commons/0/07/X-office-presentation.svg' alt='Slides' title='Slides'></img></a>";
+			} else {
+				// no slides
+			}
+			
 			$counter++;
 			$row = "<td class='counter'>[".$counter."]</td>";
 			$row .= "<td>".$paper->getDescription()."<br/><span class='links'>".$links."</span></td>";
