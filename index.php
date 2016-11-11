@@ -39,6 +39,15 @@ if ($url->hasQueryVar('redirect')) {
 		<meta charset="utf-8">
 		<meta name="description" content="Matthieu's personal page">
 		<meta name="keywords" content="Matthieu Vergne, personal homepage">
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({
+				TeX: {
+					extensions: ["color.js"],
+					equationNumbers: { autoNumber: "AMS" },
+				}
+			});
+		</script>
+		<script language="JavaScript" type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		<?php
 			if (TEST_MODE_ACTIVATED) {
