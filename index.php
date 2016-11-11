@@ -69,7 +69,6 @@ if ($url->hasQueryVar('redirect')) {
 		</header>
 		<nav>
 			<?php
-				$url = Url::getCurrentUrl();
 				$displayedPage = Page::getDisplayedPage();
 				foreach(Page::getAvailablePages() as $page) {
 					if ($page instanceOf ExternalPage) {
