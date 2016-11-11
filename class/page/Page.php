@@ -13,6 +13,17 @@ abstract class Page {
 				continue;
 			}
 		}
+		
+		usort($pages, function(Page $a, Page $b) {
+			if (strcmp($a->getId(), Page::getDefaultPageId()) == 0) {
+				return -1;
+			} else if (strcmp($b->getId(), Page::getDefaultPageId()) == 0) {
+				return 1;
+			} else {
+				return strcmp($a->getMenuTitle(), $b->getMenuTitle());
+			}
+		});
+		
 		return $pages;
 	}
 	
