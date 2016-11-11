@@ -86,6 +86,7 @@ if ($url->hasQueryVar('redirect')) {
 					} else {
 						$url = Url::getCurrentUrl();
 						$url->setQueryVar('page', $page->getId());
+						$url->removeQueryVar('entry');
 						echo '<a '.($displayedPage == $page ? 'class="selected"' : '').' href="'.$url.'">'.$page->getMenuTitle().'</a>';
 					}
 				}
