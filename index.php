@@ -75,7 +75,7 @@ if ($url->hasQueryVar('redirect')) {
 						$url = new Url($page->getUrl());
 						echo '<a href="'.$url.'"><span style="background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAVklEQVR4Xn3PgQkAMQhDUXfqTu7kTtkpd5RA8AInfArtQ2iRXFWT2QedAfttj2FsPIOE1eCOlEuoWWjgzYaB/IkeGOrxXhqB+uA9Bfcm0lAZuh+YIeAD+cAqSz4kCMUAAAAASUVORK5CYII=) center right no-repeat;padding-right: 13px;">'.$page->getMenuTitle().'</span></a>';
 					} else {
-						$url = new Url();
+						$url = Url::getCurrentUrl();
 						$url->setQueryVar('page', $page->getId());
 						echo '<a '.($displayedPage == $page ? 'class="selected"' : '').' href="'.$url.'">'.$page->getMenuTitle().'</a>';
 					}
