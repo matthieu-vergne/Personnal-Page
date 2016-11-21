@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body>
+<h1>Can we use accuracy with unbalanced datasets?</h1>
+
+<h2><a name="context">Context</a></h2>
+
+<p>We start from the <a href="https://en.wikipedia.org/wiki/Confusion_matrix">confusion matrix</a> in binary classification:</p>
+<center>
+<table>
+	<tr>
+		<td style="border-style: none;" colspan=2 rowspan=2></td>
+		<td colspan=2>Actual</td>
+	</tr>
+	<tr>
+		<td>Positive<br/>\(p = tp + fn\)</td>
+		<td>Negative<br/>\(n = fp + tn\)</td>
+	</tr>
+	<tr>
+		<td rowspan=2>Predicted</td>
+		<td>Positive<br/>\(p' = tp + fp\)</td>
+		<td style="background-color: LightGreen;">\(tp\)</td>
+		<td style="background-color: LightCoral;">\(fp\)</td>
+	</tr>
+	<tr>
+		<td>Negative<br/>\(n' = fn + tn\)</td>
+		<td style="background-color: LightCoral;">\(fn\)</td>
+		<td style="background-color: LightGreen;">\(tn\)</td>
+	</tr>
+</table>
+</center>
+
+<p>In this situation, accuracy corresponds to the number of correct results divided by the total number of elements in the dataset:</p>
+\[
+ACC = \frac{tp+tn}{p+n}
+\]
+
+<p>As such, accuracy provides a nice measure because it allows to express a percentage of correct results. But it is known to be unreliable when the dataset is unbalanced. For example, one can produce a classifier which predicts only positive elements. Such a classifier would be correct for all the positive elements and wrong for all the negative ones:</p>
+<center>
+<table>
+	<tr>
+		<td style="border-style: none;"></td>
+		<td style="border-style: none;"></td>
+		<td colspan=2>Actual</td>
+	</tr>
+	<tr>
+		<td style="border-style: none;"></td>
+		<td style="border-style: none;"></td>
+		<td>Positive</td>
+		<td>Negative</td>
+	</tr>
+	<tr>
+		<td rowspan=2>Predicted</td>
+		<td>Positive</td>
+		<td style="background-color: LightGreen;">\(p\)</td>
+		<td style="background-color: LightCoral;">\(n\)</td>
+	</tr>
+	<tr>
+		<td>Negative</td>
+		<td style="background-color: LightCoral;">\(0\)</td>
+		<td style="background-color: LightGreen;">\(0\)</td>
+	</tr>
+</table>
+</center>
+
+<p>This is generally not considered to be a good classifier given the obvious bias towards positive elements. In such a condition, the accuracy formula becomes \(ACC = \frac{p}{p+n}\). The problem arises when the number of positive elements in the dataset far exceeds the number of negative elements, so \(p \gg n\), in which case the formula becomes \(ACC \approx \frac{p}{p} = 1\). Thus, if the dataset has many more positive elements, this biased classifier is able to achieve a high accuracy, and thus appear as a really good classifier despite its obvious bias. Similarly, with a dataset having much more negative elements than positive elements, a classifier predicting only negative elements can also achieve a high accuracy. This is what we call the <a href="https://en.wikipedia.org/wiki/Accuracy_paradox">accuracy paradox</a>.</p>
+
+<h2><a name="question">Question</a></h2>
+
+Can accuracy be designed to fit well with unbalanced datasets?
+
+<h2><a name="method">Method</a></h2>
+
+<p>To answer this question, we start by considering that this measure is suited for balanced datasets. In other words, when half of the dataset is made of positive elements and the other half of negative elements, accuracy can be used to evaluate the ratio of correct results. Because the problem arises when this balance in the dataset is broken, we can assume that the initial formula is a particular case (balanced dataset only) of a more generic one (any dataset). Our objective is then to generalise this formula</p>
+
+<p>First, because the problem arises from the indifference between positive and negative cases, we separate them:</p>
+\[\begin{align*}
+ACC = & \frac{tp+tn}{p+n}\\
+    = & \frac{tp}{p+n} + \frac{tn}{p+n}\\
+    = & \frac{p}{p+n} \frac{tp}{p} + \frac{n}{p+n} \frac{tn}{n}\\
+    = & \frac{p}{p+n} \frac{tp}{p} + \frac{n+p-p}{p+n} \frac{tn}{n}\\
+    = & \frac{p}{p+n} \frac{tp}{p} + \left(\frac{p+n}{p+n} - \frac{p}{p+n}\right) \frac{tn}{n}\\
+ACC = & \alpha \frac{tp}{p} + \left(1 - \alpha\right) \frac{tn}{n} & \left(\alpha = \frac{p}{p+n}\right)\\
+\end{align*}\]
+
+<p>Now, we have three elements:</p>
+<ul>
+<li>the ratio of correct positive results \(\frac{tp}{p}\)</li>
+<li>the ratio of correct negative results \(\frac{tn}{n}\)</li>
+<li>a weighting policy applied through \(\alpha\)</li>
+</ul>
+
+<p>This shape still allows to speak clearly about an accuracy: the two first elements are clearly percentages of correct results, each on its own category, and the third element just applies a weighting policy. Thus, the unit is preserved and the final result is again a percentage of correct results, but this time on the overall dataset.</p>
+
+<p>We see now that the current accuracy formula considers both positive and negative ratios, but applies to them a weight depending on the composition of the dataset: if it is balanced (\(p = n\)) then:</p>
+\[\begin{align*}
+\alpha = & \frac{p}{p+n}\\
+       = & \frac{p}{p+p}\\
+\alpha = & \frac{1}{2}\\
+\end{align*}\]
+
+<p>This is why the current formula is nice for balanced datasets: the weight of the positive elements (\(\alpha\)) is \(\frac{1}{2}\), while the weight for negative elements (\(1-\alpha\)) is also \(\frac{1}{2}\). Both are considered equally, which makes it unbiased. However, if \(p \gg n\), we obtain:</p>
+\[\begin{align*}
+\alpha       = & \frac{p}{p+n}\\
+       \approx & \frac{p}{p}\\
+\alpha \approx & 1\\
+\end{align*}\]
+
+<p>Thus, we consider almost only the positive elements (\(\alpha \approx 1\)), while we almost ignore negative ones (\(1-\alpha \approx 0\)). Similarly, if \(n \gg p\), then \(\alpha \approx 0\) while \(1-\alpha \approx 1\), leading to consider mainly negative elements while ignoring positive ones.</p>
+
+<p>To ensure a good balance between both, one needs to fix the weight such that it remains balanced, which means considering only \(\alpha = \frac{1}{2}\). In such a case, the formula becomes:</p>
+\[\begin{align*}
+ACC = & \frac{1}{2} \frac{tp}{p} + \left(1 - \frac{1}{2}\right) \frac{tn}{n}\\
+    = & \frac{1}{2} \frac{tp}{p} + \frac{1}{2} \frac{tn}{n}\\
+ACC = & \frac{\frac{tp}{p} + \frac{tn}{n}}{2}\\
+\end{align*}\]
+
+<p>In other words, a simple balanced average between the two ratios is the way to compute an unbiased accuracy. Indeed, if we use a classifier predicting only positive elements, we obtain:</p>
+\[\begin{align*}
+ACC = & \frac{\frac{tp}{p} + \frac{tn}{n}}{2}\\
+    = & \frac{\frac{p}{p} + \frac{0}{n}}{2}\\
+    = & \frac{1 + 0}{2}\\
+ACC = & \frac{1}{2}\\
+\end{align*}\]
+
+<p>This result is independent from the dataset configuration: if only postive elements are predicted, the classifier achieves an accuracy of \(\frac{1}{2}\). Same thing if the classifier predicts only negative elements. One may argue that \(\frac{1}{2}\) is still a high value for a classifier which is obviously biased. But if we consider random values, such that half of the elements are predicted as positive and the other half as negative, we obtain:</p>
+\[\begin{align*}
+ACC = & \frac{\frac{tp}{p} + \frac{tn}{n}}{2}\\
+    = & \frac{\frac{p/2}{p} + \frac{n/2}{n}}{2}\\
+    = & \frac{\frac{p}{2p} + \frac{n}{2n}}{2}\\
+    = & \frac{\frac{1}{2} + \frac{1}{2}}{2}\\
+ACC = & \frac{1}{2}\\
+\end{align*}\]
+
+<p>In other words, \(\frac{1}{2}\) is a limit which shows that we perform no better than a random classifier.</p>
+
+<p>It is possible to obtain a value below this limit by using a reversed classifier. In particular, if the classifier is always wrong, so all predictions are false positives (\(fp\)) and false negatives (\(fn\)), then:</p>
+\[\begin{align*}
+ACC = & \frac{\frac{tp}{p} + \frac{tn}{n}}{2}\\
+    = & \frac{\frac{0}{p} + \frac{0}{n}}{2}\\
+    = & \frac{0 + 0}{2}\\
+ACC = & 0\\
+\end{align*}\]
+
+<p>So if a perfect classifier would have an accuracy of 1, a classifier which is always wrong has an accuracy of 0. In this condition, it makes sense to have an uninformative classifier (whether it is random or biased) with an accuracy of \(\frac{1}{2}\).</p>
+
+<h2><a name="answer">Answer</a></h2>
+
+<p>Accuracy can be designed to fit well with unbalanced datasets. All we need is to separate ratios of positive and negative predictions and give them the same weight, instead of a dataset-dependent weight:</p>
+\[
+ACC = \alpha \frac{tp}{p} + \left(1 - \alpha\right) \frac{tn}{n} \quad \text{ with } \alpha = \frac{1}{2}
+\]
+<p>Meanwhile, it is worth noting that it can be rewritten in terms of recall (\(R = \frac{tp}{p}\)) and specificity (\(S = \frac{tn}{n}\)), which are both used in <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC curves</a>, as:</p>
+\[
+ACC = \alpha R + \left(1 - \alpha\right) S
+\]
+<p>Additionally, if using a common weight \(\alpha = \frac{1}{2}\) allows to get a balanced accuracy, one can also use a different weighting policy to increase the impact of the most interesting aspect. For example, one can favor the identification of rare true positives by giving a higher weight to the ratio of positive elements (i.e. a measure closer to a pure recall). But from my point of view, it seems more interesting to use a balanced accuracy (\(\alpha = \frac{1}{2}\)) in the general case and use a dedicated measure (e.g. recall or specificity) when we want to focus on a specific aspect. At least, we avoid the need to arbitrarily tweak the weight \(\alpha\).</p>
+<h2><a name="links">Related Questions</a></h2>
+
+&lt;None yet&gt;
+</body>
+</html>

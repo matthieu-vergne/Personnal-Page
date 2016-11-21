@@ -35,7 +35,13 @@ class BlogPage extends InternalPage {
 				return "<div id='blog'>$content</div>";
 			}
 		} else {
-			$content = '<p>Coming soon.</p>';
+			$content = '<p>For the moment, this blog is mainly a place where I centralize questions of interest to me. Some might have proved answers, others not, some might be already published, others not. I will see later if some structure would be helpful, but for now each blog entry is expected to focus on a single question and to link to other entries focusing on related questions, a bit like Wikipedia but with question-driven links.</p>
+			
+			<p>Questions of interest:</p>
+			<ul>
+			<li><a href="entry:0">Can we use accuracy with unbalanced datasets?</a></li>
+			</ul>';
+			$content = $this->expandEntryLinks($content);
 			return $content;
 		}
 	}
