@@ -35,7 +35,7 @@ if ($url->hasQueryVar('redirect')) {
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Matthieu's Homepage</title>
+		<title>Matthieu Vergne's Homepage</title>
 		<meta charset="utf-8">
 		<meta name="description" content="Matthieu's personal page">
 		<meta name="keywords" content="Matthieu Vergne, personal homepage">
@@ -73,8 +73,7 @@ if ($url->hasQueryVar('redirect')) {
 			}
 		?>
 		<header>
-			<h1>Matthieu Vergne</h1>
-			<h2>Personal Homepage</h2>
+			<h1>Matthieu Vergne's Homepage</h1>
 		</header>
 		<nav>
 			<?php
