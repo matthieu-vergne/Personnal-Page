@@ -102,6 +102,25 @@ article div#lastUpdateTime {
 	height: 1.5em;
 }
 
+#blog h1 {
+	text-align: center;
+	text-transform: capitalize;
+}
+
+#blog h2 {
+	text-transform: capitalize;
+}
+
+#blog table {
+	border-collapse: collapse;
+}
+
+#blog td {
+	border: 1px solid black;
+	padding: 0.5em;
+	text-align: center;
+}
+
 /*********************************\
             COPYRIGHT
 \*********************************/
