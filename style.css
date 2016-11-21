@@ -121,6 +121,10 @@ article div#lastUpdateTime {
 	text-align: center;
 }
 
+#blog p {
+	text-align: justify;
+}
+
 /*********************************\
             COPYRIGHT
 \*********************************/
