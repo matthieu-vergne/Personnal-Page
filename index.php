@@ -47,7 +47,7 @@ if ($url->hasQueryVar('redirect')) {
 				}
 			});
 		</script>
-		<script language="JavaScript" type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+		<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		<?php
 			if (TEST_MODE_ACTIVATED) {
