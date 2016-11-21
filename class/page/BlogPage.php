@@ -44,6 +44,15 @@ class BlogPage extends InternalPage {
 		}
 	}
 	
+	public function getLastUpdateTime() {
+		$file = $this->getCurrentEntryFile();
+		if ($file === null) {
+			return parent::getLastUpdateTime();
+		} else {
+			return filemtime($file);
+		}
+	}
+	
 	private function getCurrentEntryFile() {
 		$url = Url::getCurrentUrl();
 		$entry = $url->hasQueryVar('entry') ? $url->getQueryVar('entry') : null;
