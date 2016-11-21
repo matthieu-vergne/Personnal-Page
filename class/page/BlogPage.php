@@ -31,6 +31,7 @@ class BlogPage extends InternalPage {
 			} else {
 				$content = substr($content, $start+6, $stop-$start-6);
 				$content = $this->expandEntryLinks($content);
+				Website::setTitle(preg_replace("#(.*<h1>)|(</h1>.*)#is", "", $content));
 				return "<div id='blog'>$content</div>";
 			}
 		} else {
