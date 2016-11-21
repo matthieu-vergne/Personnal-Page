@@ -99,5 +99,15 @@ if ($url->hasQueryVar('redirect')) {
 			echo '</article>';
 		?>
 		<footer><?php require_once("copyright.php"); ?></footer>
+		<script language="JavaScript" type="text/javascript">
+			<?php
+				// TODO replace this a poteriori modification (Javascript) by an a priori one (generate correct title from the start).
+				$data = array(
+						'title' => Website::hasTitle() ? " -- ".Website::getTitle() : ""
+				);
+			?>
+			var phpData = <?php echo json_encode($data) ?>;
+			document.title = document.title + phpData.title;
+		</script>
 	</body>
 </html>
