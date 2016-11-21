@@ -19,15 +19,13 @@ class BlogPage extends InternalPage {
 	}
 	
 	public function getContent() {
-		$url = Url::getCurrentUrl();
-		$entry = $url->hasQueryVar('entry') ? $url->getQueryVar('entry') : null;
-		$path = "blog/$entry.html";
-		if ($entry != null && file_exists($path)) {
+		$path = $this->getCurrentEntryFile();
+		if ($path != null && file_exists($path)) {
 			$content = file_get_contents($path);
 			$start = strpos($content, "<body>");
 			$stop = strpos($content, "</body>");
 			if ($start === false || $stop === false) {
-				throw new Exception("Impossible to get the content of blog entry ".$entry);
+				throw new Exception("Impossible to get the content of blog entry ".$path);
 			} else {
 				$content = substr($content, $start+6, $stop-$start-6);
 				$content = $this->expandEntryLinks($content);
@@ -43,6 +41,16 @@ class BlogPage extends InternalPage {
 			</ul>';
 			$content = $this->expandEntryLinks($content);
 			return $content;
+		}
+	}
+	
+	private function getCurrentEntryFile() {
+		$url = Url::getCurrentUrl();
+		$entry = $url->hasQueryVar('entry') ? $url->getQueryVar('entry') : null;
+		if ($entry === null) {
+			return null;
+		} else {
+			return "blog/$entry.html";
 		}
 	}
 }
