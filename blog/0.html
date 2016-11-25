@@ -164,7 +164,8 @@ ACC = & 0\\
 \[
 ACC = \alpha \frac{tp}{p} + \left(1 - \alpha\right) \frac{tn}{n} \quad \text{ with } \alpha = \frac{1}{2}
 \]
-<p>Meanwhile, it is worth noting that it can be rewritten in terms of recall (\(R = \frac{tp}{p}\)) and specificity (\(S = \frac{tn}{n}\)), which are both used in <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC curves</a>, as:</p>
+
+<p>I don't know any publication about this formula, which we may call weighted accuracy, but it is shortly mentionned in <a href="#BrodersenOngStephanBuhmann2010">(Brodersen et al., 2010)</a> who focus on the <q cite="#BrodersenOngStephanBuhmann2010">balanced accuracy</q> (when \(\alpha = \frac{1}{2}\)). Meanwhile, it is worth noting that it can be rewritten in terms of recall (\(R = \frac{tp}{p}\)) and specificity (\(S = \frac{tn}{n}\)), which are both used in <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC curves</a>, as:</p>
 \[
 ACC = \alpha R + \left(1 - \alpha\right) S
 \]
@@ -172,5 +173,12 @@ ACC = \alpha R + \left(1 - \alpha\right) S
 <h2 id="links">Related Questions</h2>
 
 &lt;None yet&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="BrodersenOngStephanBuhmann2010">Brodersen, Kay Henning, Cheng Soon Ong, Klaas Enno Stephan, and Joachim M. Buhmann. <cite>The Balanced Accuracy and Its Posterior Distribution</cite>, 3121–24. IEEE, <time datetime="2010">2010</time>. doi:<a href="https://dx.doi.org/10.1109/ICPR.2010.764">10.1109/ICPR.2010.764</a></li>
+</ul>
+
 </body>
 </html>
