@@ -17,7 +17,7 @@
 <body id="blog">
 <h1>Can we use accuracy with unbalanced datasets?</h1>
 
-<h2><a name="context">Context</a></h2>
+<h2 id="context">Context</h2>
 
 <p>We start from the <a href="https://en.wikipedia.org/wiki/Confusion_matrix">confusion matrix</a> in binary classification:</p>
 <center>
@@ -79,11 +79,11 @@ ACC = \frac{tp+tn}{p+n}
 
 <p>This is generally not considered to be a good classifier given the obvious bias towards positive elements. In such a condition, the accuracy formula becomes \(ACC = \frac{p}{p+n}\). The problem arises when the number of positive elements in the dataset far exceeds the number of negative elements, so \(p \gg n\), in which case the formula becomes \(ACC \approx \frac{p}{p} = 1\). Thus, if the dataset has many more positive elements, this biased classifier is able to achieve a high accuracy, and thus appear as a really good classifier despite its obvious bias. Similarly, with a dataset having much more negative elements than positive elements, a classifier predicting only negative elements can also achieve a high accuracy. This is what we call the <a href="https://en.wikipedia.org/wiki/Accuracy_paradox">accuracy paradox</a>.</p>
 
-<h2><a name="question">Question</a></h2>
+<h2 id="question">Question</h2>
 
 Can accuracy be designed to fit well with unbalanced datasets?
 
-<h2><a name="method">Method</a></h2>
+<h2 id="method">Method</h2>
 
 <p>To answer this question, we start by considering that this measure is suited for balanced datasets. In other words, when half of the dataset is made of positive elements and the other half of negative elements, accuracy can be used to evaluate the ratio of correct results. Because the problem arises when this balance in the dataset is broken, we can assume that the initial formula is a particular case (balanced dataset only) of a more generic one (any dataset). Our objective is then to generalise this formula.</p>
 
@@ -158,7 +158,7 @@ ACC = & 0\\
 
 <p>So if a perfect classifier would have an accuracy of 1, a classifier which is always wrong has an accuracy of 0. In this condition, it makes sense to have an uninformative classifier (whether it is random or biased) with an accuracy of \(\frac{1}{2}\).</p>
 
-<h2><a name="answer">Answer</a></h2>
+<h2 id="answer">Answer</h2>
 
 <p>Accuracy can be designed to fit well with unbalanced datasets. All we need is to separate ratios of positive and negative predictions and give them the same weight, instead of a dataset-dependent weight:</p>
 \[
@@ -169,7 +169,7 @@ ACC = \alpha \frac{tp}{p} + \left(1 - \alpha\right) \frac{tn}{n} \quad \text{ wi
 ACC = \alpha R + \left(1 - \alpha\right) S
 \]
 <p>Additionally, if using a common weight \(\alpha = \frac{1}{2}\) allows to get a balanced accuracy, one can also use a different weighting policy to increase the impact of the most interesting aspect. For example, one can favor the identification of rare true positives by giving a higher weight to the ratio of positive elements (i.e. a measure closer to a pure recall). But from my point of view, it seems more interesting to use a balanced accuracy (\(\alpha = \frac{1}{2}\)) in the general case and use a dedicated measure (e.g. recall or specificity) when we want to focus on a specific aspect. At least, we avoid the need to arbitrarily tweak the weight \(\alpha\).</p>
-<h2><a name="links">Related Questions</a></h2>
+<h2 id="links">Related Questions</h2>
 
 &lt;None yet&gt;
 </body>
