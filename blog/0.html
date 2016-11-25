@@ -169,7 +169,8 @@ ACC = \alpha \frac{tp}{p} + \left(1 - \alpha\right) \frac{tn}{n} \quad \text{ wi
 \[
 ACC = \alpha R + \left(1 - \alpha\right) S
 \]
-<p>Additionally, if using a common weight \(\alpha = \frac{1}{2}\) allows to get a balanced accuracy, one can also use a different weighting policy to increase the impact of the most interesting aspect. For example, one can favor the identification of rare true positives by giving a higher weight to the ratio of positive elements (i.e. a measure closer to a pure recall). But from my point of view, it seems more interesting to use a balanced accuracy (\(\alpha = \frac{1}{2}\)) in the general case and use a dedicated measure (e.g. recall or specificity) when we want to focus on a specific aspect. At least, we avoid the need to arbitrarily tweak the weight \(\alpha\).</p>
+<p>Additionally, if using a common weight \(\alpha = \frac{1}{2}\) allows to get a balanced accuracy, one can also use a different weighting policy to increase the impact of the most interesting aspect. For example, one can favor the identification of rare true positives by giving a higher weight to the ratio of positive elements (i.e. a measure closer to a pure recall). But from my point of view, it seems more interesting to use a balanced accuracy in the general case and use a dedicated measure (e.g. recall or specificity) when we want to focus on a specific aspect. At least, we avoid the need to arbitrarily tweak the weight \(\alpha\).</p>
+
 <h2 id="links">Related Questions</h2>
 
 &lt;None yet&gt;
