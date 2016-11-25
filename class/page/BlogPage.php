@@ -22,12 +22,12 @@ class BlogPage extends InternalPage {
 		$path = $this->getCurrentEntryFile();
 		if ($path != null && file_exists($path)) {
 			$content = file_get_contents($path);
-			$start = strpos($content, "<body>");
+			$start = strpos($content, "<body");
 			$stop = strpos($content, "</body>");
 			if ($start === false || $stop === false) {
 				throw new Exception("Impossible to get the content of blog entry ".$path);
 			} else {
-				$content = substr($content, $start+6, $stop-$start-6);
+				$content = preg_replace("#.*<body[^>]*>(.*)</body>.*#is", "$1", $content);
 				$content = $this->expandEntryLinks($content);
 				Website::setTitle(preg_replace("#(.*<h1>)|(</h1>.*)#is", "", $content));
 				return "<div id='blog'>$content</div>";
