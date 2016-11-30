@@ -10,6 +10,13 @@ div {
 	padding: 0;
 }
 
+/* For mobile phones: */
+@media only screen and (max-width: 500px) {
+body {
+	margin: 0;
+	padding: 0;
+}
+}
 /*********************************\
               HEADER
 \*********************************/
@@ -18,6 +25,20 @@ header {
 	text-align: center;
 }
 
+
+/* For mobile phones: */
+@media only screen and (max-width: 500px) {
+header {
+	width: 100%;
+	position: fixed;
+	margin: 0;
+	z-index: 100;
+}
+header h1 {
+	margin: 0;
+	font-size: 150%;
+}
+}
 /*********************************\
               MENU
 \*********************************/
@@ -42,6 +63,23 @@ nav a.selected {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffff00', endColorstr='#00ffff00',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
 
+/* For mobile phones: */
+@media only screen and (max-width: 500px) {
+nav {
+    width: 100%;
+	background-color: white;
+	margin: 0;
+	padding-top: 2em;
+	padding-bottom: 0.5em;
+	z-index: 99;
+}
+nav a {
+	display: inline-block;
+	width: 25%;
+	text-transform: uppercase;
+	font-weight: bold;
+}
+}
 /*********************************\
               CONTENT
 \*********************************/
@@ -57,6 +95,18 @@ article div#lastUpdateTime {
 	right: 1em;
 	font-size: 75%;
 	color: gray;
+}
+
+/* For mobile phones: */
+@media only screen and (max-width: 500px) {
+article {
+    width: 100%;
+	margin-top: 4em;
+}
+article div#lastUpdateTime {
+	display: none;
+	visibility: hidden;
+}
 }
 
 #home p {
@@ -88,6 +138,16 @@ article div#lastUpdateTime {
 	margin-left: 1em;
 	margin-bottom: 1em;
 	margin-top: 1.5em;
+}
+
+/* For mobile phones: */
+@media only screen and (max-width: 500px) {
+#home #photo {
+	float: none;
+	max-width: 50%;
+	min-width: 50%;
+	margin: 0;
+}
 }
 
 #papers .external {
@@ -159,4 +219,21 @@ footer p {
 
 footer img {
 	vertical-align: middle;
+}
+
+@media only screen and (max-width: 500px) {
+footer * {
+	display: none;
+	visibility: hidden;
+}
+footer a {
+	display: inline-block;
+	visibility: visible;
+	width: 100%;
+	text-align: right;
+}
+footer img {
+	display: inline-block;
+	visibility: visible;
+}
 }
