@@ -39,6 +39,7 @@ if ($url->hasQueryVar('redirect')) {
 		<meta charset="utf-8">
 		<meta name="description" content="Matthieu's personal page">
 		<meta name="keywords" content="Matthieu Vergne, personal homepage">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 		<script type="text/x-mathjax-config">
 			MathJax.Hub.Config({
 				TeX: {
