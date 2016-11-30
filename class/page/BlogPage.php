@@ -18,6 +18,23 @@ class BlogPage extends InternalPage {
 		return $content;
 	}
 	
+	private function expandLocalLinks($content) {
+		$content = preg_replace_callback('/(src|href)="([^"?#]+)([?#][^"]*)?"/', function($matches) {
+			$tag = $matches[1];
+			$url = $matches[2];
+			$localUrl = "blog/".$url;
+			if (file_exists($localUrl)) {
+				$url = $localUrl;
+			} else {
+				// keep current URL
+			}
+			$query = isset($matches[3]) ? $matches[3] : "";
+			return $tag.'="'.$url.$query.'"';
+		}, $content);
+		
+		return $content;
+	}
+	
 	public function getContent() {
 		$path = $this->getCurrentEntryFile();
 		if ($path != null && file_exists($path)) {
@@ -29,6 +46,7 @@ class BlogPage extends InternalPage {
 			} else {
 				$content = preg_replace("#.*<body[^>]*>(.*)</body>.*#is", "$1", $content);
 				$content = $this->expandEntryLinks($content);
+				$content = $this->expandLocalLinks($content);
 				Website::setTitle(preg_replace("#(.*<h1>)|(</h1>.*)#is", "", $content));
 				return "<div id='blog'>$content</div>";
 			}
