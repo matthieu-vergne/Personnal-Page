@@ -225,15 +225,14 @@ footer img {
 footer * {
 	display: none;
 	visibility: hidden;
+	font-size: 0;
 }
 footer a {
-	display: inline-block;
+	display: initial;
 	visibility: visible;
-	width: 100%;
-	text-align: right;
 }
 footer img {
-	display: inline-block;
+	display: initial;
 	visibility: visible;
 }
 }
