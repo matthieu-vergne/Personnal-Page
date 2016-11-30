@@ -12,7 +12,7 @@ class HomePage extends InternalPage {
 		$content = "";
 		
 		$url = Resource::getResource(0)->getFileUrl();
-		$content .= "<img src='$url' alt='Photo' style='float: right; max-width: 15%; margin-left: 1em; margin-bottom: 1em; margin-top: 1.5em;'/>";
+		$content .= "<img src='$url' alt='Photo' id='photo'/>";
 		
 		$content .= "<h1>Contact Information</h1>";
 		$data = array(

@@ -81,6 +81,15 @@ article div#lastUpdateTime {
 	margin-top: -0.5em;
 }
 
+#home #photo {
+	float: right;
+	max-width: 15%;
+	min-width: 100px;
+	margin-left: 1em;
+	margin-bottom: 1em;
+	margin-top: 1.5em;
+}
+
 #papers .external {
 	display: inline-block;
 	margin: 0.5em;
