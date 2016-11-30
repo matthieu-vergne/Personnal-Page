@@ -171,6 +171,13 @@ ACC = \alpha R + \left(1 - \alpha\right) S
 \]
 <p>Additionally, if using a common weight \(\alpha = \frac{1}{2}\) allows to get a balanced accuracy, one can also use a different weighting policy to increase the impact of the most interesting aspect. For example, one can favor the identification of rare true positives by giving a higher weight to the ratio of positive elements (i.e. a measure closer to a pure recall). But from my point of view, it seems more interesting to use a balanced accuracy in the general case and use a dedicated measure (e.g. recall or specificity) when we want to focus on a specific aspect. At least, we avoid the need to arbitrarily tweak the weight \(\alpha\).</p>
 
+<p>Moreover, if we generalize further by considering accuracy as an average over \(\frac{tp}{p}\) and \(\frac{tn}{n}\), then the current formula, with \(\alpha = \frac{1}{2}\), is an arithmetic average. It is then possible to imagine a geometric average \(ACC_g = \sqrt{\frac{tp}{p} \times \frac{tn}{n}}\). As shown by the figures below, if the former considers fully biased classifiers like uninformative ones (\(ACC = \frac{1}{2}\)), the latter considers them to be wrong (\(ACC_g = 0\)).</p>
+<center>
+<img src="0-arith.png" style="max-width:40%;min-width:300px" />
+<span style="display:inline-block;width:10%"></span>
+<img src="0-geo.png" style="max-width:40%;min-width:300px" />
+</center>
+
 <h2 id="links">Related Questions</h2>
 
 &lt;None yet&gt;
