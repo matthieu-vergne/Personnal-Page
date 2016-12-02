@@ -29,15 +29,19 @@ class HomePage extends InternalPage {
 		
 		$content .= "<p>You can contact me through my principal e-mail ".Format::toHtmlEmail("matthieu.vergne@gmail.com").". Other e-mails can be used, but they may be obsolete, so pay attention:</p>";
 		$data = array(
+			// FBK
 			"vergne@fbk.eu" => true,
 			
+			// UNITN
 			"matthieu.vergne@unitn.it" => false,
 			"matthieu.vergne@studenti.unitn.it" => false,
 			"matthieu.vergne@ex-studenti.unitn.it" => false,
 			"matthieu.vergne@alumni.unitn.it" => true,
 			
+			// G-INP
 			"matthieu.vergne@grenoble-inp.org" => true,
 			
+			// NAIST
 			"vergne@is.naist.jp" => true,
 		);
 		$list = "";
