@@ -196,6 +196,14 @@ article div#lastUpdateTime {
 	text-align: justify;
 }
 
+#teaching tr:hover td {
+	background-color: #AFF;
+}
+
+#teaching td {
+	text-align: center;
+}
+
 /*********************************\
             COPYRIGHT
 \*********************************/
