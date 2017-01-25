@@ -26,7 +26,7 @@ class TeachingPage extends InternalPage {
 		$content .= "<tr>";
 		$content .= "<td><time datetime='2015-03-24'>2015-03-24</time></td>";
 		$content .= "<td>University of Trento</td>";
-		$content .= "<td><a href='http://ict.unitn.it/program/exams/courses/30023-requirements-engineering'>Requirements Engineering</a><br\>(by Anna Perini)</td>";
+		$content .= "<td><a href='http://ict.unitn.it/program/exams/courses/30023-requirements-engineering'>Requirements Engineering</a><br/>(by Anna Perini)</td>";
 		$content .= "<td><a href='$slidesUrl'>IBM® Rational® DOORS®</a></td>";
 		$content .= "</tr>";
 		
@@ -34,7 +34,7 @@ class TeachingPage extends InternalPage {
 		$content .= "<tr>";
 		$content .= "<td><time datetime='2014-05-22'>2014-05-22</time></td>";
 		$content .= "<td>University of Trento</td>";
-		$content .= "<td><a href='http://ict.unitn.it/program/exams/courses/29022-requirements-engineering'>Requirements Engineering</a><br\>(by Anna Perini)</td>";
+		$content .= "<td><a href='http://ict.unitn.it/program/exams/courses/29022-requirements-engineering'>Requirements Engineering</a><br/>(by Anna Perini)</td>";
 		$content .= "<td><a href='$slidesUrl'>Stakeholders Prioritization</a></td>";
 		$content .= "</tr>";
 		
