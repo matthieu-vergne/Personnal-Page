@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+<body id="blog">
+<h1>How to solve an exponential equation (\(y=e^{ax+b}+c\))?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+When speaking about equation solving, most would think about solving linear equations of the form \(y=ax+b\), which has known variables (\(x\) and \(y\)) and unknown variables (\(a\) and \(b\)), or more complex polynoms like \(y=\sum_{i=0}^{n} a_ix^i\), with \(n+1\) unknown variables to find (\(a_0\) to \(a_n\)).
+For such situations, where the equation can be expressed as a polynom, we already have great tools, but polynoms are not adapted to represent all phenomena.
+Although we can try to solve approximately non-polynomial functions by assuming a polynomial form (i.e. polynomial interpolation), some issues may arise, like the ability to fit perfectly the available data despite a rather chaotic curve.
+In this case, one may prefer to solve a non-polynomial function which is assumed to represent better the shape of the phenomenon one wants to model.
+The exponential function is one of them.
+</p>
+
+<p>
+Another aspect of equation solving is whether we solve it empirically or analytically.
+Solving an equation empirically means applying some kind of iterative methods, starting from a rough guess of the unknown variables and refining them until we find a solution which satisfies more or less the equations.
+It is particularly suited for real data, where exact fit is infeasible because of random noise, and it can be done rather efficiently with many tools and for many kinds of functions.
+However, in the case where we deal with mathematical artifacts, like for computer-based calculation, an exact fit may be found and, although the empirical resolution may work, the only way to guarantee the exactitude is to make an analytical resolution, which is what we focus on here.
+</p>
+
+<p>
+For an exponential function, many shapes can be considered, but here we work on the function \(y=e^{ax+b}+c\).
+Other shapes, like \(y=e^{ax}\) or \(y=e^{x+b}\) are obviously just specific cases of this form.
+One may want to solve equations where \(x\) is out of the exponential, like \(y=e^a+bx\), but then it becomes a polynomial function, so it is not what we are interested in here.
+Alternatively, one may be interested to solve \(y=ae^{bx+c}\), but if \(a > 0\) it is equivalent to \(y=e^{bx+c+ln(a)}\), and if we take \(a'=b\) and \(b'=c+ln(a)\) we obtain \(y=e^{a'x+b'}\), a particular case of our function.
+If \(a &lt; 0\), it can be rewritten as \(y=-e^{a'x+b'}\) (with \(b'=c+ln(-a)\)), so one can just take opposite \(y\) values, solve it as it is described here, and take the opposite function.
+For the sake of completeness, the case \(a = 0\) leads to the constant \(y=c\), for which we don't expect someone to assume an exponential shape and thus is not an interesting case.
+So in this post, we will focus on the form:
+</p>
+
+\[
+y=e^{ax+b}+c
+\]
+
+<p>
+When solving polynomial equations with \(n\) unkown variables, one neads at least \(n\) points (\((x_1,y_1)\) to \((x_n,y_n)\)).
+Here, we will assume the same, which means that we need 3 points (\((x_1,y_1), (x_2,y_2), (x_3,y_3)\)) to find the 3 variables \(a\), \(b\), and \(c\).
+In other words, we need to solve a system of 3 exponential equations:
+</p>
+
+\[\begin{align}
+\label{eq:y1} y_1 &= e^{ax_1+b}+c\\
+\label{eq:y2} y_2 &= e^{ax_2+b}+c\\
+\label{eq:y3} y_3 &= e^{ax_3+b}+c\\
+\end{align}\]
+
+<h2 id="question">Question</h2>
+
+Given this system, what are the values of \(a\), \(b\), and \(c\) in terms of \(x_1\), \(x_2\), \(x_3\), \(y_1\), \(y_2\), and \(y_3\)?
+
+<h2 id="method">Method</h2>
+
+<h3 id="preliminary">Preliminary</h3>
+
+<p>
+First, we remind here some properties of the exponential and logarithm, which will be useful for our resolution:
+</p>
+
+\[\begin{align}
+\label{eq:expLog}      e^{ln(x)} &= x\\
+\label{eq:expSum}      e^{a+b} &= e^ae^b\\
+\label{eq:expProduct}  e^{a.b} &= \left(e^a\right)^b\\
+\label{eq:logProduct}  ln(a.b) &= ln(a)+ln(b)\\
+\label{eq:logQuotient} ln\left(\frac{a}{b}\right) &= ln(a)-ln(b)\\
+\label{eq:logPower}    ln(a^b) &= b.ln(a)\\
+\end{align}\]
+
+<h3 id="resolution">Resolution</h3>
+
+<p>
+From our system of equations, we can first express each variable, one for each equation of the system.
+We start by expressing \(a\) based on \eqref{eq:y1}
+</p>
+
+\[\begin{align}
+\nonumber           y_1 &= e^{ax_1+b}+c\\
+\nonumber           y_1-c &= e^{ax_1+b}\\
+\nonumber           ln(y_1-c) &= ax_1+b & (\text{if }y_1 > c)\\
+\nonumber           ln(y_1-c)-b &= ax_1\\
+\label{eq:initialA} \frac{ln(y_1-c)-b}{x_1} &= a & (\text{if }x_1 \neq 0)\\
+\end{align}\]
+
+<p>
+Now, we express \(b\) based on \eqref{eq:y2}:
+</p>
+
+\[\begin{align}
+\nonumber           y_2 &= e^{ax_2+b}+c\\
+\nonumber           y_2-c &= e^{ax_2+b}\\
+\nonumber           ln(y_2-c) &= ax_2+b & (\text{if }y_2 > c)\\
+\label{eq:initialB} ln(y_2-c)-ax_2 &= b\\
+\end{align}\]
+
+<p>
+Finally, we express \(c\) based on \eqref{eq:y3}:
+</p>
+
+\[\begin{align}
+\nonumber           y_3 &= e^{ax_3+b}+c\\
+\label{eq:initialC} y_3-e^{ax_3+b} &= c\\
+\end{align}\]
+
+<p>
+Once we have each variable in terms of the others, our objective is to combine them in such a way that they are expressed only in terms of \(x\)s and \(y\)s.
+We can start in several ways, but we have to be careful because some of them lead us to expressions which are blocking (or require advanced calculation).
+So we first replace \(b\) \eqref{eq:initialB} in \(c\) \eqref{eq:initialC}:
+</p>
+
+\[\begin{align}
+\nonumber           c &= y_3-e^{ax_3+(ln(y_2-c)-ax_2)}\\
+\nonumber           c &= y_3-e^{a(x_3-x_2)+ln(y_2-c)}\\
+\nonumber           c &= y_3-e^{a(x_3-x_2)}e^{ln(y_2-c)} & (\text{because \eqref{eq:expSum}})\\
+\nonumber           c &= y_3-e^{a(x_3-x_2)}.(y_2-c) & (\text{because \eqref{eq:expLog}})\\
+\nonumber           c &= y_3 - y_2.e^{a(x_3-x_2)} + c.e^{a(x_3-x_2)}\\
+\nonumber           c - c.e^{a(x_3-x_2)} &= y_3 - y_2.e^{a(x_3-x_2)}\\
+\nonumber           c\left(1 - e^{a(x_3-x_2)}\right) &= y_3 - y_2.e^{a(x_3-x_2)}\\
+\nonumber           c &= \frac{y_3 - y_2.e^{a(x_3-x_2)}}{1 - e^{a(x_3-x_2)}} & (\text{if }a \neq 0, x_2 \neq x_3)\\
+\nonumber           c &= \frac{y_3 - y_2.e^{a(x_3-x_2)} + (y_2 - y_2)}{1 - e^{a(x_3-x_2)}}\\
+\nonumber           c &= \frac{y_3 - y_2 + y_2\left(1 - e^{a(x_3-x_2)}\right)}{1 - e^{a(x_3-x_2)}}\\
+\nonumber           c &= \frac{y_3 - y_2}{1 - e^{a(x_3-x_2)}} + \frac{y_2\left(1 - e^{a(x_3-x_2)}\right)}{1 - e^{a(x_3-x_2)}}\\
+\label{eq:refinedC} c &= \frac{y_3 - y_2}{1 - e^{a(x_3-x_2)}} + y_2\\
+\end{align}\]
+
+<p>
+At this point, only \(a\) remains in the expression of \(c\).
+We can now replace \(b\) \eqref{eq:initialB} in \(a\) \eqref{eq:initialA} too in order to refactor it in terms of \(c\) only:
+</p>
+
+\[\begin{align}
+\nonumber           a &= \frac{ln(y_1-c)-(ln(y_2-c)-ax_2)}{x_1}\\
+\nonumber           a &= \frac{ln(y_1-c)-ln(y_2-c)}{x_1} + \frac{ax_2}{x_1}\\
+\nonumber           a &= \frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1} + a\frac{x_2}{x_1} & (\text{because \eqref{eq:logQuotient}})\\
+\nonumber           a - a\frac{x_2}{x_1} &= \frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1}\\
+\nonumber           a\left(1 - \frac{x_2}{x_1}\right) &= \frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1}\\
+\nonumber           a &= \frac{\frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1}}{1 - \frac{x_2}{x_1}} & (\text{if }x_1 \neq x_2)\\
+\nonumber           a &= \frac{\frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1}}{1 - \frac{x_2}{x_1}} \frac{x_1}{x_1}\\
+\label{eq:refinedA} a &= \frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1 - x_2}\\
+\end{align}\]
+
+<p>
+Now, we can replace \(a\) \eqref{eq:refinedA} in \(c\) \eqref{eq:refinedC} to finalise the latter:
+</p>
+
+\[\begin{align*}
+c &= \frac{y_3 - y_2}{1 - e^{\frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1 - x_2}(x_3-x_2)}} + y_2\\
+c &= \frac{y_3 - y_2}{1 - e^{ln\left(\frac{y_1-c}{y_2-c}\right)\frac{x_3-x_2}{x_1 - x_2}}} + y_2\\
+c &= \frac{y_3 - y_2}{1 - \left(e^{ln\left(\frac{y_1-c}{y_2-c}\right)}\right)^{\frac{x_3-x_2}{x_1 - x_2}}} + y_2 & (\text{because \eqref{eq:expProduct}})\\
+c &= \frac{y_3 - y_2}{1 - \left(\frac{y_1-c}{y_2-c}\right)^{\frac{x_3-x_2}{x_1 - x_2}}} + y_2 & (\text{because \eqref{eq:expLog}})\\
+\end{align*}\]
+
+<p>
+Here come the tricky part: \(c\) is trapped with \(y_1\) and \(y_2\) because of the exponent, but because it is a composition of \(x_1\), \(x_2\), and \(x_3\) we can get rid of it by imposing an additional constraint on these variables.
+This is where the usual method for polynomial solving stops: in order to go ahead, we need to establish an additional constraint, in other words add an equation to the initial system.
+We cannot naively choose that \(x_3 - x_2 = x_1 - x_2\) to make an exponent of 1, because it means that \(x_3 = x_1\) and thus reduces our points to 2 instead of 3.
+Said another way, we would have redundant equations in our system, leading us to have less information than expected and lack some to solve our system.
+Actually, if we continue the calculation, we find out that \(c = y_2\), which is in conflict with the constraint introduced by \eqref{eq:initialB} for expressing \(b\) (\(y_2 > c\)), so we reach a state where we cannot solve \(b\) anymore.
+Instead, a smarter choice is to assume that \(x_3 - x_2 = x_2 - x_1\), which means that the 3 points are regularly distributed along the \(x\) axis, which can usually be fulfilled in practice:
+</p>
+
+\[\begin{align}
+\nonumber         c &= \frac{y_3 - y_2}{1 - \left(\frac{y_1-c}{y_2-c}\right)^{-1}} + y_2 & (\text{if }x_3 - x_2 = x_2 - x_1)\\
+\nonumber         c &= \frac{y_3 - y_2}{1 - \frac{y_2-c}{y_1-c}} + y_2\\
+\nonumber         c &= \frac{y_3 - y_2}{1 - \frac{y_2-c}{y_1-c}}\frac{y_1-c}{y_1-c} + y_2\\
+\nonumber         c &= \frac{(y_3 - y_2)(y_1 - c)}{(y_1-c) - (y_2-c)} + y_2\\
+\nonumber         c &= \frac{(y_3 - y_2)(y_1 - c)}{y_1 - y_2} + y_2\\
+\nonumber         c &= \frac{(y_3 - y_2)(y_1 - c) + y_2(y_1 - y_2)}{y_1 - y_2}\\
+\nonumber         c &= \frac{y_1(y_3 - y_2) - c(y_3 - y_2) + y_2(y_1 - y_2)}{y_1 - y_2}\\
+\nonumber         c(y_1 - y_2) &= y_1(y_3 - y_2) - c(y_3 - y_2) + y_2(y_1 - y_2)\\
+\nonumber         c(y_1 - y_2)+ c(y_3 - y_2) &= y_1(y_3 - y_2) + y_2(y_1 - y_2)\\
+\nonumber         c(y_1 + y_3 - 2 y_2) &= y_1y_3 - y_2^2\\
+\label{eq:finalC} c &= \frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & (\text{if }y_1 + y_3 - 2 y_2 \neq 0)\\
+\end{align}\]
+
+<p>
+This is the final expression of \(c\), so we can now refine \(a\) \eqref{eq:refinedA} to make it also independent of \(c\):
+</p>
+
+\[\begin{align}
+\nonumber         a &= \frac{ln\left(\frac{y_1-\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}}{y_2-\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}}\right)}{x_1 - x_2}\\
+\nonumber         a &= \frac{ln\left(\frac{\frac{y_1(y_1 + y_3 - 2 y_2) - (y_1y_3 - y_2^2)}{y_1 + y_3 - 2 y_2}}{\frac{y_2(y_1 + y_3 - 2 y_2) - (y_1y_3 - y_2^2)}{y_1 + y_3 - 2 y_2}}\right)}{x_1 - x_2}\\
+\nonumber         a &= \frac{ln\left(\frac{y_1(y_1 + y_3 - 2 y_2) - (y_1y_3 - y_2^2)}{y_2(y_1 + y_3 - 2 y_2) - (y_1y_3 - y_2^2)}\right)}{x_1 - x_2}\\
+\nonumber         a &= \frac{ln\left(\frac{y_1^2 + y_1y_3 - 2 y_1y_2 - y_1y_3 + y_2^2}{y_1y_2 + y_2y_3 - 2 y_2^2 - y_1y_3 + y_2^2}\right)}{x_1 - x_2}\\
+\nonumber         a &= \frac{ln\left(\frac{y_1^2 - 2 y_1y_2 + y_2^2}{y_1y_2 + y_2y_3 - y_2^2 - y_1y_3}\right)}{x_1 - x_2}\\
+\nonumber         a &= \frac{ln\left(\frac{(y_1 - y_2)^2}{(y_1 - y_2)(y_2 - y_3)}\right)}{x_1 - x_2}\\
+\label{eq:finalA} a &= \frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}\\
+\end{align}\]
+
+<p>
+Only \(b\) \eqref{eq:initialB} remains, in which we can replace \(c\) \eqref{eq:finalC}:
+</p>
+
+\[\begin{align}
+\nonumber           b &= ln\left(y_2-\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\right)-ax_2\\
+\nonumber           b &= ln\left(\frac{y_2(y_1 + y_3 - 2 y_2) - y_1y_3 + y_2^2}{y_1 + y_3 - 2 y_2}\right)-ax_2\\
+\nonumber           b &= ln\left(\frac{y_1y_2 + y_2y_3 - y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\right)-ax_2\\
+\label{eq:refinedB} b &= ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right)-ax_2\\
+\end{align}\]
+
+<p>
+... and then \(a\) \eqref{eq:finalA}:
+</p>
+
+\[\begin{align}
+\nonumber         b &= ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - \frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}x_2\\
+\nonumber         b &= \frac{(x_1 - x_2)ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2} - \frac{x_2 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}\\
+\nonumber         b &= \frac{(x_1 - x_2)ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}\\
+\nonumber         b &= \frac{(x_1 - x_2)ln(y_1 - y_2) + (x_1 - x_2)ln(y_2 - y_3) - (x_1 - x_2)ln(y_1 + y_3 - 2 y_2) - x_2 ln(y_1 - y_2) + x_2 ln(y_2 - y_3)}{x_1 - x_2}\\
+\nonumber         b &= \frac{(x_1 - 2x_2)ln(y_1 - y_2) + x_1 ln(y_2 - y_3) - (x_1 - x_2)ln(y_1 + y_3 - 2 y_2)}{x_1 - x_2}\\
+\nonumber         b &= \frac{x_1 \left[ln(y_1 - y_2) + ln(y_2 - y_3) - ln(y_1 + y_3 - 2 y_2)\right] - x_2 \left[2ln(y_1 - y_2) - ln(y_1 + y_3 - 2 y_2)\right]}{x_1 - x_2}\\
+\label{eq:finalB} b &= \frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}\\
+\end{align}\]
+
+<h3 id="constraints">Constraint Analysis</h3>
+
+<p>
+During the resolution, several constraints were introduced.
+We require that \(x_2 \neq x_3\) for \eqref{eq:refinedC} and \(x_1 \neq x_2\) for \eqref{eq:refinedA}, but because we assume we have 3 different points, these constraints are always satisfied in practice.
+We also need \(a \neq 0\) for \eqref{eq:refinedC}, but a null \(a\) means that the function is of the form \(y=e^{b}+c\), which means constant, and we assume that nobody would expect an exponential form if the observations are constant.
+If \(a \neq 0\), then the exponential function \(y=e^{ax+b}+c\) is strictly monotonous: its derivative is again an exponential, and because it is always positive or always negative, the initial function always increases or always decreases.
+Due to this strict monotonicity, \(x_1 \neq x_2\) implies that \(y_1 \neq y_2\), which is required for \eqref{eq:refinedA}.
+</p>
+
+<p>
+While the previous constraints are naturally met, other constraints need more attention, like for \eqref{eq:initialA} which requires that \(x_1 \neq 0\).
+Because we do not impose a specific order on the points, if \(x_1 = 0\), we can just reverse the order to make it \(x_3\), which is not constrained, so it is not a strong constraint.
+Nevertheless, if the evolution of the expressions allows to get rid of this constraint, it would lead to a more flexible resolution.
+To do so, we rewrite the three expressions by replacing all the \(y\)s by their values and assuming that \(x_1 = 0\):
+</p>
+
+\[\begin{align*}
+a &= \frac{ln\left(\frac{(e^{ax_1+b}+c) - (e^{ax_2+b}+c)}{(e^{ax_2+b}+c) - (e^{ax_3+b}+c)}\right)}{x_1 - x_2}\\
+a &= \frac{ln\left(\frac{(e^{b}+c) - (e^{ax_2+b}+c)}{(e^{ax_2+b}+c) - (e^{ax_3+b}+c)}\right)}{x_2} & (\text{because }x_1 = 0)\\
+a &= \frac{ln\left(\frac{e^{b} - e^{ax_2+b}}{e^{ax_2+b} - e^{ax_3+b}}\right)}{x_2}\\
+a &= \frac{ln\left(\frac{e^{b}\left(1 - e^{ax_2}\right)}{e^b\left(e^{ax_2} - e^{ax_3}\right)}\right)}{x_2}\\
+a &= \frac{ln\left(\frac{1 - e^{ax_2}}{e^{ax_2} - e^{ax_3}}\right)}{x_2}\\
+a &= \frac{ln\left(\frac{1 - e^{ax_2}}{e^{ax_2} - e^{ax_3 + (ax_2 - ax_2)}}\right)}{x_2}\\
+a &= \frac{ln\left(\frac{1 - e^{ax_2}}{e^{ax_2}(1 - e^{ax_3 - ax_2})}\right)}{x_2}\\
+a &= \frac{ln\left(\frac{1 - e^{ax_2}}{1 - e^{ax_3 - ax_2}}\right) - ln\left(e^{ax_2}\right)}{x_2}\\
+a &= \frac{ln\left(\frac{1 - e^{ax_2}}{1 - e^{ax_3 - ax_2}}\right) - ax_2}{x_2}\\
+a &= \frac{ln\left(\frac{1 - e^{ax_2}}{1 - e^{ax_3 - ax_2}}\right)}{x_2} - a\\
+2a &= \frac{ln\left(\frac{1 - e^{ax_2}}{1 - e^{ax_3 - ax_2}}\right)}{x_2}\\
+\end{align*}\]
+
+\[\begin{align*}
+b &= \frac{x_1 ln\left(\frac{((e^{ax_1+b}+c) - (e^{ax_2+b}+c))((e^{ax_2+b}+c) - (e^{ax_3+b}+c))}{(e^{ax_1+b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\right) - x_2 ln\left(\frac{((e^{ax_1+b}+c) - (e^{ax_2+b}+c))^2}{(e^{ax_1+b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\right)}{x_1 - x_2}\\
+b &= \frac{- x_2 ln\left(\frac{((e^{b}+c) - (e^{ax_2+b}+c))^2}{(e^{b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\right)}{x_2} & (\text{because }x_1 = 0)\\
+b &= - ln\left(\frac{((e^{b}+c) - (e^{ax_2+b}+c))^2}{(e^{b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\right)\\
+b &= - ln\left(\frac{(e^{b} - e^{ax_2+b})^2}{e^{b} + e^{ax_3+b} - 2 e^{ax_2+b}}\right)\\
+b &= - ln\left(\frac{e^{2b}(1 - e^{ax_2})^2}{e^{b}\left(1 + e^{ax_3} - 2 e^{ax_2}\right)}\right)\\
+b &= - ln\left(\frac{e^{b}(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right)\\
+b &= - ln\left(\frac{(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right) - ln\left(e^{b}\right)\\
+b &= - ln\left(\frac{(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right) - b & (\text{because \eqref{eq:expLog}})\\
+2b &= - ln\left(\frac{(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right)\\
+2b &= - ln\left(\frac{(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right)\\
+\end{align*}\]
+
+\[\begin{align*}
+c &= \frac{(e^{ax_1+b}+c)(e^{ax_3+b}+c) - (e^{ax_2+b}+c)^2}{(e^{ax_1+b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\\
+c &= \frac{(e^{b}+c)(e^{ax_3+b}+c) - (e^{ax_2+b}+c)^2}{(e^{b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)} & (\text{because }x_1 = 0)\\
+c &= \frac{e^{ax_3+2b} + c.e^{ax_3+b} + c.e^{b} - e^{2ax_2+2b} - 2c.e^{ax_2+b}}{e^{b} + e^{ax_3+b} - 2 e^{ax_2+b}}\\
+c &= \frac{e^b\left(e^{ax_3+b} + c.e^{ax_3} + c - e^{2ax_2+b} - 2c.e^{ax_2}\right)}{e^{b}\left(1 + e^{ax_3} - 2 e^{ax_2}\right)}\\
+c &= \frac{e^{ax_3+b} + c.e^{ax_3} + c - e^{2ax_2+b} - 2c.e^{ax_2}}{1 + e^{ax_3} - 2 e^{ax_2}}\\
+c &= \frac{e^{ax_3+b} - e^{2ax_2+b} + c(1 + e^{ax_3} - 2 e^{ax_2})}{1 + e^{ax_3} - 2 e^{ax_2}}\\
+c &= \frac{e^{ax_3+b} - e^{2ax_2+b}}{1 + e^{ax_3} - 2 e^{ax_2}} + c\\
+0 &= \frac{e^{ax_3+b} - e^{2ax_2+b}}{1 + e^{ax_3} - 2 e^{ax_2}}\\
+0 &= e^{ax_3+b} - e^{2ax_2+b}\\
+e^{2ax_2+b} &= e^{ax_3+b}\\
+2ax_2+b &= ax_3+b\\
+2ax_2 &= ax_3\\
+2x_2 &= x_3\\
+\end{align*}\]
+
+<p>
+The main additional constraint that we have is \(x_3 - x_2 = x_2 - x_1\) for \eqref{eq:finalC}, which requires the 3 points to be regularly distributed along the \(x\) axis.
+All the remaining constraints (\(y_1 > c\) for \eqref{eq:initialA}, \(y_2 > c\) for \eqref{eq:initialB}, and \(y_1 + y_3 - 2 y_2 \neq 0\) for \eqref{eq:finalC}) has been proven to be correct based on the previous assumptions.
+</p>
+
+<hr/>
+<p>
+The last step for reaching \eqref{eq:finalC} adds a new constraint (\(y_1 + y_3 - 2 y_2 \neq 0\)) which needs to be considered.
+This constraint can be rewritten as \(y_1 - y_2 \neq y_2 - y_3\), which means that \(y_2\) should not be exactly between \(y_1\) and \(y_3\).
+It might look like a failure at first sight, because we just required that the points should be regularly distributed, but we added this constraint regarding the \(x\) values, not \(y\).
+For those familiar with exponentials, it is obvious that if we have a regular distribution on \(x\), the distribution on \(y\) is not regular, because the variation of the exponential (i.e. first derivative) is also strictly monotonous, making it mechanically different on two (different) intervals of the same length.
+But it can be proven simply by solving the constraint directly:
+</p>
+
+\[\begin{align*}
+y_1 + y_3 - 2 y_2 &\neq 0\\
+\left(e^{ax_1+b}+c\right) + \left(e^{ax_3+b}+c\right) - 2 \left(e^{ax_2+b}+c\right) &\neq 0\\
+e^{ax_1+b} + e^{ax_3+b} - 2 e^{ax_2+b} &\neq 0\\
+e^{a(x_1-x_2+x_2)+b} + e^{a(x_3-x_2+x_2)+b} - 2 e^{ax_2+b} &\neq 0\\
+e^{a(x_1-x_2)+ax_2+b} + e^{a(x_3-x_2)+ax_2+b} - 2 e^{ax_2+b} &\neq 0\\
+e^{ax_2+b}\left(e^{a(x_1-x_2)} + e^{a(x_3-x_2)} - 2\right) &\neq 0\\
+e^{a(x_1-x_2)} + e^{a(x_3-x_2)} - 2 &\neq 0 & (\text{because }e^{ax_2+b} \neq 0)\\
+e^{a(x_1-x_2)} + e^{a(x_2-x_1)} - 2 &\neq 0 & (\text{because }x_3-x_2 = x_2-x_1)\\
+e^{a(x_1-x_2)} + \frac{1}{e^{a(x_1-x_2)}} - 2 &\neq 0\\
+e^{a(x_1-x_2)}\left(e^{a(x_1-x_2)} + \frac{1}{e^{a(x_1-x_2)}} - 2\right) &\neq 0\\
+\left(e^{a(x_1-x_2)}\right)^2 + 1 - 2e^{a(x_1-x_2)} &\neq 0\\
+(1-e^{a(x_1-x_2)})^2 &\neq 0\\
+1-e^{a(x_1-x_2)} &\neq 0\\
+1 &\neq e^{a(x_1-x_2)}\\
+0 &\neq a(x_1-x_2)\\
+\end{align*}\]
+
+<p>
+This is necessarily true because we already require that \(a \neq 0\) and \(x_1 \neq x_2\).
+Another concern comes from \eqref{eq:initialB}, which requires that \(y_2 > c\):
+</p>
+
+\[\begin{align*}
+y_2 &> c\\
+y_2 &> \frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+0 &> \frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} - y_2\\
+0 &> \frac{y_1y_3 - y_2^2 - y_2(y_1 + y_3 - 2 y_2)}{y_1 + y_3 - 2 y_2}\\
+0 &> y_1y_3 - y_2^2 - y_2(y_1 + y_3 - 2 y_2)\\
+0 &> y_1y_3 - y_1y_2 - y_2y_3 + y_2^2\\
+0 &> (y_1 - y_2)(y_3 - y_2)\\
+\end{align*}\]
+
+<p>
+Because the \(x\) values are regularly distributed and the exponential is strictly monotonous, we know that the \(y\) values evolve in the same direction, and thus \(y_1 - y_2\) has the same sign than \(y_2 - y_3\), or the opposite sign of \(y_3 - y_2\), which is what we are interested in.
+Indeed, because \(y_1 - y_2\) and \(y_3 - y_2\) are necessarily with opposite signs, this constraint is always satisfied unless we have the extreme case of \(y_1 = y_2\) or \(y_2 = y_3\).
+But because we already require \(x_1 \neq x_2\) and \(x_2 \neq x_3\), and because our constraint of regularly distributing \(x_1\), \(x_2\), and \(x_3\) ensures also that \(x_1 \neq x_3\), the strict monotonicity of the function ensures that the \(y\) values are different too, so no extreme case can occur.
+Yet, this is not over, because we also need to ensure that \(y_1 > c\) for \eqref{eq:initialA}:
+</p>
+
+\[\begin{align*}
+y_1 &> c\\
+y_1 &> \frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+0 &> \frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} - y_1\\
+0 &> \frac{y_1y_3 - y_2^2 - y_1(y_1 + y_3 - 2 y_2)}{y_1 + y_3 - 2 y_2}\\
+0 &> y_1y_3 - y_2^2 - y_1(y_1 + y_3 - 2 y_2)\\
+0 &> - y_2^2 - y_1^2 + 2 y_1y_2\\
+0 &< y_2^2 + y_1^2 - 2 y_1y_2\\
+0 &< (y_1 - y_2)^2\\
+\end{align*}\]
+
+<p>
+Again, this is necessarily true because \(y_1 \neq y_2\), so it is not null, and a square is always positive.
+</p>
+
+<hr/>
+
+<p>In short, our system is actually the following:</p>
+\[\begin{align*}
+y_1 &= e^{ax_1+b}+c\\
+y_2 &= e^{ax_2+b}+c\\
+y_3 &= e^{ax_3+b}+c\\
+x_3 - x_2 &= x_2 - x_1\\
+\end{align*}\]
+
+<h2 id="answer">Answer</h2>
+
+<p>Given 3 points \((x_1, y_1)\), \((x_2, y_2)\), and \((x_3, y_3)\), an exponential function of the form \(y=e^{ax+b}+c\) can be analytically solved if:</p>
+<ul>
+<li>the 3 points are regularly distributed (\(x_3 - x_2 = x_2 - x_1\))</li>
+</ul>
+
+<p>If these conditions are met, the solution of this exponential is the following:</p>
+\[\begin{align*}
+a &= \frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}\\
+b &= \frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}\\
+c &= \frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}
+\end{align*}\]
+
+<h2 id="links">Related Questions</h2>
+
+&lt;none>
+
+<h2 id="bibliography">Bibliography</h2>
+
+&lt;none>
+
+</body>
+</html>
