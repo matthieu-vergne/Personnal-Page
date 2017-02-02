@@ -243,48 +243,7 @@ Nevertheless, if the evolution of the expressions allows to get rid of this cons
 To verify it, we rewrite the three expressions by replacing all the \(y\)s by their values and assuming that \(x_1 = 0\):
 </p>
 
-\[\begin{align*}
-a &= \frac{ln\left(\frac{(e^{ax_1+b}+c) - (e^{ax_2+b}+c)}{(e^{ax_2+b}+c) - (e^{ax_3+b}+c)}\right)}{x_1 - x_2}\\
-a &= \frac{ln\left(\frac{(e^{b}+c) - (e^{ax_2+b}+c)}{(e^{ax_2+b}+c) - (e^{ax_3+b}+c)}\right)}{x_2} & (\text{because }x_1 = 0)\\
-a &= \frac{ln\left(\frac{e^{b} - e^{ax_2+b}}{e^{ax_2+b} - e^{ax_3+b}}\right)}{x_2}\\
-a &= \frac{ln\left(\frac{e^{b}\left(1 - e^{ax_2}\right)}{e^b\left(e^{ax_2} - e^{ax_3}\right)}\right)}{x_2}\\
-a &= \frac{ln\left(\frac{1 - e^{ax_2}}{e^{ax_2} - e^{ax_3}}\right)}{x_2}\\
-a &= \frac{ln\left(\frac{1 - e^{ax_2}}{e^{ax_2} - e^{ax_3 + (ax_2 - ax_2)}}\right)}{x_2}\\
-a &= \frac{ln\left(\frac{1 - e^{ax_2}}{e^{ax_2}(1 - e^{ax_3 - ax_2})}\right)}{x_2}\\
-a &= \frac{ln\left(\frac{1 - e^{ax_2}}{1 - e^{ax_3 - ax_2}}\right) - ln\left(e^{ax_2}\right)}{x_2}\\
-a &= \frac{ln\left(\frac{1 - e^{ax_2}}{1 - e^{ax_3 - ax_2}}\right) - ax_2}{x_2}\\
-a &= \frac{ln\left(\frac{1 - e^{ax_2}}{1 - e^{ax_3 - ax_2}}\right)}{x_2} - a\\
-2a &= \frac{ln\left(\frac{1 - e^{ax_2}}{1 - e^{ax_3 - ax_2}}\right)}{x_2}\\
-\end{align*}\]
-
-\[\begin{align*}
-b &= \frac{x_1 ln\left(\frac{((e^{ax_1+b}+c) - (e^{ax_2+b}+c))((e^{ax_2+b}+c) - (e^{ax_3+b}+c))}{(e^{ax_1+b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\right) - x_2 ln\left(\frac{((e^{ax_1+b}+c) - (e^{ax_2+b}+c))^2}{(e^{ax_1+b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\right)}{x_1 - x_2}\\
-b &= \frac{- x_2 ln\left(\frac{((e^{b}+c) - (e^{ax_2+b}+c))^2}{(e^{b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\right)}{x_2} & (\text{because }x_1 = 0)\\
-b &= - ln\left(\frac{((e^{b}+c) - (e^{ax_2+b}+c))^2}{(e^{b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\right)\\
-b &= - ln\left(\frac{(e^{b} - e^{ax_2+b})^2}{e^{b} + e^{ax_3+b} - 2 e^{ax_2+b}}\right)\\
-b &= - ln\left(\frac{e^{2b}(1 - e^{ax_2})^2}{e^{b}\left(1 + e^{ax_3} - 2 e^{ax_2}\right)}\right)\\
-b &= - ln\left(\frac{e^{b}(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right)\\
-b &= - ln\left(\frac{(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right) - ln\left(e^{b}\right)\\
-b &= - ln\left(\frac{(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right) - b & (\text{because \eqref{eq:expLog}})\\
-2b &= - ln\left(\frac{(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right)\\
-2b &= - ln\left(\frac{(1 - e^{ax_2})^2}{1 + e^{ax_3} - 2 e^{ax_2}}\right)\\
-\end{align*}\]
-
-\[\begin{align*}
-c &= \frac{(e^{ax_1+b}+c)(e^{ax_3+b}+c) - (e^{ax_2+b}+c)^2}{(e^{ax_1+b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)}\\
-c &= \frac{(e^{b}+c)(e^{ax_3+b}+c) - (e^{ax_2+b}+c)^2}{(e^{b}+c) + (e^{ax_3+b}+c) - 2 (e^{ax_2+b}+c)} & (\text{because }x_1 = 0)\\
-c &= \frac{e^{ax_3+2b} + c.e^{ax_3+b} + c.e^{b} - e^{2ax_2+2b} - 2c.e^{ax_2+b}}{e^{b} + e^{ax_3+b} - 2 e^{ax_2+b}}\\
-c &= \frac{e^b\left(e^{ax_3+b} + c.e^{ax_3} + c - e^{2ax_2+b} - 2c.e^{ax_2}\right)}{e^{b}\left(1 + e^{ax_3} - 2 e^{ax_2}\right)}\\
-c &= \frac{e^{ax_3+b} + c.e^{ax_3} + c - e^{2ax_2+b} - 2c.e^{ax_2}}{1 + e^{ax_3} - 2 e^{ax_2}}\\
-c &= \frac{e^{ax_3+b} - e^{2ax_2+b} + c(1 + e^{ax_3} - 2 e^{ax_2})}{1 + e^{ax_3} - 2 e^{ax_2}}\\
-c &= \frac{e^{ax_3+b} - e^{2ax_2+b}}{1 + e^{ax_3} - 2 e^{ax_2}} + c\\
-0 &= \frac{e^{ax_3+b} - e^{2ax_2+b}}{1 + e^{ax_3} - 2 e^{ax_2}}\\
-0 &= e^{ax_3+b} - e^{2ax_2+b}\\
-e^{2ax_2+b} &= e^{ax_3+b}\\
-2ax_2+b &= ax_3+b\\
-2ax_2 &= ax_3\\
-2x_2 &= x_3\\
-\end{align*}\]
+TODO
 
 <p>
 The main additional constraint that we have is \(x_3 - x_2 = x_2 - x_1\) for \eqref{eq:finalC}, which requires the 3 points to be regularly distributed along the \(x\) axis.
