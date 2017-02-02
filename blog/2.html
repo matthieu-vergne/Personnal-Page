@@ -226,6 +226,86 @@ Only \(b\) \eqref{eq:initialB} remains, in which we can replace \(c\) \eqref{eq:
 \label{eq:finalB} b &= \frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}\\
 \end{align}\]
 
+<h3 id="verification">Verification</h3>
+
+<p>
+We verify our results on the initial system, starting with the first equation \eqref{eq:y1}:
+</p>
+
+\[\begin{align*}
+y_1 &= e^{ax_1+b}+c\\
+y_1 &= e^{\frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}x_1+\frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_1 &= e^{\frac{x_1 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right) + x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_1 &= e^{\frac{x_1 \left(ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right) + ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right)\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_1 &= e^{\frac{x_1 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because \eqref{eq:logProduct}}\\
+y_1 &= e^{\frac{x_1 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_1 &= e^{\frac{(x_1 - x_2) ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_1 &= e^{ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_1 &= \frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because \eqref{eq:expLog}}\\
+y_1 &= \frac{(y_1 - y_2)^2 + y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_1 &= \frac{y_1^2 - 2 y_1y_2 + y_2^2 + y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_1 &= \frac{y_1^2 - 2 y_1y_2 + y_1y_3}{y_1 + y_3 - 2 y_2}\\
+y_1 &= \frac{y_1(y_1 - 2 y_2 + y_3)}{y_1 + y_3 - 2 y_2}\\
+y_1 &= y_1\\
+\end{align*}\]
+
+<p>
+Which is consistent.
+Then, we verify them with the second equation \eqref{eq:y2}:
+</p>
+
+\[\begin{align*}
+y_2 &= e^{ax_2+b}+c\\
+y_2 &= e^{\frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}x_2+\frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_2 &= e^{\frac{x_2 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right) + x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_2 &= e^{\frac{x_2 \left(ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right) - ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)\right) + x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_2 &= e^{\frac{x_2 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\frac{y_1 + y_3 - 2 y_2}{(y_1 - y_2)^2}\right) + x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because \eqref{eq:logQuotient}}\\
+y_2 &= e^{\frac{x_2 ln\left(\frac{y_1 + y_3 - 2 y_2}{(y_2 - y_3)(y_1 - y_2)}\right) + x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_2 &= e^{\frac{- x_2 ln\left(\frac{(y_2 - y_3)(y_1 - y_2)}{y_1 + y_3 - 2 y_2}\right) + x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because \eqref{eq:logPower}}\\
+y_2 &= e^{\frac{(x_1 - x_2) ln\left(\frac{(y_2 - y_3)(y_1 - y_2)}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_2 &= e^{ln\left(\frac{(y_2 - y_3)(y_1 - y_2)}{y_1 + y_3 - 2 y_2}\right)}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_2 &= \frac{(y_2 - y_3)(y_1 - y_2)}{y_1 + y_3 - 2 y_2}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because \eqref{eq:expLog}}\\
+y_2 &= \frac{(y_2 - y_3)(y_1 - y_2) + y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_2 &= \frac{y_1y_2 - y_2^2 - y_1y_3 + y_2y_3 + y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_2 &= \frac{y_1y_2 + y_2y_3 - 2y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_2 &= \frac{y_2(y_1 + y_3 - 2y_2)}{y_1 + y_3 - 2 y_2}\\
+y_2 &= y_2\\
+\end{align*}\]
+
+<p>
+Which is again consistent.
+Finally, we verify them on the last equation \eqref{eq:y3}:
+</p>
+
+\[\begin{align*}
+y_3 &= e^{ax_3+b}+c\\
+y_3 &= e^{\frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}x_3+\frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= e^{\frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}x_3+\frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)^2}{y_1 + y_3 - 2 y_2}\frac{y_2 - y_3}{y_2 - y_3}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= e^{\frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}x_3+\frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= e^{\frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}x_3+\frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 \left(ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) + ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because \eqref{eq:logProduct}}\\
+y_3 &= e^{\frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}x_3+\frac{x_1 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= e^{\frac{ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}x_3+\frac{(x_1  - x_2)ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= e^{\frac{(x_1  - x_2)ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) - x_2 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right) + x_3 ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= e^{\frac{(x_1  - x_2)ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) + (x_3 - x_2) ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= e^{\frac{(x_1  - x_2)ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) + (x_2 - x_1) ln\left(\frac{y_1 - y_2}{y_2 - y_3}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because }x_3-x_2=x_2-x_1\\
+y_3 &= e^{\frac{(x_1  - x_2)ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) + (x_1 - x_2) ln\left(\frac{y_2 - y_3}{y_1 - y_2}\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because \eqref{eq:logPower}}\\
+y_3 &= e^{\frac{(x_1  - x_2)\left(ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) + ln\left(\frac{y_2 - y_3}{y_1 - y_2}\right)\right)}{x_1 - x_2}}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= e^{ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\right) + ln\left(\frac{y_2 - y_3}{y_1 - y_2}\right)}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= e^{ln\left(\frac{(y_1 - y_2)(y_2 - y_3)}{y_1 + y_3 - 2 y_2}\frac{y_2 - y_3}{y_1 - y_2}\right)}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because \eqref{eq:logProduct}}\\
+y_3 &= e^{ln\left(\frac{(y_2 - y_3)^2}{y_1 + y_3 - 2 y_2}\right)}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= \frac{(y_2 - y_3)^2}{y_1 + y_3 - 2 y_2}+\frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{because \eqref{eq:expLog}}\\
+y_3 &= \frac{(y_2 - y_3)^2 + y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= \frac{y_2^2 - 2y_2y_3 + y_3^2 + y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2}\\
+y_3 &= \frac{- 2y_2y_3 + y_3^2 + y_1y_3}{y_1 + y_3 - 2 y_2}\\
+y_3 &= \frac{y_3(- 2y_2 + y_3 + y_1)}{y_1 + y_3 - 2 y_2}\\
+y_3 &= y_3\\
+\end{align*}\]
+
+<p>
+Which is, as expected, consistent.
+No more equation remain, thus closing the verification process to a success.
+</p>
+
 <h3 id="constraints">Constraint Analysis</h3>
 
 <p>
