@@ -232,15 +232,15 @@ Only \(b\) \eqref{eq:initialB} remains, in which we can replace \(c\) \eqref{eq:
 During the resolution, several constraints were introduced.
 We require that \(x_2 \neq x_3\) for \eqref{eq:refinedC} and \(x_1 \neq x_2\) for \eqref{eq:refinedA}, but because we assume we have 3 different points, these constraints are always satisfied in practice.
 We also need \(a \neq 0\) for \eqref{eq:refinedC}, but a null \(a\) means that the function is of the form \(y=e^{b}+c\), which means constant, and we assume that nobody would expect an exponential form if the observations are constant.
-If \(a \neq 0\), then the exponential function \(y=e^{ax+b}+c\) is strictly monotonous: its derivative is again an exponential, and because it is always positive or always negative, the initial function always increases or always decreases.
+If \(a \neq 0\), then the exponential function \(y=e^{ax+b}+c\) is strictly monotonous: its derivative is an exponential (\(dy/dx = a.e^{ax+b}\)) which is always strictly positive (when \(a > 0\)) or negative (when \(a &lt; 0\)), so \(y\) always strictly increases or decreases.
 Due to this strict monotonicity, \(x_1 \neq x_2\) implies that \(y_1 \neq y_2\), which is required for \eqref{eq:refinedA}.
 </p>
 
 <p>
 While the previous constraints are naturally met, other constraints need more attention, like for \eqref{eq:initialA} which requires that \(x_1 \neq 0\).
-Because we do not impose a specific order on the points, if \(x_1 = 0\), we can just reverse the order to make it \(x_3\), which is not constrained, so it is not a strong constraint.
+Because we do not impose a specific order on the points, if \(x_1 = 0\), we can just reverse the order to make it \(x_3\), which is free to be null, so the constraint is rather loose.
 Nevertheless, if the evolution of the expressions allows to get rid of this constraint, it would lead to a more flexible resolution.
-To do so, we rewrite the three expressions by replacing all the \(y\)s by their values and assuming that \(x_1 = 0\):
+To verify it, we rewrite the three expressions by replacing all the \(y\)s by their values and assuming that \(x_1 = 0\):
 </p>
 
 \[\begin{align*}
