@@ -91,9 +91,9 @@ We start by expressing \(a\) based on \eqref{eq:y1}
 \[\begin{align}
 \nonumber           y_1 &= e^{ax_1+b}+c\\
 \nonumber           y_1-c &= e^{ax_1+b}\\
-\nonumber           ln(y_1-c) &= ax_1+b & (\text{if }y_1 > c)\\
+\nonumber           ln(y_1-c) &= ax_1+b & \text{if }y_1 > c\\
 \nonumber           ln(y_1-c)-b &= ax_1\\
-\label{eq:initialA} \frac{ln(y_1-c)-b}{x_1} &= a & (\text{if }x_1 \neq 0)\\
+\label{eq:initialA} \frac{ln(y_1-c)-b}{x_1} &= a & \text{if }x_1 \neq 0\\
 \end{align}\]
 
 <p>
@@ -103,7 +103,7 @@ Now, we express \(b\) based on \eqref{eq:y2}:
 \[\begin{align}
 \nonumber           y_2 &= e^{ax_2+b}+c\\
 \nonumber           y_2-c &= e^{ax_2+b}\\
-\nonumber           ln(y_2-c) &= ax_2+b & (\text{if }y_2 > c)\\
+\nonumber           ln(y_2-c) &= ax_2+b & \text{if }y_2 > c\\
 \label{eq:initialB} ln(y_2-c)-ax_2 &= b\\
 \end{align}\]
 
@@ -125,12 +125,12 @@ So we first replace \(b\) \eqref{eq:initialB} in \(c\) \eqref{eq:initialC}:
 \[\begin{align}
 \nonumber           c &= y_3-e^{ax_3+(ln(y_2-c)-ax_2)}\\
 \nonumber           c &= y_3-e^{a(x_3-x_2)+ln(y_2-c)}\\
-\nonumber           c &= y_3-e^{a(x_3-x_2)}e^{ln(y_2-c)} & (\text{because \eqref{eq:expSum}})\\
-\nonumber           c &= y_3-e^{a(x_3-x_2)}.(y_2-c) & (\text{because \eqref{eq:expLog}})\\
+\nonumber           c &= y_3-e^{a(x_3-x_2)}e^{ln(y_2-c)} & \text{because \eqref{eq:expSum}}\\
+\nonumber           c &= y_3-e^{a(x_3-x_2)}.(y_2-c) & \text{because \eqref{eq:expLog}}\\
 \nonumber           c &= y_3 - y_2.e^{a(x_3-x_2)} + c.e^{a(x_3-x_2)}\\
 \nonumber           c - c.e^{a(x_3-x_2)} &= y_3 - y_2.e^{a(x_3-x_2)}\\
 \nonumber           c\left(1 - e^{a(x_3-x_2)}\right) &= y_3 - y_2.e^{a(x_3-x_2)}\\
-\nonumber           c &= \frac{y_3 - y_2.e^{a(x_3-x_2)}}{1 - e^{a(x_3-x_2)}} & (\text{if }a \neq 0, x_2 \neq x_3)\\
+\nonumber           c &= \frac{y_3 - y_2.e^{a(x_3-x_2)}}{1 - e^{a(x_3-x_2)}} & \text{if }a \neq 0, x_2 \neq x_3\\
 \nonumber           c &= \frac{y_3 - y_2.e^{a(x_3-x_2)} + (y_2 - y_2)}{1 - e^{a(x_3-x_2)}}\\
 \nonumber           c &= \frac{y_3 - y_2 + y_2\left(1 - e^{a(x_3-x_2)}\right)}{1 - e^{a(x_3-x_2)}}\\
 \nonumber           c &= \frac{y_3 - y_2}{1 - e^{a(x_3-x_2)}} + \frac{y_2\left(1 - e^{a(x_3-x_2)}\right)}{1 - e^{a(x_3-x_2)}}\\
@@ -145,10 +145,10 @@ We can now replace \(b\) \eqref{eq:initialB} in \(a\) \eqref{eq:initialA} too in
 \[\begin{align}
 \nonumber           a &= \frac{ln(y_1-c)-(ln(y_2-c)-ax_2)}{x_1}\\
 \nonumber           a &= \frac{ln(y_1-c)-ln(y_2-c)}{x_1} + \frac{ax_2}{x_1}\\
-\nonumber           a &= \frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1} + a\frac{x_2}{x_1} & (\text{because \eqref{eq:logQuotient}})\\
+\nonumber           a &= \frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1} + a\frac{x_2}{x_1} & \text{because \eqref{eq:logQuotient}}\\
 \nonumber           a - a\frac{x_2}{x_1} &= \frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1}\\
 \nonumber           a\left(1 - \frac{x_2}{x_1}\right) &= \frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1}\\
-\nonumber           a &= \frac{\frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1}}{1 - \frac{x_2}{x_1}} & (\text{if }x_1 \neq x_2)\\
+\nonumber           a &= \frac{\frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1}}{1 - \frac{x_2}{x_1}} & \text{if }x_1 \neq x_2\\
 \nonumber           a &= \frac{\frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1}}{1 - \frac{x_2}{x_1}} \frac{x_1}{x_1}\\
 \label{eq:refinedA} a &= \frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1 - x_2}\\
 \end{align}\]
@@ -160,8 +160,8 @@ Now, we can replace \(a\) \eqref{eq:refinedA} in \(c\) \eqref{eq:refinedC} to fi
 \[\begin{align*}
 c &= \frac{y_3 - y_2}{1 - e^{\frac{ln\left(\frac{y_1-c}{y_2-c}\right)}{x_1 - x_2}(x_3-x_2)}} + y_2\\
 c &= \frac{y_3 - y_2}{1 - e^{ln\left(\frac{y_1-c}{y_2-c}\right)\frac{x_3-x_2}{x_1 - x_2}}} + y_2\\
-c &= \frac{y_3 - y_2}{1 - \left(e^{ln\left(\frac{y_1-c}{y_2-c}\right)}\right)^{\frac{x_3-x_2}{x_1 - x_2}}} + y_2 & (\text{because \eqref{eq:expProduct}})\\
-c &= \frac{y_3 - y_2}{1 - \left(\frac{y_1-c}{y_2-c}\right)^{\frac{x_3-x_2}{x_1 - x_2}}} + y_2 & (\text{because \eqref{eq:expLog}})\\
+c &= \frac{y_3 - y_2}{1 - \left(e^{ln\left(\frac{y_1-c}{y_2-c}\right)}\right)^{\frac{x_3-x_2}{x_1 - x_2}}} + y_2 & \text{because \eqref{eq:expProduct}}\\
+c &= \frac{y_3 - y_2}{1 - \left(\frac{y_1-c}{y_2-c}\right)^{\frac{x_3-x_2}{x_1 - x_2}}} + y_2 & \text{because \eqref{eq:expLog}}\\
 \end{align*}\]
 
 <p>
@@ -174,7 +174,7 @@ Instead, a smarter choice is to assume that \(x_3 - x_2 = x_2 - x_1\), which mea
 </p>
 
 \[\begin{align}
-\nonumber         c &= \frac{y_3 - y_2}{1 - \left(\frac{y_1-c}{y_2-c}\right)^{-1}} + y_2 & (\text{if }x_3 - x_2 = x_2 - x_1)\\
+\nonumber         c &= \frac{y_3 - y_2}{1 - \left(\frac{y_1-c}{y_2-c}\right)^{-1}} + y_2 & \text{if }x_3 - x_2 = x_2 - x_1\\
 \nonumber         c &= \frac{y_3 - y_2}{1 - \frac{y_2-c}{y_1-c}} + y_2\\
 \nonumber         c &= \frac{y_3 - y_2}{1 - \frac{y_2-c}{y_1-c}}\frac{y_1-c}{y_1-c} + y_2\\
 \nonumber         c &= \frac{(y_3 - y_2)(y_1 - c)}{(y_1-c) - (y_2-c)} + y_2\\
@@ -184,7 +184,7 @@ Instead, a smarter choice is to assume that \(x_3 - x_2 = x_2 - x_1\), which mea
 \nonumber         c(y_1 - y_2) &= y_1(y_3 - y_2) - c(y_3 - y_2) + y_2(y_1 - y_2)\\
 \nonumber         c(y_1 - y_2)+ c(y_3 - y_2) &= y_1(y_3 - y_2) + y_2(y_1 - y_2)\\
 \nonumber         c(y_1 + y_3 - 2 y_2) &= y_1y_3 - y_2^2\\
-\label{eq:finalC} c &= \frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & (\text{if }y_1 + y_3 - 2 y_2 \neq 0)\\
+\label{eq:finalC} c &= \frac{y_1y_3 - y_2^2}{y_1 + y_3 - 2 y_2} & \text{if }y_1 + y_3 - 2 y_2 \neq 0\\
 \end{align}\]
 
 <p>
@@ -307,8 +307,8 @@ e^{ax_1+b} + e^{ax_3+b} - 2 e^{ax_2+b} &\neq 0\\
 e^{a(x_1-x_2+x_2)+b} + e^{a(x_3-x_2+x_2)+b} - 2 e^{ax_2+b} &\neq 0\\
 e^{a(x_1-x_2)+ax_2+b} + e^{a(x_3-x_2)+ax_2+b} - 2 e^{ax_2+b} &\neq 0\\
 e^{ax_2+b}\left(e^{a(x_1-x_2)} + e^{a(x_3-x_2)} - 2\right) &\neq 0\\
-e^{a(x_1-x_2)} + e^{a(x_3-x_2)} - 2 &\neq 0 & (\text{because }e^{ax_2+b} \neq 0)\\
-e^{a(x_1-x_2)} + e^{a(x_2-x_1)} - 2 &\neq 0 & (\text{because }x_3-x_2 = x_2-x_1)\\
+e^{a(x_1-x_2)} + e^{a(x_3-x_2)} - 2 &\neq 0 & \text{because }e^{ax_2+b} \neq 0\\
+e^{a(x_1-x_2)} + e^{a(x_2-x_1)} - 2 &\neq 0 & \text{because }x_3-x_2 = x_2-x_1\\
 e^{a(x_1-x_2)} + \frac{1}{e^{a(x_1-x_2)}} - 2 &\neq 0\\
 e^{a(x_1-x_2)}\left(e^{a(x_1-x_2)} + \frac{1}{e^{a(x_1-x_2)}} - 2\right) &\neq 0\\
 \left(e^{a(x_1-x_2)}\right)^2 + 1 - 2e^{a(x_1-x_2)} &\neq 0\\
