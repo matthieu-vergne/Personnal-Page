@@ -19,10 +19,12 @@ class HomePage extends InternalPage {
 			"Surname" => "Matthieu",
 			"Family name" => "Vergne",
 			"Nationality" => "French",
-			"Google+" => Format::toHtmlUrl("https://www.google.com/+MatthieuVergne"),
 			"LinkedIn" => Format::toHtmlUrl("http://www.linkedin.com/pub/matthieu-vergne/41/832/bb8"),
+			"ResearchGate" => Format::toHtmlUrl("https://www.researchgate.net/profile/Matthieu_Vergne"),
 			"GitHub" => Format::toHtmlUrl("https://github.com/matthieu-vergne"),
+			"Google+" => Format::toHtmlUrl("https://www.google.com/+MatthieuVergne"),
 		);
+		
 		foreach($data as $type => $value) {
 			$content .= "<b>$type:</b> $value<br/>";
 		}
