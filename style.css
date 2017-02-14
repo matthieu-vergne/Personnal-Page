@@ -168,9 +168,19 @@ article div#lastUpdateTime {
 #papers .links a {
 	display: inline-block;
 	margin: 0.5em;
+	position: relative; /* Required for TBA absolute positionning to work */
 }
 #papers .links a img {
 	height: 1.5em;
+}
+#papers .TBA {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-weight: bold;
+	color: black;
+	text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white;
 }
 
 #blog h1 {

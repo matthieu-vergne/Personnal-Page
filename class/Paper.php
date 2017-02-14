@@ -1,5 +1,6 @@
 <?php
 class Paper {
+	const TBA = "To be announced";
 	private $id = null;
 	private $description = null;
 	private $doi = null;

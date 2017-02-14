@@ -16,7 +16,7 @@ class PapersPage extends InternalPage {
 		foreach($papers as $paper) {
 			$links = "";
 			
-			$links .= "<a class='url' href='".$paper->getURL()."'><img src='https://upload.wikimedia.org/wikipedia/commons/9/93/Internet_link.png' alt='Publication' title='Publication'></img></a>";
+			$links .= PapersPage::formatLink($paper->getURL(), 'url', 'https://upload.wikimedia.org/wikipedia/commons/9/93/Internet_link.png', 'Publication');
 			
 			if ($paper->getPDF() != null) {
 				if (isset($_GET['redirect']) && $_GET['redirect'] == $paper->getID()) {
@@ -41,16 +41,21 @@ class PapersPage extends InternalPage {
 					
 					$links .= $form;
 				} else {
-					$permalink = Url::getCurrentUrl();
-					$permalink->setQueryVar('redirect', $paper->getID());
-					$links .= "<a class='pdf' href='".$permalink."'><img src='https://upload.wikimedia.org/wikipedia/commons/2/22/Pdf_icon.png' alt='PDF' title='PDF'></img></a>";
+					$pdfUrl = $paper->getPDF();
+					if ($pdfUrl === Paper::TBA) {
+						// no refinement required
+					} else {
+						$pdfUrl = Url::getCurrentUrl();
+						$pdfUrl->setQueryVar('redirect', $paper->getID());
+					}
+					$links .= PapersPage::formatLink($pdfUrl, 'pdf', 'https://upload.wikimedia.org/wikipedia/commons/2/22/Pdf_icon.png', 'PDF');
 				}
 			} else {
 				// no PDF
 			}
 			
 			if ($paper->getSlides() != null) {
-				$links .= "<a class='slides' href='".$paper->getSlides()."'><img src='https://upload.wikimedia.org/wikipedia/commons/0/07/X-office-presentation.svg' alt='Slides' title='Slides'></img></a>";
+				$links .= PapersPage::formatLink($paper->getSlides(), 'slides', 'https://upload.wikimedia.org/wikipedia/commons/0/07/X-office-presentation.svg', 'Slides');
 			} else {
 				// no slides
 			}
@@ -87,6 +92,15 @@ class PapersPage extends InternalPage {
 		*/
 		
 		return $content;
+	}
+	
+	static function formatLink($url, $class, $image, $title) {
+		$img = "<img src='$image' alt='$title' title='$title'></img>";
+		if ($url === Paper::TBA) {
+			return "<a class='$class'>$img<span class='TBA' title='$title to be announced'>TBA</span></a>";
+		} else {
+			return "<a class='$class' href='".$url."'>$img</a>";
+		}
 	}
 }
 ?>
