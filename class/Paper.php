@@ -138,6 +138,13 @@ class Paper {
 			$paper->setSlides(Resource::getResource(12)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
+			$paper = new Paper('hmcl-2017');
+			$paper->setDescription("M. Vergne, « Artificial Intelligence and Expertise: the Two Faces of the Same Artificial Performance Coin », technical report in Human-Machine Collaborative Learning workshop (AAAI conference), 2017.");
+			$paper->setURL(Paper::TBA);
+			$paper->setPDF(Resource::getResource(16)->getFileUrl());
+			$paper->setSlides(Resource::getResource(17)->getFileUrl());
+			Paper::$allPapers[] = $paper;
+			
 			// Check unique IDs
 			$ids = array();
 			foreach(Paper::$allPapers as $paper) {
