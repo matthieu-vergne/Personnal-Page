@@ -22,6 +22,14 @@ class TeachingPage extends InternalPage {
 		$content .= "<th>Resource</th>";
 		$content .= "</tr>";
 		
+		$slidesUrl = Resource::getResource(18)->getFileUrl();
+		$content .= "<tr>";
+		$content .= "<td><time datetime='2017-03-01'>2017-03-01</time></td>";
+		$content .= "<td><abbr title='Nara Institute of Science and Technology'>NAIST</abbr></td>";
+		$content .= "<td>-</td>";
+		$content .= "<td><a href='$slidesUrl'>Introduction to Requirements Engineering</a></td>";
+		$content .= "</tr>";
+		
 		$slidesUrl = Resource::getResource(13)->getFileUrl();
 		$content .= "<tr>";
 		$content .= "<td><time datetime='2015-03-24'>2015-03-24</time></td>";
