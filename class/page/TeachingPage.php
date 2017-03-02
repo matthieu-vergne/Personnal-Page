@@ -26,7 +26,7 @@ class TeachingPage extends InternalPage {
 		$content .= "<tr>";
 		$content .= "<td><time datetime='2017-03-01'>2017-03-01</time></td>";
 		$content .= "<td><abbr title='Nara Institute of Science and Technology'>NAIST</abbr></td>";
-		$content .= "<td>-</td>";
+		$content .= "<td>Advanced Software Engineering<br/>(by Pr. Kenichi Matsumoto)</td>";
 		$content .= "<td><a href='$slidesUrl'>Introduction to Requirements Engineering</a></td>";
 		$content .= "</tr>";
 		
