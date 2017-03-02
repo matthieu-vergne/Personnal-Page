@@ -25,7 +25,7 @@ class TeachingPage extends InternalPage {
 		$slidesUrl = Resource::getResource(18)->getFileUrl();
 		$content .= "<tr>";
 		$content .= "<td><time datetime='2017-03-01'>2017-03-01</time></td>";
-		$content .= "<td><abbr title='Nara Institute of Science and Technology'>NAIST</abbr></td>";
+		$content .= "<td><abbr title='Nara Institute of Science and Technology'>NAIST</abbr>, Japan</td>";
 		$content .= "<td>Advanced Software Engineering<br/>(by Pr. Kenichi Matsumoto)</td>";
 		$content .= "<td><a href='$slidesUrl'>Introduction to Requirements Engineering</a></td>";
 		$content .= "</tr>";
@@ -33,7 +33,7 @@ class TeachingPage extends InternalPage {
 		$slidesUrl = Resource::getResource(13)->getFileUrl();
 		$content .= "<tr>";
 		$content .= "<td><time datetime='2015-03-24'>2015-03-24</time></td>";
-		$content .= "<td>University of Trento</td>";
+		$content .= "<td>University of Trento, Italy</td>";
 		$content .= "<td><a href='http://ict.unitn.it/program/exams/courses/30023-requirements-engineering'>Requirements Engineering</a><br/>(by Anna Perini)</td>";
 		$content .= "<td><a href='$slidesUrl'>IBM® Rational® DOORS®</a></td>";
 		$content .= "</tr>";
@@ -41,7 +41,7 @@ class TeachingPage extends InternalPage {
 		$slidesUrl = Resource::getResource(14)->getFileUrl();
 		$content .= "<tr>";
 		$content .= "<td><time datetime='2014-05-22'>2014-05-22</time></td>";
-		$content .= "<td>University of Trento</td>";
+		$content .= "<td>University of Trento, Italy</td>";
 		$content .= "<td><a href='http://ict.unitn.it/program/exams/courses/29022-requirements-engineering'>Requirements Engineering</a><br/>(by Anna Perini)</td>";
 		$content .= "<td><a href='$slidesUrl'>Stakeholders Prioritization</a></td>";
 		$content .= "</tr>";
