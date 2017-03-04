@@ -178,7 +178,9 @@ class Paper {
 			$paper->setDescription("M. Vergne, « Artificial Intelligence and Expertise: the Two Faces of the Same Artificial Performance Coin », technical report in Human-Machine Collaborative Learning workshop (AAAI conference), 2017.");
 			$paper->setURL(Paper::TBA);
 			$paper->setPDF(Resource::getResource(16)->getFileUrl());
+			$paper->setPDFSource(Resource::getResource(27)->getFileUrl());
 			$paper->setSlides(Resource::getResource(17)->getFileUrl());
+			$paper->setSlidesSource(Resource::getResource(28)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			// Check unique IDs
