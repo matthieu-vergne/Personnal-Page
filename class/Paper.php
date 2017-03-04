@@ -6,7 +6,9 @@ class Paper {
 	private $doi = null;
 	private $url = null;
 	private $pdf = null;
+	private $pdfSource = null;
 	private $slides = null;
+	private $slidesSource = null;
 	
 	public function __construct($id) {
 		if (empty($id)) {
@@ -58,12 +60,28 @@ class Paper {
 		return $this->pdf;
 	}
 	
+	public function setPDFSource($source) {
+		$this->pdfSource = $source;
+	}
+	
+	public function getPDFSource() {
+		return $this->pdfSource;
+	}
+	
 	public function setSlides($slides) {
 		$this->slides = $slides;
 	}
 	
 	public function getSlides() {
 		return $this->slides;
+	}
+	
+	public function setSlidesSource($source) {
+		$this->slidesSource = $source;
+	}
+	
+	public function getSlidesSource() {
+		return $this->slidesSource;
 	}
 	
 	private static $allPapers = null;
@@ -103,7 +121,9 @@ class Paper {
 			$paper->setDescription("M. Vergne and A. Susi, « Expert Finding Using Markov Networks in Open Source Communities », article in Advanced Information Systems Engineering, M. Jarke, J. Mylopoulos, C. Quix, C. Rolland, Y. Manolopoulos, H. Mouratidis, and J. Horkoff, Ed. Springer International Publishing, 2014, p. 196‑210.");
 			$paper->setDOI("10.1007/978-3-319-07881-6_14");
 			$paper->setPDF(Resource::getResource(3)->getFileUrl());
+			$paper->setPDFSource(Resource::getResource(19)->getFileUrl());
 			$paper->setSlides(Resource::getResource(10)->getFileUrl());
+			$paper->setSlidesSource(Resource::getResource(20)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('EvoSoft-2014');
@@ -116,26 +136,32 @@ class Paper {
 			$paper->setDescription("M. Vergne and A. Susi, « Breaking the Recursivity: Towards a Model to Analyse Expert Finders », article in Conceptual Modeling, vol. 9381, P. Johannesson, M. L. Lee, S. W. Liddle, A. L. Opdahl, and Ó. P. López, Ed. Cham: Springer International Publishing, 2015, p. 539‑547.");
 			$paper->setDOI("10.1007/978-3-319-25264-3_40");
 			$paper->setPDF(Resource::getResource(4)->getFileUrl());
+			$paper->setPDFSource(Resource::getResource(21)->getFileUrl());
 			$paper->setSlides(Resource::getResource(11)->getFileUrl());
+			$paper->setSlidesSource(Resource::getResource(22)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('arXiv-2016a');
 			$paper->setDescription("M. Vergne, « Gold Standard for Expert Ranking: A Survey on the XWiki Dataset », technical report in arXiv.org, 2016.");
 			$paper->setURL("https://arxiv.org/abs/1603.03809");
 			$paper->setPDF("https://arxiv.org/pdf/1603.03809");
+			$paper->setPDFSource(Resource::getResource(23)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('arXiv-2016b');
 			$paper->setDescription("M. Vergne, « Mitigation Procedures to Rank Experts through Information Retrieval Measures », technical report in arXiv.org, 2016.");
 			$paper->setURL("https://arxiv.org/abs/1603.04953");
 			$paper->setPDF("https://arxiv.org/pdf/1603.04953");
+			$paper->setPDFSource(Resource::getResource(24)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('thesis-2016');
 			$paper->setDescription("M. Vergne, « Expert Finding for Requirements Engineering », Ph.D. thesis in University of Trento, 2016.");
 			$paper->setURL("http://eprints-phd.biblio.unitn.it/1703/");
 			$paper->setPDF(Resource::getResource(5)->getFileUrl());
+			$paper->setPDFSource(Resource::getResource(25)->getFileUrl());
 			$paper->setSlides(Resource::getResource(12)->getFileUrl());
+			$paper->setSlidesSource(Resource::getResource(26)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('hmcl-2017');

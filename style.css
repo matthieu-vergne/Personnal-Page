@@ -173,7 +173,7 @@ article div#lastUpdateTime {
 #papers .links a img {
 	height: 1.5em;
 }
-#papers .TBA {
+#papers .TBA:after {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -181,6 +181,17 @@ article div#lastUpdateTime {
 	font-weight: bold;
 	color: black;
 	text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white;
+	content: 'TBA';
+}
+#papers .source:after {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	font-weight: bold;
+	font-size: 60%;
+	color: black;
+	text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white;
+	content: 'SRC';
 }
 
 #blog h1 {

@@ -13,6 +13,8 @@ class PapersPage extends InternalPage {
 		$table = "";
 		$counter = 0;
 		krsort($papers);// TODO Sort anti-chronologically, don't assume it is sorted chronologically.
+		$pdfImage = 'https://upload.wikimedia.org/wikipedia/commons/2/22/Pdf_icon.png';
+		$slidesImage = 'https://upload.wikimedia.org/wikipedia/commons/0/07/X-office-presentation.svg';
 		foreach($papers as $paper) {
 			$links = "";
 			
@@ -48,16 +50,28 @@ class PapersPage extends InternalPage {
 						$pdfUrl = Url::getCurrentUrl();
 						$pdfUrl->setQueryVar('redirect', $paper->getID());
 					}
-					$links .= PapersPage::formatLink($pdfUrl, 'pdf', 'https://upload.wikimedia.org/wikipedia/commons/2/22/Pdf_icon.png', 'PDF');
+					$links .= PapersPage::formatLink($pdfUrl, 'pdf', $pdfImage, 'PDF');
 				}
 			} else {
 				// no PDF
 			}
 			
+			if ($paper->getPDFSource() != null) {
+				$links .= PapersPage::formatLink($paper->getPDFSource(), 'source', $pdfImage, 'Source');
+			} else {
+				// no source
+			}
+			
 			if ($paper->getSlides() != null) {
-				$links .= PapersPage::formatLink($paper->getSlides(), 'slides', 'https://upload.wikimedia.org/wikipedia/commons/0/07/X-office-presentation.svg', 'Slides');
+				$links .= PapersPage::formatLink($paper->getSlides(), 'slides', $slidesImage, 'Slides');
 			} else {
 				// no slides
+			}
+			
+			if ($paper->getSlidesSource() != null) {
+				$links .= PapersPage::formatLink($paper->getSlidesSource(), 'source', $slidesImage, 'Source');
+			} else {
+				// no source
 			}
 			
 			$counter++;
@@ -97,10 +111,13 @@ class PapersPage extends InternalPage {
 	static function formatLink($url, $class, $image, $title) {
 		$img = "<img src='$image' alt='$title' title='$title'></img>";
 		if ($url === Paper::TBA) {
-			return "<a class='$class'>$img<span class='TBA' title='$title to be announced'>TBA</span></a>";
+			$title = "$title to be announced";
+			$class .= " TBA";
+			$url = "#";
 		} else {
-			return "<a class='$class' href='".$url."'>$img</a>";
+			// No change
 		}
+		return "<a class='$class' href='".$url."'>$img</a>";
 	}
 }
 ?>
