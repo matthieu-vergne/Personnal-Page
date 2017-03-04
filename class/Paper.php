@@ -9,6 +9,7 @@ class Paper {
 	private $pdfSource = null;
 	private $slides = null;
 	private $slidesSource = null;
+	private $datasets = array();
 	
 	public function __construct($id) {
 		if (empty($id)) {
@@ -82,6 +83,14 @@ class Paper {
 	
 	public function getSlidesSource() {
 		return $this->slidesSource;
+	}
+	
+	public function addDataset($dataset) {
+		return $this->datasets[] = $dataset;
+	}
+	
+	public function getDatasets() {
+		return $this->datasets;
 	}
 	
 	private static $allPapers = null;
@@ -162,6 +171,7 @@ class Paper {
 			$paper->setPDFSource(Resource::getResource(25)->getFileUrl());
 			$paper->setSlides(Resource::getResource(12)->getFileUrl());
 			$paper->setSlidesSource(Resource::getResource(26)->getFileUrl());
+			$paper->addDataset("http://selab.fbk.eu/vergne/Thesis-2016/");
 			Paper::$allPapers[] = $paper;
 			
 			$paper = new Paper('hmcl-2017');

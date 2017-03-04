@@ -74,6 +74,14 @@ class PapersPage extends InternalPage {
 				// no source
 			}
 			
+			if (!empty($paper->getDatasets())) {
+				foreach($paper->getDatasets() as $dataset) {
+					$links .= PapersPage::formatLink($dataset, 'dataset', 'https://upload.wikimedia.org/wikipedia/commons/4/49/Applications-database.svg', 'Dataset');
+				}
+			} else {
+				// no source
+			}
+			
 			$counter++;
 			$row = "<td class='counter'>[".$counter."]</td>";
 			$row .= "<td>".$paper->getDescription()."<br/><span class='links'>".$links."</span></td>";
@@ -105,6 +113,7 @@ class PapersPage extends InternalPage {
 		$form .= "</script>";
 		*/
 		
+		$content .= "<!--Database icon by dracos (http://dracos.deviantart.com/#/d2y5ele) [CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons-->";
 		return $content;
 	}
 	
