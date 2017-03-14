@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Generic Programming in Java</h1>
+
+<p>
+Usually, when speaking about Java, resources about Generic Programming focuses on the use of generics, although we saw in <a href="entry:4">a previous post</a> that it is not the only way to make generic programs.
+For instance, <a href="#Mathur2011">Mathur</a> go as far as saying that <cite>Generic programming can be seen simply as the act of using type parameters</cite>, speaking mainly about generics when speaking about Java.
+This is however an <a href="entry:4">over simplistic view of the task</a>, and Mathur somehow recognises it immediately after this sentence with a broader definition, but the paper remains on this restricted perspective.
+We have nothing against Mathur, of course, but this paper is illustrative of a pathological behaviour in the Java community: people looking for "Generic Programming in Java" on their favorite search engine will mainly find resources about what are generics and how to use them for a program to compile.
+Yet, generics have been introduced in Java to improve type checking at compile time, not to unlock the ability to make generic programs in the broad sense: the <a href="https://docs.oracle.com/javase/tutorial/java/generics/why.html">Oracle tutorial</a> may say so, but what can be done with generics can be done without them by using the type <code>Object</code> and proper casting.
+This is what was done before the introduction of generics, with what is called now <a hreaf="https://docs.oracle.com/javase/tutorial/java/generics/rawTypes.html">raw types</a>: it was important to remain retrocompatible with "generic" programs of the time, but generics only improve the <em>already present</em> ability to make generic programs, it does not <em>bestow</em> it.
+</p>
+
+<p>
+This confusion between generic programs (the broad sense) and generics (Java generic types and methods) is now established, which is why we mainly find resources about generics when we want to learn about Generic Programming in Java.
+But here we go beyond this confusion: our aim is to make generic programs, not to use a given generic feature only, but if we speak about Generic Programming in Java in a significantly different way than other people, the reader might just get confused.
+To remain consistent with current practice, we speak about Generic Programming in Java in the usual way, with a principal focus on the use of generics, and keep more advanced techniques for future posts about <em>Advanced</em> Generic Programming in Java.
+Oracle provides <a href="https://docs.oracle.com/javase/tutorial/java/generics/index.html">a complete lesson about generics</a>, so we will let interested people look around to master the feature.
+In this post, we will focus on the fundamental properties of generics that we can use for more advanced techniques, highlighting practical advantages and limitations that one can face in practice, while future posts will dig in the advanced techniques themselves.
+</p>
+
+<h2>What are Generics?</h2>
+
+<h3>Generic Methods</h3>
+
+<p>
+</p>
+<!-- TODO Inspire from Oracle tutorial -->
+
+<h3>Generic Types</h3>
+
+<p>
+</p>
+<!-- TODO Inspire from Oracle tutorial -->
+
+<h2>What are Generics Good For?</h2>
+
+<p>
+</p>
+<!-- TODO -->
+
+<h2>What are Mistakes to Avoid?</h2>
+
+<p>
+</p>
+<!-- TODO -->
+<!-- TODO MyClass<String> is not a child of MyClass<Object> -->
+
+<h2>Why Java Generics Are Not All About Generic Programs?</h2>
+
+<p>
+There is two ways to show that generics and generic programs are different things: by showing that generic programs do not need generics, and by showing that generics do not enforce generic programs.
+We show here an example for each of them.
+</p>
+
+<p>
+As mentionned, generics have been introduced with Java 5 in 2004, but people were already able to make generic programs before this introduction.
+<code>ArrayList</code> for example was introduced in Java 2, and at that time was dealing with <code>Object</code> items, as shown by the <a href="http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-downloads-javase12-419414.html#7549-j2sdk-1.2.2_006-doc-oth-JPR">Java 2 documentation</a>.
+This is how it was able to deal with any kind of instances, and this was possible because it does not need any information about the item itself.
+Surely, it was possible to add a <code>String</code> to a list which should contain only <code>Integer</code> instances without even a warning, meaning that this kind of mistakes should be checked at run time, but it was already possible to implement generic classes without generics.
+This class, and all the classes which existed before Java 5 and were refined to use generics from this version, provide a great evidence that generics are not a requirement for generic programming in the broad sense.
+</p>
+
+<p>
+The second evidence goes the other way around, and probably the most striking example is made by <a href="#Giovannelli2013">Giovannelli</a>, who makes a really good point by comparing the <cite>parametric polymorphism</cite> and <cite>ad-hoc polymorphism</cite> of <a href="#Strachey2000">Strachey</a>.
+<a href="https://docs.oracle.com/javase/tutorial/java/IandI/polymorphism.html">Polymorphism in Java</a> is the ability for a piece of data to be treated in different ways by changing its type.
+For example, an instance of <code>LinkedList</code> can be stored in a variable of type <code>LinkedList</code>, <code>List</code>, <code>Collection</code>, and many other compatible types, and any instance can be treated as an <code>Object</code> independently of its actual type.
+The <em>actual</em> type of the instance is obviously an instantiable class, but the <em>apparent</em> type of the instance (i.e. the type of the variable which stores it) decides what is visible at that time (the <code>LinkedList</code> methods of the instance are unavailable if we store it in a <code>Collection</code> variable).
+Parametric polymorphism is a polymorphism which only cares about the <em>apparent</em> type of the instance, like <code>LinkedList&lt;T>.addFirst(T item)</code> which adds <code>item</code> at the beginning of the list, whatever it is.
+Ad hoc polymorphism, at the opposite, simply hides the type-specific details, like the following method:
+</p>
+
+<pre><code>&lt;T> T add(T a, T b) {
+	if (a instanceof Integer) {
+		// Add 2 integers
+		return (T) new Integer((Integer) a + (Integer) b);
+	} else if (a instanceof Float) {
+		// Add 2 floats
+		return (T) new Float((Float) a + (Float) b);
+	} else if (a instanceof String) {
+		// Concatenate 2 strings
+		return (T) ((String) a + (String) b);
+	} else {
+		throw new RuntimeException("Unmanaged type: " + a.getClass());
+	}
+}
+</code></pre>
+
+<p>
+We can criticise this method in several ways, but let's focus on the polymorphism aspect.
+With this code, it is true that the method can receive any type, but this is an example of code which needs to know the <em>actual</em> type of the instance to be implemented.
+This is an example of program which uses generics while it is not generic in the broad sense, because it only manages the implemented types, not any type for which such a method would make sense (e.g. <code>Double</code> and <code>Long</code> are not managed).
+This is again an evidence that generics is not all what there is to make generic programs.
+</p>
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<h2 id="links">Related Posts</h2>
+
+TODO
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="Strachey2000">
+	Strachey, Christopher.
+	<cite>Fundamental Concepts in Programming Languages</cite>,
+	Higher-Order and Symbolic Computation 13, no. 1/2: 11–49,
+	<time datetime="2000">2000</time>.
+	DOI: <a href="https://dx.doi.org/10.1023/A:1010000313106">10.1023/A:1010000313106</a>
+</li>
+<li id="Mathur2011">
+	Mathur, Shilpa.
+	<cite>Generic Programming in C++ and Java.</cite>,
+	IJCSNS 11, no. 9 : 60,
+	<time datetime="2011">2011</time>.
+	URL: <a href="http://paper.ijcsns.org/07_book/html/201109/201109010.html">http://paper.ijcsns.org/07_book/html/201109/201109010.html</a>
+</li>
+<li id="Giovannelli2013">
+	Giovannelli, Daniel.
+	<cite>Programming in Algorithms: Generic Programming and Its Implementation</cite>,
+	Bachelor of Science, Haverford College. Sept. of Computer Science,
+	<time datetime="2013">2013</time>.
+	URL: <a href="http://hdl.handle.net/10066/11492">http://hdl.handle.net/10066/11492</a>
+</li>
+</ul>
+</body>
+</html>
