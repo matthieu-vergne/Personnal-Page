@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Advanced Generic Programming in Java:<br/>Information Layering</h1>
+
+<p>
+<!-- TODO -->
+</p>
+
+<h2>Context</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<h2>Application</h2>
+
+<p>
+As an assumption, information layering consists in assuming that an instance of a class or interface is used by the same informed user.
+In other words, if one of the methods is called with a given argument, then we can assume that any other method of the same class/interface can be called with the very same argument.
+The other way around, if a method returns a result, then this result should be acquired by this informed user who can then use it on another method of the same class.
+More generally, if a given information is provided to the method (i.e. argument or generics type) or by the method (i.e. returned value), then this information is available to the informed user, who can then reuse it on any other method of the class.
+This idea of "informed user" is of course a metaphor: methods are usually called within other methods, not by people directly.
+A different metaphor could be an "active database": at the opposite of a normal database, which passively stores and retrieves information on demand, this database has the initiative of calling the methods with the relevant information.
+The impact of such an assumption is that the internal state of the object is not the only one we can use to store data: this informed user acts as a secondary "state recorder" ready for use, but for which we do not need to specify the storage policy.
+</p>
+
+<p>
+The notion of information layering builds on the fact that this informed user provides a "layer" from which, wherever the call come from, all the information transited so far is available through this layer.
+This notion of layering becomes more concrete when applied on inheritance: we may design an interface, which is implemented by a first class, which is further extended by a child class.
+In this context, the first class acts as the informed user of the interface, while the child class acts as the informed user of the first class, thus adding successive layers of information.
+</p>
+
+<p>
+As an example, let's take a trivial case of a contact management with the following interface:
+</p>
+<pre><code>
+
+</code></pre>
+
+<h2>Advantages</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<h2>Limitations</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<h2 id="links">Related Posts</h2>
+
+TODO
+
+<h2 id="bibliography">Bibliography</h2>
+
+TODO
+<!--
+<ul>
+<li id="Strachey2000">
+	Strachey, Christopher.
+	<cite>Fundamental Concepts in Programming Languages</cite>,
+	Higher-Order and Symbolic Computation 13, no. 1/2: 11–49,
+	<time datetime="2000">2000</time>.
+	DOI: <a href="https://dx.doi.org/10.1023/A:1010000313106">10.1023/A:1010000313106</a>
+</li>
+<li id="Mathur2011">
+	Mathur, Shilpa.
+	<cite>Generic Programming in C++ and Java.</cite>,
+	IJCSNS 11, no. 9 : 60,
+	<time datetime="2011">2011</time>.
+	URL: <a href="http://paper.ijcsns.org/07_book/html/201109/201109010.html">http://paper.ijcsns.org/07_book/html/201109/201109010.html</a>
+</li>
+<li id="Giovannelli2013">
+	Giovannelli, Daniel.
+	<cite>Programming in Algorithms: Generic Programming and Its Implementation</cite>,
+	Bachelor of Science, Haverford College. Sept. of Computer Science,
+	<time datetime="2013">2013</time>.
+	URL: <a href="http://hdl.handle.net/10066/11492">http://hdl.handle.net/10066/11492</a>
+</li>
+</ul>
+-->
+</body>
+</html>

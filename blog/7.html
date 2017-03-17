@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Advanced Generic Programming in Java:<br/>Heterogenous Generic Type</h1>
+
+<p>
+Java provides the ability to implement generic methods, like <code>&lt;T> T add(T a, T b) {...}</code>, which allows to specify type constraints within a single method, independently of the others.
+On the other side, we also have generic types, like <code>class MyClass&lt;T> {...}</code>, which allows to specify a type constraint within the whole class (or interface), thus shared among all the methods of the class.
+An heterogenous generic type is something in between, which wants some of its methods to share some types, without limiting them to a finite set like a generic type.
+</p>
+
+<h2>Context</h2>
+
+<p>
+Let assume that you want to store various values for later retrieval.
+You may use a <code>Collection</code>, but all the items are not used at the same time and there is no trivial way to order them for easy retrieval, so you go for a <code>Map</code> which allows you to retrieve each item based on a custom key, for which you don't have particular constraints (as long as it gives you back the relevant item).
+However, your items are of various types (e.g. some <code>String</code> texts and <code>Integer</code> identifiers), so you would need to use a <code>Map&lt;Key, Object></code> to allow any kind of items, but you would loose the ability of obtaining the right type of item when calling <code>map.get(key)</code>, which would return an <code>Object</code> instance.
+Although you can cast the returned instance with the right type, mistakes like casting the wrong object with a wrong type would appear only at runtime.
+To take back the check to compile time, you need to ensure that the type of the item is properly stored and retrieved when using the corresponding key, such that the cast is automatically made with the right type.
+</p>
+
+<h2>Application</h2>
+
+<p>
+Instead of using a generic type like <code>Map&lt;K, V></code>, which enforces the generics to have the same value within the whole class, you can use generic methods, which do not make such enforcement, and ensure that they retrieve the right type at the right moment.
+You can do so by relying on the <a href="entry:6">information layering</a> assumption, thus by using the caller as the data storage.
+In our context, it can be done in this way:
+</p>
+<pre><code>
+public class HeterogeneousStorage {
+	public static class Key&lt;T> {}
+
+	private final Map&lt;Key&lt;?>, Object> map = new HashMap&lt;>() ;
+
+	public &lt;T> Key&lt;T> store(T item) {
+		Key&lt;T> key = new Key&lt;>() ;
+		map.put(key, item) ;
+		return key ;
+	}
+
+	@SuppressWarnings("unchecked") public &lt;T> T retrieve(Key&lt;T> key) {
+		return (T) map.get(key) ;
+	}
+}
+</code></pre>
+
+<p>
+First thing to notice, the type of item is not specified anymore at the class level, because we don't want it to be unique.
+It is specified instead when calling <code>store(item)</code>, which specifies the type of item as <code>T</code> only for this method.
+Because no particular constraint is required regarding the key, we use a custom class <code>Key</code>, and we generate the key upon receiving the item to store.
+What we want then is, when calling <code>retrieve(key)</code>, to retrieve the item with its correct type.
+Because the only data we provide to <code>retrieve()</code> is the key of the item, we can only exploit this instance to provide also the type of item to return, which is why the <code>Key</code> class is a generic type with <code>T</code>.
+Consequently, also the type of key is not specified at the class level, because its type <code>T</code> can vary depending on the item, so we should not enforce a single type of key.
+This way, the <code>retrieve()</code> method can automatically cast the retrieved item with the type <code>T</code> of the key.
+But are we sure that we have stored the right type of item with this key? What if we make the mistake when using <code>store()</code> rather than <code>retrieve()</code>?
+This mistake is avoided by having <code>store()</code> shares the same <code>T</code> for both the key and the item, thus ensuring that the type of the key corresponds to the type of the item stored.
+Because we internally use a basic <code>Map&lt;Key&lt;?>, Object></code>, the returned item is of type <code>Object</code>, and the compiler is not able to ensure that casting it to <code>T</code> in <code>retrieve()</code> is legal, leading to the generation of a warning.
+We can safely suppress this warning with <code>@SuppressWarnings("unchecked")</code> because we have enforced this item to be of the same type than the key in <code>store()</code>, thus ensuring that the cast is legal.
+</p>
+
+<p>
+A particular comment should be made about the dependency to the <a href="entry:6">information layering</a> assumption.
+The key returned by <code>store()</code> is assumed to be saved by the caller <strong>with the right type</strong>, such that proper type check can be ensured by the compiler.
+Of course, the storage could provide a method to get all the keys, but we have no way to retrieve the type <code>T</code> of each key (so the type of the item itself), which must be done manually through casting, and thus by having type-specific code somewhere.
+One may trick the storage by implementing a method <code>getKeyOf(item)</code>, such that the returned key 
+By assuming that the information is layered, we assume that the type information is maintained by the caller.
+</p>
+
+<p>
+This code can be tested in this way:
+</p>
+<pre><code>
+// Instantiate the heterogeneous storage
+HeterogeneousStorage map = new HeterogeneousStorage() ;
+
+// The key's type is automatically inferred from the item
+Key&lt;Integer> key1 = map.store(1) ;
+System.out.println(map.retrieve(key1)) ;// 1
+System.out.println() ;
+
+// Different types can be used
+Key&lt;String> key2 = map.store("test") ;
+System.out.println(map.retrieve(key1)) ;// 1
+System.out.println(map.retrieve(key2)) ;// test
+System.out.println() ;
+
+// Different keys with the same type can be used too
+Key&lt;String> key3 = map.store("test 2") ;
+System.out.println(map.retrieve(key1)) ;// 1
+System.out.println(map.retrieve(key2)) ;// test
+System.out.println(map.retrieve(key3)) ;// test 2
+System.out.println() ;
+</code></pre>
+
+<p>
+Of course the <code>Key&lt;T></code> class can be enriched with more data, like a name to use in <code>toString()</code>.
+If some of this information should be provided by the caller, whether we add this information into the arguments of <code>store()</code>, whether we directly ask the caller to provide the key instance, leading to a usual map design (<code>storage.store(key, item)</code> would correspond to <code>map.put(key, item)</code> and <code>storage.retrieve(key)</code> to <code>map.get(key)</code>).
+In such a situation, other items can be assigned to the same key (as long as the type fits) for replacement, and different key instances can be equal by overriding the <code>equals()</code> and <code>hashcode()</code> methods properly.
+</p>
+
+<p>
+</p>
+
+<h2>Advantages</h2>
+
+<p>
+<!-- TODO -->
+More flexible than <a href="https://en.wikipedia.org/wiki/Marker_interface_pattern">Marker</a> design pattern
+</p>
+
+<h2>Limitations</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<h2>Relation With Typesafe Heterogeneous Containers</h2>
+
+<p>
+People familiar with advanced Java techniques may have heard about the typesafe heterogeneous container of <a href="#Bloch2008">Bloch</a> (item 29, p.142), which uses directly a <code>Class&lt;T></code> as key to identify a record in a typesafe manner.
+This implementation, however, does not allow to store several items of the same type, because every <code>Class&lt;T></code> instances are equal, leading to replace the stored item by a new one.
+
+</p>
+
+<p>
+Bloch mention other issues, like the ability to trick the implementation by using a raw type, allowing then to 
+</p>
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<h2 id="links">Related Posts</h2>
+
+TODO
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="Bloch2008">
+	Bloch, Joshua.
+	<cite>Effective Java</cite>,
+	2nd ed. The Java Series. Upper Saddle River, NJ: Addison-Wesley,
+	<time datetime="2008">2008</time>.
+	ISBN: 978-0-321-35668-0
+</li>
+</ul>
+</body>
+</html>
