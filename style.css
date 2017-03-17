@@ -196,11 +196,6 @@ article div#lastUpdateTime {
 
 #blog h1 {
 	text-align: center;
-	text-transform: capitalize;
-}
-
-#blog h2 {
-	text-transform: capitalize;
 }
 
 #blog table {
