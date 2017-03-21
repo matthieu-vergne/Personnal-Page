@@ -38,7 +38,7 @@ In this post, we will focus on the fundamental properties of generics that we ca
 <h2>What are Generics?</h2>
 
 <p>
-Generics has been introduced in Java 5 to <cite>add stability to your code by making more of your bugs detectable at compile time<cite>, dixit the <a href="https://docs.oracle.com/javase/tutorial/java/generics/">Oracle tutorial</a>.
+Generics has been introduced in Java 5 to <cite>add stability to your code by making more of your bugs detectable at compile time</cite>, dixit the <a href="https://docs.oracle.com/javase/tutorial/java/generics/">Oracle tutorial</a>.
 Like a method <code>print(String text)</code> tells that a textual value should be provided to the method, but let the user choose what the actual value of this text is, generics tell that a type (class or interface) should be provided, but let the user choose which one.
 </p>
 <!-- TODO Inspire from Oracle tutorial -->
@@ -62,7 +62,7 @@ public class Checker {
 
 <p>
 The <code>check()</code> method specifies two arguments of type <code>T</code> and returns the very same type of argument.
-<code>T</code> can correspond to any type, the only constraint being that each argumetn and the returned value have the same type.
+<code>T</code> can correspond to any type, the only constraint being that each argument and the returned value have the same type.
 A method using no generics would need to take and return <code>Object</code> instances, but then we would miss the compiler check, for instance returning <code>""+value</code> instead of <code>value</code> would be perfectly legal, and the error would be catched only at runtime.
 If we instantiate a <code>checker</code> instance and call <code>checker.check("test", "default")</code>, it will return a <code>String</code> instance corresponding to the first argument (because it is not null).
 If, with the same instance, we call <code>checker.check(1, 0)</code>, it will return an <code>Integer</code> (equals to 1) because the returned type is aligned with the type of the arguments.
@@ -70,17 +70,21 @@ If we call <code>checker.check(null, "Oops!")</code>, although we don't know the
 </p>
 
 <p>
-In the previous examples, the type was implicitly inferred from the arguments, and it was trivial because they were all of the same type.
+In this example, the type is implicitly inferred from the arguments, and it is trivial because they were all of the same type.
 But calling <code>checker.check(1, "default")</code> is also valid, because although they do not have the same type, they have a <em>parent</em> type in common, which is <code>Object</code>.
-Consequently, they are style considered as instance of the same type and the returned value is considered to be an <code>Object</code> instance.
-If we want to enforce the type to be <code>String</code>, we can do it by calling <code>checker.&lt;String>check(1, "default")</code>, which is an explicit typing of the method and which makes this code invalid (replacing <code>1</code> by <code>"1"</code> fixes it).
+Consequently, they are still considered as instances of the same type and the returned value is considered to be an <code>Object</code> instance.
+If we want to enforce the type to be <code>String</code>, we can do it by calling <code>checker.&lt;String>check(1, "default")</code>, which is an explicit typing of the method and makes this code invalid.
+</p>
+
+<p>
+It is also worth knowing that constructors can have their own generics as well, thus making them generic constructors.
 </p>
 
 <h3>Generic Types</h3>
 
 <p>
-Generic methods are nice, but their types are independent.
-If we want several methods to share their generics, we need to share the information in some ways.
+Generic methods are nice, but the generics of a given method are independent from the generics of another, even if they have the same name.
+If we want several methods to share their generics, we need to share the type information in some ways.
 One way to do is by assigning generics to the whole class by making it a generic type:
 </p>
 <pre><code>
@@ -100,14 +104,17 @@ public class Storage&lt;T> {
 <p>
 Here, not only the <code>set()</code> method builds on a customisable type <code>T</code>, but also the method <code>get()</code> and the member <code>value</code>.
 Because all these <code>T</code> correspond to the generics specified at the class level, they are all the same, which means that if <code>T</code> is <code>Integer</code>, then the method <code>set()</code> only accepts an <code>Integer</code> value, the member is itself considered as an <code>Integer</code>, and the value returned by <code>get()</code> is again an <code>Integer</code>.
-Instantiating a <code>intStorage = new Storage&lt;Integer>()</code> for example allows to call <code>intStorage.set(1)</code> but not <code>intStorage.set("test")</code>.
+Instantiating an <code>intStorage = new Storage&lt;Integer>()</code> for example allows to call <code>intStorage.set(1)</code> but not <code>intStorage.set("test")</code>.
 </p>
 
+<h3>Multiple Generics</h3>
+
 <p>
-A limitation of generic types is that they can only manage a finite (and preferably short) amount of generics.
-This is something we actually want for homogeneous objects, like our <code>Storage&lt;T></code> example which is supposed to store a single type of instance.
+Generic methods and types can specify several generics, for instance <code>Storage&lt;T1, T2></code> could be used to store 2 values, one of type <code>T1</code> and another of type <code>T2</code> (with the set/get methods for each value).
+However, a limitation of generic types and methods is that they can only manage a finite (and preferably short) amount of generics at a time.
+This is enough for homogeneous objects, like our <code>Storage&lt;T></code> example which is supposed to store a single type of instance.
 But if we want to implement an heterogeneous object, like a map which has a different type of item depending on the key, then doing so with a generic type requires to use <code>Object</code> (or the most generic we need) to be able to store them, thus cancelling compiler checking.
-To allow multiple types, one needs to exploit the independency of generic methods instead, and because generic methods are independent, the type need to be stored and retrieved in another way.
+To allow an arbitrary number of types, one needs to exploit the independency of generic methods and, because generic methods are independent, the type need to be stored and retrieved in another way.
 People interested in this kind of container may look at the <a href="entry:7">Heterogenous Generic Type</a>, which deals exactly with this issue.
 </p>
 
@@ -128,9 +135,73 @@ public class Checker {
 
 <p>
 The code remains exactly the same, but calling the method with <code>String</code> instances will be invalid, while calls with <code>Integer</code> or <code>Float</code> instances will be valid.
-Although it happens far less frequently, it is also possible to say that a generic should accept any type equal or <em>parent</em> of <code>Number</code> (for our example) by replacing <code>extends</code> by <code>super</code>.
-While <code>extends</code> usually applies to parameters used as <em>inputs</em>, like both <code>value</code> and <code>defaultValue</code> in our example, <code>super</code> usually applies to parameters used as <em>outputs</em>, like the example below:
+By bounding the generics to a specific type, it is then guaranteed that some methods will be available, like here <code>Number</code> implies to have access to the method <code>intValue()</code>.
+This means that the <code>T</code> instances can exploit these methods, for instance <code>value.intValue() + defaultValue.intValue()</code>.
+Bounding generics thus act as a way to ensure that the designed code is designed for specific uses, while a generic code should try to limit the bounding as much as possible, remove it in the best case.
 </p>
+
+<p>
+Although the keyword is <code>extends</code>, it does not apply only to classes which <em>extend</em> other classes, or interfaces which <em>extend</em> other interfaces, but also to classes which <em>implement</em> interfaces.
+It is also possible to bound the generics to several classes or interfaces, like <code>&lt;T extends Serializable &amp; Cloneable &amp; Comparable&lt;T>></code>, which means that <code>T</code> should extend or implement <em>all</em> the classes or interfaces listed.
+Because Java cannot extend more than one class, only one class can be used to bound a generics and it should be listed first, while any number of interfaces can be added.
+Notice the <code>Comparable&lt;T></code>, which uses the generics it is bounding: generics can be used to bound other generics as well as themselves.
+</p>
+
+<h3>Wildcard <code>?</code></h3>
+
+<p>
+Although generics provide a useful way to constrain the type of a variable in various ways, some constraints are not worth the introduction of a generics.
+For example:
+</p>
+<pre><code>
+public &lt;T> void print(List&lt;T> list) {
+	for (T item : list) {
+		System.out.println(item);
+	}
+}
+</code></pre>
+
+<p>
+This method allows to print the items contained in the list on the console, but no concrete use is made of <code>T</code>: any instance can be used in this way, thus leading to wonder whether it is worth to specify it in the first place.
+A usual mistake would be to think that, because we use the items as <code>Object</code> instances, we might as well replace <code>T</code> by <code>Object</code>, but it enforces <code>list</code> to be a <code>List&lt;Object></code>, thus forbiding to use this method on a <code>List&lt;Integer></code> for example.
+This is because there is no inheritance link between a <code>List&lt;Object></code> and a <code>List&lt;Integer></code> (see <a href="#mix_class_and_generics_inheritance">here</a> for an explanation).
+In this case, we don't want to constrain the <code>List</code> to be on a specific type of items, we explicitly want it to be on <em>any</em> type of item, which is achieved by using the wildcard <code>?</code>:
+</p>
+<pre><code>
+public void print(List&lt;?> list) {
+	for (Object item : list) {
+		System.out.println(item);
+	}
+}
+</code></pre>
+
+<p>
+We can see that the items are considered as <code>Object</code> instances anyway, but the list is not constrained anymore and can accept <code>List&lt;Object></code> as well as <code>List&lt;Integer></code> lists.
+Only the items will be considered with the most generic type possible, which is <code>Object</code> here because the wildcard is unbounded.
+It is possible to bound the wildcard in the same way than generics with <code>extends</code>, such that <code>List&lt;? extends Number></code> will accept any <code>List&lt;Integer></code> or <code>List&lt;Float></code> but reject <code>List&lt;String></code>.
+The items are, consequently, considered as <code>Number</code>, and methods provided by this class can be used.
+</p>
+
+<p>
+Although it happens far less frequently, it is also possible to say that a wildcard should accept any type equal or <em>parent</em> of <code>Number</code> (for our example) by replacing <code>extends</code> by <code>super</code>.
+While <code>extends</code> usually applies to parameters used as <em>inputs</em>, like the list we read in the previous example, <code>super</code> usually applies to parameters used as <em>outputs</em>, like the example below:
+</p>
+<pre><code>
+public void print(List&lt;? super Number> list) {
+	list.add(0);
+}
+</code></pre>
+
+<p>
+Indeed, we say here that we want a list able to accept any <code>Number</code> instances, which can be achieved by a <code>List&lt;Number></code> or a <code>List&lt;Object></code>, but not by a <code>List&lt;Integer></code> (a <code>Float</code> is not accepted despite being also a <code>Number</code>).
+Because this constraint means that the list can accept <em>at least</em> <code>Number</code> instances, it could contain anything else too, and thus calling <code>list.get(index)</code> returns an instance recognised as an <code>Object</code>, not a <code>Number</code>.
+If one want to have both a lower and an upper bound to the wildcard, one should prefer to use generics, as shown <a href="http://stackoverflow.com/a/29451739/2031083">here</a>, because Java does not allow to use <code>super</code> and <code>extends</code> together.
+<!-- TODO Is it a technical limitation or is it justified? -->
+Other limitations can occur, like the <a href="https://docs.oracle.com/javase/tutorial/java/generics/capture.html">wildcard capture</a> errors, but the interested reader can dig in the linked material for more information.
+Interested people can also consider <a href="https://docs.oracle.com/javase/tutorial/java/generics/wildcardGuidelines.html">these guidelines</a> to figure out how to use wildcards in there code.
+</p>
+
+(TODO: Here starts another post about differences between generics and generic programming)
 
 <h2>What are Generics Good For?</h2>
 
@@ -145,12 +216,37 @@ As such, it allows to specify constraints like which types should be aligned
 <p>
 We do not speak here about pieces of code that do not compile, but valid uses of generics which nevertheless show that something has gone wrong in the design, what one would call <a href="https://en.wikipedia.org/wiki/Anti-pattern">anti-pattern</a>.
 </p>
-<!-- TODO -->
+
+<h3>Specify useless bounds</h3>
+
+<p>
+Bounding generics is useful to ensure that only a given kind of instances is used, but producing generic code implies to seek for the least specific design.
+In particular, the bounding of generics should be motivated by their use: if a generic method bounds a generics to <code>List</code> but only uses its <code>iterator()</code> method, then the generics is over constrained.
+In this situation, <code>List</code> should be replaced by <code>Iterable</code>, which is the one specifying the <code>iterator()</code> method.
+For a generic type, the reasoning applies on the whole class or interface which specifies it: if the class or interface use nothing specific to the bounding type, then a parent class or interface should be considered or the bounding should be simply removed.
+</p>
+
+<p>
+A tricky case is the bounding in interfaces and abstract classes, which are supposed to be extended: one may think that the bounding is motivated because we expect child classes to use these features.
+But one should not forget that any child class can apply a more restricted bounding to the generics its parent requires, thus ensuring that the relevant methods are available at the child level.
+So although programming with generics does not forbid it, producing generic programs does: if the current level does not motivate for such bounding, such bounding is irrelevant at the current level.
+Consequently, a generic programmer should seek for the least bounded definition, which allows to use the class or interface in the most various contexts.
+This is an application of the <a href="entry:6">information layering</a> assumption.
+</p>
+
+<p>
+Additionally, the introduction of default methods in Java 8 allows to implement methods in interfaces, which can then be used as a motivation for bounding the generics.
+However, default methods are the ones which should be motivated based on the aim of the interface, not the reverse.
+For example, it makes sense for an abstract class having no member to be transformed into an interface with default methods, because it was designed with a functional purpose in mind.
+Nevertheless, aiming for a more generic design remain a goal of the generic programmer, and if two designs allows the same extensions, then the most generic one should be preferred.
+</p>
 
 <h3>Specify useless generics</h3>
 
 <p>
-Let assume that you want to make a method which can display on the console anything you may give it, thus leading to the generic method:
+Pushing the reasoning of useless bounding further, which is an example of removal of useless constraints, one should pay attention to useless generics, which is another example of useless constraints.
+As we saw, generics helps the compiler to align types of instances, but if no such alignment is required, then generics are not required either.
+For example:
 </p>
 <pre><code>
 public &lt;T> void print(T object) {
@@ -159,53 +255,30 @@ public &lt;T> void print(T object) {
 </code></pre>
 
 <p>
-Surely, this method factors some code, but the issue is not on the usefulness of the method but on its design: the generics <code>T</code> provides no added value to the method.
-In this case, replacing it by the most generic type is preferable: <code>Object</code> here, while a bounded generics would be replaced by its bound, like <code>T extends Number</code> would be replaced by <code>Number</code>.
+This method specifies a generics <code>T</code> for the instance <code>object</code>, but this instance is never used in a situation where the type <code>T</code> is required.
+In such a case, the generics should be replaced by its bound, so <code>T extends Number</code> sould be replaced by <code>Number</code>, or by <code>Object</code> if it is unbounded.
 This preference comes from the <a href="https://en.wikipedia.org/wiki/Occam%27s_razor">law of parsimony</a>, or for a more software-oriented reasoning the <a href="https://en.wikipedia.org/wiki/KISS_principle">KISS principle</a>.
 By simply requiring an <code>Object</code>, one does not have to care about the generics, while by adding the generics <code>T</code>, additional care must be provided regarding which type to choose when calling the method.
-This is particularly obvious for a generic type: if a generic type specifies a useless generics, people will still have to ask themselves which type to use when instantiating it.
+This is particularly obvious for a generic type: if a generic type specifies a useless generics, people will still have to ask themselves which type to use when instantiating or extending it.
 </p>
 
 <p>
-It is important to understand that it is a design issue, not an implementation issue: if this design is imposed by an interface that we implement, then such a design choice should not be argued because of this specific implementation.
-At best, we can argue about the relevance of implementing this interface, or implementing it in this way, but the relevance of the design of this method should be considered at the interface level.
-For example, we may consider the <code>Consumer</code> interface provided since Java 8 with lambda expressions:
+An exception to this rule is the use of multiple bounds: Java does not allow a parameter or a returned value to be a composition of several types, at the opposite of a generics <code>T extends A &amp; B &amp; C</code>.
+It is possible to do it without generics by using the <a href="https://en.wikipedia.org/wiki/Adapter_pattern">adapter design pattern</a>: the adapter implements the various interfaces the method requires, and any instance implementing all the interfaces can be wrapped into an adapter instance before to be provided to the method.
+In order to avoid such extra work, a generics can be used as a reliable way to fulfil this requirement.
 </p>
-<pre><code>
-public interface Consumer&lt;T> {
-    void accept(T t);
-
-    ...
-}
-</code></pre>
 
 <p>
-This interface is supposed to be used when a value should be exploited in some customised ways that we do not care about at the generic level.
-Through the generics <code>T</code>, we ensure that all the relevant features of the instance are available within the <code>accept()</code> method for its implementation.
-But we may also have this particular implementation:
-</p>
-<pre><code>
-public class EmptyConsumer&lt;T> implements Consumer&lt;T> {
-
-	@Override
-	public void accept(T t) {
-		// Do nothing
-	}
-}
-</code></pre>
-
-<p>
-Obviously, the generics <code>T</code> has no use at all here and using <code>Object</code> would be enough, but this is a design requirement from the higher level interface, so it is not an example showing that this design choice is wrong at the interface level.
-We can only argue regarding the choice of implementing <code>Consumer</code> in this way.
-In particular, we might need to implement the interface because we want to use this implementation in a method which requires a <code>Consumer</code>, while choosing to keep the generics <code>T</code> instead of directly implementing <code>Consumer&lt;Object></code> is a way to make it usable also when, for example, a <code>Consumer&lt;Integer></code> is required.
-<!-- TODO Link to post about coverage increase to achieve a higher genericity -->
+It is important to understand that a useless generics is a design issue, not an implementation issue: if this design is imposed by an interface that we implement, then such a design choice should not be argued because of this specific implementation.
+At best, we can argue about the relevance of implementing this interface, or implementing it in this way, but the relevance of the design of this method should be considered at the interface level, where it is required.
+This is again an application of the <a href="entry:6">information layering</a> assumption.
 </p>
 
 <h3>Omit generics (raw types)</h3>
 
 <p>
 Raw types are generic types for which we omit to specify the type at instantiation time, like <code>new Storage()</code> which omits to tell which type of data is stored.
-These raw types act as if we provide the most generic type possible, so <code>new Storage&lt;Object>()</code> in this example, or <code>new Storage&lt;Number>()</code> if the class is bounded to <code>Number</code> types only.
+These raw types act as if we provide the most generic type possible<!-- wildcard rather than most generic? -->, so <code>new Storage&lt;Object>()</code> in this example, or <code>new Storage&lt;Number>()</code> if the class is bounded to <code>Number</code> types only.
 However, it only does so loosely: a raw type is not strictly specified, for instance while the compiler complains with <code>Storage&lt;Object> s = new Storage&lt;String>()</code>, it does not for <code>Storage s = new Storage&lt;String>()</code>.
 This behaviour is for retrocompatibility with legacy code made before Java 5, when generics did not exist yet.
 Consequently, you may then write <code>s.set(1)</code>, which only generates a warning but fails at runtime because you provide an <code>Integer</code> instead of a <code>String</code>.
@@ -224,7 +297,7 @@ A last justification is that, for advanced generic programming, a particular car
 Consequently, refusing to decide which type to use is not a behaviour compatible with a generic programming mindset.
 </p>
 
-<h3>Mix class inheritance with generics inheritance</h3>
+<h3 id="mix_class_and_generics_inheritance">Mix class inheritance with generics inheritance</h3>
 
 <p>
 <!-- TODO String is a child of Object -->
@@ -240,6 +313,10 @@ Consequently, refusing to decide which type to use is not a behaviour compatible
 
 <p>
 <!-- TODO Generics only have impact on inheritance at coding time, because they must be compliant with parent bounds -->
+<!-- TODO If inheritance must be checked between generics, consider to use "? extends ParentClass" -->
+More details in the Oracle tutorial
+<a href="https://docs.oracle.com/javase/tutorial/java/generics/inheritance.html">[1]</a>
+<a href="https://docs.oracle.com/javase/tutorial/java/generics/subtyping.html">[2]</a>.
 </p>
 
 <h2>Why Java Generics Are Not All About Generic Programs?</h2>
