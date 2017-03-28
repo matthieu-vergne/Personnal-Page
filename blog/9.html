@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Generic Programming in Java:<br/>Java Generics Vs. Generic Programming</h1>
+
+<p>
+As we saw in <a href="entry:5">a previous post</a>, generics aim for providing to the compiler the required information to properly check the code despite delegating the choice of the type to a later time (instantiation for generic types, call for generic methods).
+As such, it allows to specify constraints like which types are acceptable and how the different variables are related to these types.
+</p>
+<!-- TODO -->
+
+<p>
+Usually, when speaking about Java, resources about Generic Programming focuses on the use of generics, although we saw in <a href="entry:4">a previous post</a> that it is not the only way to make generic programs.
+
+Yet, generics have been introduced in Java to improve type checking at compile time, not to unlock the ability to make generic programs in the broad sense: the <a href="https://docs.oracle.com/javase/tutorial/java/generics/why.html">Oracle tutorial</a> may say so, but what can be done with generics can be done without them by using the type <code>Object</code> and proper casting.
+This is what was done before the introduction of generics, with what is called now <a hreaf="https://docs.oracle.com/javase/tutorial/java/generics/rawTypes.html">raw types</a>: it was important to remain retrocompatible with "generic" programs of the time, but generics only improve the <em>already present</em> ability to make generic programs, it does not <em>bestow</em> it.
+</p>
+
+<p>
+However, generics is not everything there is to know about to be able to produce generic programs in Java.
+In this post, we do not speak here about pieces of code that do not compile because of a misuse of generics, aspects which are already detailed <a href="https://docs.oracle.com/javase/tutorial/java/generics/restrictions.html">elsewhere</a>, but compilable code which leads to non-generic programs.
+Said another way, valid uses of generics which nevertheless show that something has gone wrong in the design, what one would call <a href="https://en.wikipedia.org/wiki/Anti-pattern">anti-pattern</a>.
+</p>
+
+<h2>Why Java Generics Are Not All About Generic Programs?</h2>
+
+<p>
+There is two evidences to provide to show that generics and generic programs are different things: by showing that generic programs do not require generics, and by showing that generics do not require programs to be generic.
+We show here an example for each of them.
+</p>
+
+<p>
+As mentionned, generics have been introduced with Java 5 in 2004, but people were already able to make generic programs before this introduction.
+<code>ArrayList</code> for example was introduced in Java 2, and at that time was dealing with <code>Object</code> items, as shown by the <a href="http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-downloads-javase12-419414.html#7549-j2sdk-1.2.2_006-doc-oth-JPR">Java 2 documentation</a>.
+This is how it was able to deal with any kind of instances, and this was possible because it needs no information about the item itself.
+Surely, it was possible to add a <code>String</code> to a list which should contain only <code>Integer</code> instances without even a warning, meaning that this kind of mistakes should be checked at run time, but it was already possible to implement generic classes without generics.
+This class, and all the classes which existed before Java 5 and were refined to use generics from this version, provide a great evidence that generics are not a requirement for generic programming in the broad sense.
+</p>
+
+<p>
+The other way around, and probably the most striking example of it, is made by <a href="#Giovannelli2013">Giovannelli</a>, who makes a really good point by comparing the <cite>parametric polymorphism</cite> and <cite>ad-hoc polymorphism</cite> of <a href="#Strachey2000">Strachey</a>.
+<a href="https://docs.oracle.com/javase/tutorial/java/IandI/polymorphism.html">Polymorphism in Java</a> is the ability for a piece of data to be treated in different ways by changing its type.
+For example, an instance of <code>LinkedList</code> can be stored in a variable of type <code>LinkedList</code>, <code>List</code>, <code>Collection</code>, and many other compatible types, and any instance can be treated as an <code>Object</code> independently of its actual type.
+The <em>actual</em> type of the instance is obviously an instantiable class, but the <em>apparent</em> type of the instance (i.e. the type of the variable which stores it) decides what is visible at that time (the <code>LinkedList</code> methods of the instance are unavailable if we store it in a <code>Collection</code> variable).
+Parametric polymorphism is a polymorphism which only cares about the <em>apparent</em> type of the instance, like <code>LinkedList&lt;T>.addFirst(T item)</code> which adds <code>item</code> at the beginning of the list, whatever it is.
+Ad hoc polymorphism, at the opposite, simply hides the type-specific details, like the following method:
+</p>
+
+<pre><code>&lt;T> T add(T a, T b) {
+	if (a instanceof Integer) {
+		// Add 2 integers
+		return (T) new Integer((Integer) a + (Integer) b);
+	} else if (a instanceof Float) {
+		// Add 2 floats
+		return (T) new Float((Float) a + (Float) b);
+	} else if (a instanceof String) {
+		// Concatenate 2 strings
+		return (T) ((String) a + (String) b);
+	} else {
+		throw new RuntimeException("Unmanaged type: " + a.getClass());
+	}
+}
+</code></pre>
+
+<p>
+We can criticise this method in several ways, but let's focus on the polymorphism aspect.
+With this code, it is true that the method can receive any type, but this is an example of code which needs to know the <em>actual</em> type of the instance to be implemented.
+This is an example of program which uses generics while it is not generic in the broad sense, because it only manages the implemented types, not any type for which such a method would make sense (e.g. <code>Double</code> and <code>Long</code> are not managed).
+This is again an evidence that generics is not all what there is to make generic programs.
+</p>
+
+<h2>Specify useless bounds</h2>
+
+<p>
+Bounding generics is useful to ensure that only a given kind of instances is used, but producing generic code implies to seek for the least specific design.
+In particular, the bounding of generics should be motivated by their use: if a generic method bounds a generics to <code>List</code> but only uses its <code>iterator()</code> method, then the generics is over constrained.
+In this situation, <code>List</code> should be replaced by <code>Iterable</code>, which is the one specifying the <code>iterator()</code> method.
+For a generic type, the reasoning applies on the whole class or interface which specifies it: if the class or interface use nothing specific to the bounding type, then a parent class or interface should be considered or the bounding should be simply removed.
+</p>
+
+<p>
+A tricky case is the bounding in interfaces and abstract classes, which are supposed to be extended: one may think that the bounding is motivated because we expect child classes to use these features.
+But one should not forget that any child class can apply a more restricted bounding to the generics its parent requires, thus ensuring that the relevant methods are available at the child level.
+So although programming with generics does not forbid it, producing generic programs does: if the current level does not motivate for such bounding, such bounding is irrelevant at the current level.
+Consequently, a generic programmer should seek for the least bounded definition, which allows to use the class or interface in the most various contexts.
+This is an application of the <a href="entry:6">information layering</a> assumption.
+</p>
+
+<p>
+Additionally, the introduction of default methods in Java 8 allows to implement methods in interfaces, which can then be used as a motivation for bounding the generics.
+However, default methods are the ones which should be motivated based on the aim of the interface, not the reverse.
+For example, it makes sense for an abstract class having no member to be transformed into an interface with default methods, because it was designed with a functional purpose in mind.
+Nevertheless, aiming for a more generic design remain a goal of the generic programmer, and if two designs allows the same extensions, then the most generic one should be preferred.
+</p>
+
+<h2>Specify useless generics</h2>
+
+<p>
+Pushing the reasoning of useless bounding further, which is an example of removal of useless constraints, one should pay attention to useless generics, which is another example of useless constraints.
+As we saw, generics helps the compiler to align types of instances, but if no such alignment is required, then generics are not required either.
+For example:
+</p>
+<pre><code>
+public &lt;T> void print(T object) {
+	System.out.println("Object recieved: " + object);
+}
+</code></pre>
+
+<p>
+This method specifies a generics <code>T</code> for the instance <code>object</code>, but this instance is never used in a situation where the type <code>T</code> is required.
+In such a case, the generics should be replaced by its bound, so <code>T extends Number</code> sould be replaced by <code>Number</code>, or by <code>Object</code> if it is unbounded.
+This preference comes from the <a href="https://en.wikipedia.org/wiki/Occam%27s_razor">law of parsimony</a>, or for a more software-oriented reasoning the <a href="https://en.wikipedia.org/wiki/KISS_principle">KISS principle</a>.
+By simply requiring an <code>Object</code>, one does not have to care about the generics, while by adding the generics <code>T</code>, additional care must be provided regarding which type to choose when calling the method.
+This is particularly obvious for a generic type: if a generic type specifies a useless generics, people will still have to ask themselves which type to use when instantiating or extending it.
+</p>
+
+<p>
+An exception to this rule is the use of multiple bounds: Java does not allow a parameter or a returned value to be a composition of several types, at the opposite of a generics <code>T extends A &amp; B &amp; C</code>.
+It is possible to do it without generics by using the <a href="https://en.wikipedia.org/wiki/Adapter_pattern">adapter design pattern</a>: the adapter implements the various interfaces the method requires, and any instance implementing all the interfaces can be wrapped into an adapter instance before to be provided to the method.
+In order to avoid such extra work, a generics can be used as a reliable way to fulfil this requirement.
+</p>
+
+<p>
+It is important to understand that a useless generics is a design issue, not an implementation issue: if this design is imposed by an interface that we implement, then such a design choice should not be argued because of this specific implementation.
+At best, we can argue about the relevance of implementing this interface, or implementing it in this way, but the relevance of the design of this method should be considered at the interface level, where it is required.
+This is again an application of the <a href="entry:6">information layering</a> assumption.
+</p>
+
+<h2>Omit generics (raw types)</h2>
+
+<p>
+Raw types are generic types for which we omit to specify the type at instantiation time, like <code>new Storage()</code> which omits to tell which type of data is stored.
+These raw types act as if we provide the most generic type possible<!-- wildcard rather than most generic? -->, so <code>new Storage&lt;Object>()</code> in this example, or <code>new Storage&lt;Number>()</code> if the class is bounded to <code>Number</code> types only.
+However, it only does so loosely: a raw type is not strictly specified, for instance while the compiler complains with <code>Storage&lt;Object> s = new Storage&lt;String>()</code>, it does not for <code>Storage s = new Storage&lt;String>()</code>.
+This behaviour is for retrocompatibility with legacy code made before Java 5, when generics did not exist yet.
+Consequently, you may then write <code>s.set(1)</code>, which only generates a warning but fails at runtime because you provide an <code>Integer</code> instead of a <code>String</code>.
+</p>
+
+<p>
+If we ignore the technical details which allow such weakness in the compiler checking, one may instead rely on a conceptual explanation: Java is a strongly (or statically) typed language, so the type is supposed to be chosen based on what one needs to do with it.
+As such, generics allow to delegate the choice of the type to the instantiation time, while raw typing simply refuses to take this decision, which breaks the strong typing assumption.
+One may argue that it is also true for generic methods which can infer the type implicitly from the data, but a generic method call is atomic: all the information is there, we cannot "loose" it.
+At the opposite, a generic type spread the type information over all its methods, which can be used far away from each other, thus allowing to loose the relevant information.
+</p>
+
+<p>
+A last justification is that, for advanced generic programming, a particular care is needed to identify the right concepts to use.
+<!-- TODO Link to dedicated post about that -->
+Consequently, refusing to decide which type to use is not a behaviour compatible with a generic programming mindset.
+</p>
+
+<h2 id="mix_class_and_generics_inheritance">Mix class inheritance with generics inheritance</h2>
+
+<p>
+<!-- TODO String is a child of Object -->
+<!-- TODO Because of type erasure, generics have no impact on inheritance at runtime -->
+<!-- TODO MyClass<String> is not a child of MyClass<Object>, because actually both are MyClass, so no inheritance involved -->
+</p>
+
+<p>
+<!-- TODO MyChildClass<String> is a child of MyParentClass<String>, because actually MyChildClass is a child of MyParentClass -->
+<!-- TODO MyChildClass<String> is a child of MyParentClass<Object>, because actually MyChildClass is a child of MyParentClass, not because String is a child of Object -->
+<!-- TODO MyChildClass<Object> also a child of MyParentClass<String>, because actually MyChildClass is a child of MyParentClass -->
+</p>
+
+<p>
+<!-- TODO Generics only have impact on inheritance at coding time, because they must be compliant with parent bounds -->
+<!-- TODO If inheritance must be checked between generics, consider to use "? extends ParentClass" -->
+More details in the Oracle tutorial
+<a href="https://docs.oracle.com/javase/tutorial/java/generics/inheritance.html">[1]</a>
+<a href="https://docs.oracle.com/javase/tutorial/java/generics/subtyping.html">[2]</a>.
+</p>
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<h2 id="links">Related Posts</h2>
+
+TODO
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="Strachey2000">
+	Strachey, Christopher.
+	<cite>Fundamental Concepts in Programming Languages</cite>,
+	Higher-Order and Symbolic Computation 13, no. 1/2: 11–49,
+	<time datetime="2000">2000</time>.
+	DOI: <a href="https://dx.doi.org/10.1023/A:1010000313106">10.1023/A:1010000313106</a>
+</li>
+<li id="Mathur2011">
+	Mathur, Shilpa.
+	<cite>Generic Programming in C++ and Java.</cite>,
+	IJCSNS 11, no. 9 : 60,
+	<time datetime="2011">2011</time>.
+	URL: <a href="http://paper.ijcsns.org/07_book/html/201109/201109010.html">http://paper.ijcsns.org/07_book/html/201109/201109010.html</a>
+</li>
+<li id="Giovannelli2013">
+	Giovannelli, Daniel.
+	<cite>Programming in Algorithms: Generic Programming and Its Implementation</cite>,
+	Bachelor of Science, Haverford College. Sept. of Computer Science,
+	<time datetime="2013">2013</time>.
+	URL: <a href="http://hdl.handle.net/10066/11492">http://hdl.handle.net/10066/11492</a>
+</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Advanced Generic Programming in Java</h1>
+
+<p>
+<!-- TODO -->
+</p>
+
+<h2>State of the Art</h2>
+
+<p>
+<!-- TODO -->
+</p>
+<ol>
+<li><a href="entry:3"></a>(merge here?)</li>
+<li><a href="entry:4"></a></li>
+<li><a href="entry:5"></a></li>
+<li><a href="entry:9"></a></li>
+<li><a href="entry:8"></a></li>
+</ol>
+
+<h2>Principles</h2>
+
+<p>
+<!-- TODO -->
+</p>
+<ol>
+<li><a href="entry:6"></a></li>
+</ol>
+
+<h2>Techniques</h2>
+
+<p>
+<!-- TODO -->
+</p>
+<ol>
+<li><a href="entry:7"></a>(annex if not a GP technique)</li>
+</ol>
+
+<h2>Annexes</h2>
+
+<p>
+</p>
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<h2 id="links">Related Posts</h2>
+
+TODO
+
+<!-- Auto filling of entry links -->
+<script language="Javascript" type="text/javascript">
+	var regex = /entry:([0-9]+)([^0-9].+)?/;
+	for(var tags = document.getElementsByTagName('a'), i = tags.length; i--;) {
+		var tag = tags[i];
+		if (tag.href.match(regex)) {
+			if (tag.innerHTML == "") {
+				/*
+				 * Give generic title. The actual title of the post cannot be retrieved
+				 * because it requires JavaScript to read a file by its own initiative,
+				 * which is forbidden by the JS specifications, and thus not allowed by
+				 * most recent browsers, for security purpose. A detailed explanation
+				 * can be found here:
+				 * http://stackoverflow.com/questions/20537696/remember-and-repopulate-file-input/20537822#20537822
+				 */
+				tag.innerHTML = tag.href.replace(regex, "Entry $1");
+			} else {
+				// Keep current content
+			}
+			
+			// Makes the link valid
+			tag.href = tag.href.replace(regex, "$1.html$2")
+		} else {
+			// Irrelevant link
+		}
+	}
+</script>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="Strachey2000">
+	Strachey, Christopher.
+	<cite>Fundamental Concepts in Programming Languages</cite>,
+	Higher-Order and Symbolic Computation 13, no. 1/2: 11–49,
+	<time datetime="2000">2000</time>.
+	DOI: <a href="https://dx.doi.org/10.1023/A:1010000313106">10.1023/A:1010000313106</a>
+</li>
+<li id="Mathur2011">
+	Mathur, Shilpa.
+	<cite>Generic Programming in C++ and Java.</cite>,
+	IJCSNS 11, no. 9 : 60,
+	<time datetime="2011">2011</time>.
+	URL: <a href="http://paper.ijcsns.org/07_book/html/201109/201109010.html">http://paper.ijcsns.org/07_book/html/201109/201109010.html</a>
+</li>
+<li id="Giovannelli2013">
+	Giovannelli, Daniel.
+	<cite>Programming in Algorithms: Generic Programming and Its Implementation</cite>,
+	Bachelor of Science, Haverford College. Sept. of Computer Science,
+	<time datetime="2013">2013</time>.
+	URL: <a href="http://hdl.handle.net/10066/11492">http://hdl.handle.net/10066/11492</a>
+</li>
+</ul>
+</body>
+</html>
