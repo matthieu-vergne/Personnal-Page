@@ -85,6 +85,138 @@ Such a situation can occur for instance with a <a href="entry:7">heterogenous ge
 <h2>Application</h2>
 
 <p>
+To ensure that the information layering principle holds, two perspectives must be considered: the instance and its user.
+</p>
+
+<p>
+From the point of view of the instance, 
+<!-- TODO -->
+</p>
+
+<p>
+From the point of view of the user of the instance, 
+<!-- TODO -->
+</p>
+
+<svg viewBox="-10 -10 570 245" width="570" height="245" style="border:0px dotted black;display:block;margin:auto">
+	<!-- Consumer thread -->
+	<rect x="0" y="0" width="250" height="25" style="stroke-width:2;stroke:black;fill-opacity:0" />
+	<foreignObject x="0" y="0" width="250" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>runThreadToFeed(consumer, 103)</code>
+		</div></body>
+	</foreignObject>
+	
+	<path d="M 172 30 l 0 65 m 10 -10 l -10 10 l -10 -10" stroke="blue" stroke-width="1" stroke-linecap="round" fill="none" />
+	<foreignObject x="100" y="50" width="150" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>Consumer&lt;Integer></code>
+		</div></body>
+	</foreignObject>
+	
+	<!-- Supplier thread -->
+	<rect x="300" y="0" width="250" height="25" style="stroke-width:2;stroke:black;fill-opacity:0" />
+	<foreignObject x="300" y="0" width="250" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>runThreadToRead(supplier, 43)</code>
+		</div></body>
+	</foreignObject>
+	
+	<path d="M 372 95 l 0 -65 m 10 10 l -10 -10 l -10 10" stroke="blue" stroke-width="1" stroke-linecap="round" fill="none" />
+	<foreignObject x="300" y="50" width="150" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>Supplier&lt;Integer></code>
+		</div></body>
+	</foreignObject>
+	
+	<!-- Main method -->
+	<rect x="100" y="100" width="350" height="25" style="stroke-width:2;stroke:black;fill-opacity:0" />
+	<foreignObject x="100" y="100" width="350" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>main(String[] args)</code>
+		</div></body>
+	</foreignObject>
+	
+	<!-- Storage class -->
+	<path d="M 225 130 l 0 65 m 10 -10 l -10 10 l -10 -10" stroke="blue" stroke-width="1" stroke-linecap="round" fill="none" />
+	<path d="M 315 195 l 0 -65 m 10 10 l -10 -10 l -10 10" stroke="blue" stroke-width="1" stroke-linecap="round" fill="none" />
+	<foreignObject x="220" y="150" width="100" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>Storage&lt;T></code>
+		</div></body>
+	</foreignObject>
+	
+	<rect x="200" y="200" width="150" height="25" style="stroke-width:2;stroke:black;fill-opacity:0" />
+	<foreignObject x="200" y="200" width="150" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>class Storage&lt;T></code>
+		</div></body>
+	</foreignObject>
+
+	Sorry, your browser does not support inline SVG.
+</svg>
+
+<svg viewBox="-10 -10 570 245" width="570" height="245" style="border:0px dotted black;display:block;margin:auto">
+	<!-- Consumer thread -->
+	<rect x="0" y="0" width="250" height="25" style="stroke-width:2;stroke:black;fill-opacity:0" />
+	<foreignObject x="0" y="0" width="250" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			Value generated in thread 1
+		</div></body>
+	</foreignObject>
+	
+	<path d="M 172 30 l 0 65 m 10 -10 l -10 10 l -10 -10" stroke="blue" stroke-width="1" stroke-linecap="round" fill="none" />
+	<foreignObject x="100" y="50" width="150" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>Consumer&lt;Integer></code>
+		</div></body>
+	</foreignObject>
+	
+	<!-- Supplier thread -->
+	<rect x="300" y="0" width="250" height="25" style="stroke-width:2;stroke:black;fill-opacity:0" />
+	<foreignObject x="300" y="0" width="250" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			Value read in thread 2
+		</div></body>
+	</foreignObject>
+	
+	<path d="M 372 95 l 0 -65 m 10 10 l -10 -10 l -10 10" stroke="blue" stroke-width="1" stroke-linecap="round" fill="none" />
+	<foreignObject x="300" y="50" width="150" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>Supplier&lt;Integer></code>
+		</div></body>
+	</foreignObject>
+	
+	<!-- Main method -->
+	<rect x="100" y="100" width="350" height="25" style="stroke-width:2;stroke:black;fill-opacity:0" />
+	<foreignObject x="100" y="100" width="350" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>Consumer</code> \(\rightarrow\) <code>Storage</code> \(\rightarrow\) <code>Supplier</code>
+		</div></body>
+	</foreignObject>
+	
+	<!-- Storage class -->
+	<path d="M 225 130 l 0 65 m 10 -10 l -10 10 l -10 -10" stroke="blue" stroke-width="1" stroke-linecap="round" fill="none" />
+	<path d="M 315 195 l 0 -65 m 10 10 l -10 -10 l -10 10" stroke="blue" stroke-width="1" stroke-linecap="round" fill="none" />
+	<foreignObject x="220" y="150" width="100" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			<code>Storage&lt;T></code>
+		</div></body>
+	</foreignObject>
+	
+	<rect x="200" y="200" width="150" height="25" style="stroke-width:2;stroke:black;fill-opacity:0" />
+	<foreignObject x="200" y="200" width="150" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div class="svgCode">
+			Member value
+		</div></body>
+	</foreignObject>
+
+	Sorry, your browser does not support inline SVG.
+</svg>
+
+<h2>Advantages</h2>
+
+<p>
 As an assumption, information layering consists in assuming that an instance of a class or interface is used by the same informed user.
 In other words, if one of the methods is called with a given argument, then we can assume that any other method of the same class/interface can be called with the very same argument.
 The other way around, if a method returns a result, then this result should be acquired by this informed user who can then use it on another method of the same class.
@@ -106,12 +238,6 @@ As an example, let's take a trivial case of a contact management with the follow
 <pre><code>
 
 </code></pre>
-
-<h2>Advantages</h2>
-
-<p>
-<!-- TODO -->
-</p>
 
 <h2>Limitations</h2>
 
