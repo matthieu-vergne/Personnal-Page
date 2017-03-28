@@ -19,30 +19,31 @@
 <h1>Advanced Generic Programming in Java:<br/>Heterogenous Generic Type</h1>
 
 <p>
-Java provides the ability to implement generic methods, like <code>&lt;T> T add(T a, T b) {...}</code>, which allows to specify type constraints within a single method, independently of the others.
-On the other side, we also have generic types, like <code>class MyClass&lt;T> {...}</code>, which allows to specify a type constraint within the whole class (or interface), thus shared among all the methods of the class.
-An heterogenous generic type is something in between, which wants some of its methods to share some types, without limiting them to a finite set like a generic type.
+Java provides the ability to implement generic methods, like <code>&lt;T> T myMethod(T a, T b) {...}</code>, which allow to specify type constraints within a single method, independently of the others.
+We also have generic types, like <code>class MyClass&lt;T> {...}</code>, which allow to specify a type constraint within the whole class (or interface), thus shared among all the methods of the class.
+An heterogenous generic type is something in between, which shares generics between methods in a more dynamic way than a generic type.
 </p>
 
 <h2>Context</h2>
 
 <p>
-Let assume that you want to store various values for later retrieval.
-You may use a <code>Collection</code>, but all the items are not used at the same time and there is no trivial way to order them for easy retrieval, so you go for a <code>Map</code> which allows you to retrieve each item based on a custom key, for which you don't have particular constraints (as long as it gives you back the relevant item).
-However, your items are of various types (e.g. some <code>String</code> texts and <code>Integer</code> identifiers), so you would need to use a <code>Map&lt;Key, Object></code> to allow any kind of items, but you would loose the ability of obtaining the right type of item when calling <code>map.get(key)</code>, which would return an <code>Object</code> instance.
+Let assume that you want to store various pieces of data for later retrieval, like some file paths (<code>File</code> or <code>String</code>), numeric parameters (like <code>Integer</code> or <code>Float</code>) and other.
+Because these pieces of data are acquired and used in several methods, you choose to store them into a container that you give in argument.
+You may use a <code>Collection</code>, but all the data does not come at the same time and there is no trivial way to order them for easy retrieval.
+Instead, you go for a <code>Map</code> which allows you to retrieve each item based on a custom key, for which you don't have particular constraints beside the ability to retrieve the relevant item (the keys are fixed and available to all the methods).
+However, because your items are of various types, you would need to use a <code>Map&lt;Key, Object></code> to allow any kind of items, but you would loose the ability of obtaining the right type of item when calling <code>map.get(key)</code>, which would return an <code>Object</code> instance.
 Although you can cast the returned instance with the right type, mistakes like casting the wrong object with a wrong type would appear only at runtime.
-To take back the check to compile time, you need to ensure that the type of the item is properly stored and retrieved when using the corresponding key, such that the cast is automatically made with the right type.
+To take back the check at compile time, you need to ensure that the type of the item is properly stored and retrieved when using the corresponding key, such that the cast is automatically made with the right type.
 </p>
 
 <h2>Application</h2>
 
 <p>
 Instead of using a generic type like <code>Map&lt;K, V></code>, which enforces the generics to have the same value within the whole class, you can use generic methods, which do not make such enforcement, and ensure that they retrieve the right type at the right moment.
-You can do so by relying on the <a href="entry:6">information layering</a> assumption, thus by using the caller as the data storage.
-In our context, it can be done in this way:
+In our context, assuming acquisition is done only once to remain simple, it can be done in this way:
 </p>
 <pre><code>
-public class HeterogeneousStorage {
+public class HeterogeneousMap {
 	public static class Key&lt;T> {}
 
 	private final Map&lt;Key&lt;?>, Object> map = new HashMap&lt;>() ;
@@ -53,7 +54,8 @@ public class HeterogeneousStorage {
 		return key ;
 	}
 
-	@SuppressWarnings("unchecked") public &lt;T> T retrieve(Key&lt;T> key) {
+	@SuppressWarnings("unchecked")
+	public &lt;T> T retrieve(Key&lt;T> key) {
 		return (T) map.get(key) ;
 	}
 }
@@ -74,42 +76,34 @@ We can safely suppress this warning with <code>@SuppressWarnings("unchecked")</c
 </p>
 
 <p>
-A particular comment should be made about the dependency to the <a href="entry:6">information layering</a> assumption.
-The key returned by <code>store()</code> is assumed to be saved by the caller <strong>with the right type</strong>, such that proper type check can be ensured by the compiler.
-Of course, the storage could provide a method to get all the keys, but we have no way to retrieve the type <code>T</code> of each key (so the type of the item itself), which must be done manually through casting, and thus by having type-specific code somewhere.
-One may trick the storage by implementing a method <code>getKeyOf(item)</code>, such that the returned key 
-By assuming that the information is layered, we assume that the type information is maintained by the caller.
-</p>
-
-<p>
 This code can be tested in this way:
 </p>
 <pre><code>
-// Instantiate the heterogeneous storage
-HeterogeneousStorage map = new HeterogeneousStorage() ;
+// Instantiate the heterogeneous map
+HeterogeneousMap map = new HeterogeneousMap();
 
 // The key's type is automatically inferred from the item
-Key&lt;Integer> key1 = map.store(1) ;
-System.out.println(map.retrieve(key1)) ;// 1
-System.out.println() ;
+Key&lt;Integer> key1 = map.store(1);
+System.out.println(map.retrieve(key1));// 1
+System.out.println();
 
 // Different types can be used
-Key&lt;String> key2 = map.store("test") ;
-System.out.println(map.retrieve(key1)) ;// 1
-System.out.println(map.retrieve(key2)) ;// test
-System.out.println() ;
+Key&lt;String> key2 = map.store("test");
+System.out.println(map.retrieve(key1));// 1
+System.out.println(map.retrieve(key2));// test
+System.out.println();
 
 // Different keys with the same type can be used too
-Key&lt;String> key3 = map.store("test 2") ;
-System.out.println(map.retrieve(key1)) ;// 1
-System.out.println(map.retrieve(key2)) ;// test
-System.out.println(map.retrieve(key3)) ;// test 2
+Key&lt;String> key3 = map.store("test 2");
+System.out.println(map.retrieve(key1));// 1
+System.out.println(map.retrieve(key2));// test
+System.out.println(map.retrieve(key3));// test 2
 System.out.println() ;
 </code></pre>
 
 <p>
 Of course the <code>Key&lt;T></code> class can be enriched with more data, like a name to use in <code>toString()</code>.
-If some of this information should be provided by the caller, whether we add this information into the arguments of <code>store()</code>, whether we directly ask the caller to provide the key instance, leading to a usual map design (<code>storage.store(key, item)</code> would correspond to <code>map.put(key, item)</code> and <code>storage.retrieve(key)</code> to <code>map.get(key)</code>).
+If some of this information should be provided by the caller, whether we add this information into the arguments of <code>store()</code>, whether we directly ask the caller to provide the key instance, leading to a usual <code>Map&lt;K,V></code> design (<code>store(key, item)</code> would correspond to <code>put(key, item)</code> and <code>retrieve(key)</code> to <code>get(key)</code>).
 In such a situation, other items can be assigned to the same key (as long as the type fits) for replacement, and different key instances can be equal by overriding the <code>equals()</code> and <code>hashcode()</code> methods properly.
 </p>
 

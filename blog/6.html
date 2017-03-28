@@ -16,16 +16,70 @@
 	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 </head>
 <body id="blog">
-<h1>Advanced Generic Programming in Java:<br/>Information Layering</h1>
+<h1>Advanced Generic Programming in Java:<br/>Information Layering Principle</h1>
 
 <p>
-<!-- TODO -->
+<!-- TODO Summary -->
+<a href="https://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility principle</a>
+\(\Rightarrow\) minimal set of methods (similar to <a hre="https://en.wikipedia.org/wiki/Open/closed_principle">open/closed principle</a>)
+\(\Rightarrow\) valid environment cannot forbid to use a method, otherwise the responsibility can be further reduced
+\(\Rightarrow\) round-trip endorses 2 storage silos: in-out allows to use instance as storage, out-in allows to use environment as storage
+</p>
+
+------------------------------------------------
+
+<p>
+People familiar with good practices in object-oriented programming may have heard about the <a href="https://en.wikipedia.org/wiki/SOLID_(object-oriented_design)">SOLID principles</a>, which include the <a href="https://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility principle</a>.
+Information layering is similar, in the sense that it assumes a kind of specialisation, but it differs on two aspects: one is the object of the specialisation (information, a smaller aspect than responsibility) and its coverage (it applies also to the surrounding of the class).
+In this post, we describe how to implement this principle and what it allows to do when satisfied.
 </p>
 
 <h2>Context</h2>
 
 <p>
-<!-- TODO -->
+In Computer Science, software is all about information: acquisition, storage, retrieval, processing (i.e. transformation), and transfer (i.e. communication).
+The central role of information makes it worth to wonder where it comes from, where we should send it, and how we can produce new relevant information from it, which becomes hard not only because of the complexity of the information itself, but also because of the complexity of its potential uses.
+When designing a program in object-oriented programming, the clear cut between object responsibilities is a way to ensure that this program remain simple to understand and evolve.
+The modularisation implied by these cuts requires to think deeper about the flow of information within each module and between them, which can itself be complex despite the simplicity of each separated module.
+To decrease this complexity, one can structure the modules such that the choices made inside a module have a minimised -preferably inexistant- impact on other modules.
+This structure then helps to identify invariants on which we can rely: any change can be made as long as the invariants are preserved, ensuring that other modules relying on these invariants are not impacted.
+These invariants usually builds at the interface between the modules, which splits the software into independent pieces which can change at any time while preserving the interface, thus reducing the effort at a local scale.
+</p>
+
+<p>
+In Java, a module is usually a <code>class</code> or an <code>interface</code>, and it is interfaced with other modules through the <code>public</code> or <code>protected</code> methods and members it contains.
+Great effort can be spent in finding the invariants these methods and members should support or rely on, one kind of invariants being about the information flow.
+<em>Information layering</em> assumes that the inside and the outside of the module correspond to two silos of information, such that when an information enter one of the silos, it remains there for future reuse.
+On one side, when an information is provided <em>to</em> the module through a given path (method or member), it becomes an information that can be reused anywhere in the module, but also given back by the module to some outside callers, possibly through a different path.
+For example, a <code>java.util.List&lt;E></code> offers the method <code>add(E e)</code>, which makes the item available in the inside silo and can then be retrieved by an outside caller through <code>get(int index)</code>, assuming the index of the item is known.
+On the other side, any information provided <em>by</em> the module is assumed to be stored in the "outside" silo, and it can be retrieved from it, again through various paths.
+In our example, one can call the list method <code>int indexOf(Object o)</code> to know whether (and where) an item is in the list, making this index available in the outside silo, before to be reused through <code>remove(int index)</code>.
+</p>
+
+<p>
+This notion of "round-trip" path is one fundamental aspect of the information layering principle: if a module assumes a single flow of information, the principle is irrelevant.
+For example, <code>java.util.function.Consumer&lt;T></code> only provides the method <code>accept(T t)</code>, and because no path exists to get back the consumed information, there is no need to assume that the information poured in the module can be retrieved later by an outside caller.
+Similarly, <code>java.util.function.Supplier&lt;T></code> only provides the method <code>T get()</code>, and because no path exists to pour back the supplied information, there is no need to assume that the information provided "outside" can come back "inside" the module later.
+If a class implements both <code>Consumer&lt;T></code> and <code>Supplier&lt;T></code>, with the prupose of using their methods for the same information, then the principle holds (for this class, following the <a href="https://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility principle</a>).
+</p>
+
+<p>
+A second fundamental aspect of the information layering principle is its assumption: if a round-trip path is available, then a piece of information flowing in one direction should be expected to flow the other way around.
+This is a trivial matter when we consider storage objects, for which we expect to provide some items to retrieve later like the list example above, but it is only a fraction of what this assumption is about.
+First, this view should be extended to cover all the information which can make a round-trip, not only the information aimed to be stored.
+For example the index of an item is not what the list stores, because it relates to the structure of the list and can change implicitly with time, but still is a piece of information which can flow in both directions, and thus should be considered too.
+Second, this view should be mirrored to cover also the case of the external caller: if the list provides an index because its <code>indexOf(o)</code> method has been called, then methods like <code>get(index)</code> should expect to be called with this index.
+The subtility of this assumption is what it implies on the way the instance (here a list) is used: one should not expect a given instance to be used in two contexts for which the information is not shared.
+If other words, while it may be trivial that the list instance should be consistent (i.e. the stored values can be properly retreived), such a consistency property is also expected by the list from its various users.
+</p>
+
+<p>
+For this principle to hold, effort should be spent on preserving the information in two places: inside as well as outside instances.
+Preserving information inside an instance is a usual requirement for using the instance consistently, which means that it is usually respected.
+The main effort to satisfy the information layering principle is usually the other way around: in ensuring that the information obtained from an instance is properly transferred to all locations where this information should be given back to the instance.
+Of course, it does not mean that every pieces of information should be stored by the caller: a reduced set should be stored to guarantee the proper retrieval of all the relevant information (by reconstruction or by reusing the instance), but an over-reduced set is forbidden.
+In the case of the list, one can retrieve most of the information from the instance, but it is not always the case: an identifier generated on the fly by the instance, with no possibility to get it a second time, requires the caller to preserve this information by itself.
+Such a situation can occur for instance with a <a href="entry:7">heterogenous generic type</a>.
 </p>
 
 <h2>Application</h2>
