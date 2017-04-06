@@ -20,10 +20,11 @@
 
 <p>
 <!-- TODO Summary -->
-<a href="https://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility principle</a>
-\(\Rightarrow\) minimal set of methods (similar to <a hre="https://en.wikipedia.org/wiki/Open/closed_principle">open/closed principle</a>)
-\(\Rightarrow\) valid environment cannot forbid to use a method, otherwise the responsibility can be further reduced
-\(\Rightarrow\) round-trip endorses 2 storage silos: in-out allows to use instance as storage, out-in allows to use environment as storage
+Genericity increases with loss of information
+\(\Rightarrow\) being at a given level of genericity implies to choose which information is available and which is not
+\(\Rightarrow\) if a piece of information is (un)available at a given level, it is consistently (un)available for all the level
+\(\Rightarrow\) if information A can be known only if information B is known, then A can be available at the same or a lower level of genericity than B.
+In general, <code>instanceOf</code> and alike are evidences of non-generic code.
 </p>
 
 ------------------------------------------------
@@ -236,8 +237,18 @@ In this context, the first class acts as the informed user of the interface, whi
 As an example, let's take a trivial case of a contact management with the following interface:
 </p>
 <pre><code>
-
+TODO
 </code></pre>
+
+<p>
+<!-- TODO Advantage -->
+Dual store capability: if a piece of information comes from/is given to the caller, then by consistency of the layer of information we interact with, the caller knows about this information and can give it back.
+Alternatively:
+<a href="https://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility principle</a>
+\(\Rightarrow\) minimal set of methods (similar to <a hre="https://en.wikipedia.org/wiki/Open/closed_principle">open/closed principle</a>)
+\(\Rightarrow\) valid environment cannot forbid to use a method, otherwise the responsibility can be further reduced
+\(\Rightarrow\) round-trip endorses 2 stores: in-out allows to use instance as store, out-in allows to use environment as store
+</p>
 
 <h2>Limitations</h2>
 

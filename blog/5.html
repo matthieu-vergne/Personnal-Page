@@ -20,10 +20,10 @@
 
 <p>
 Generics has been introduced in Java 5 to <cite>add stability to your code by making more of your bugs detectable at compile time</cite>, dixit the <a href="#OracleTutorial">Oracle tutorial</a>.
-Like a method <code>print(String text)</code> tells that a textual value should be provided to the method, but let the user choose what the actual value of this text is, generics tell that a type (class or interface) should be provided, but let the user choose which one.
-Generics are not the only thing there is to Generic Programming in Java, but the confusion between generic programs (the broad sense) and generics (Java generic types and methods) is now established, which is why we mainly find resources about generics when searching about the topic.
-Our global aim is to make generic programs, not to use a given generic feature only, but doing so in Java without speaking about generics would be a mistake, because of the great control they offer for constructing generic programs.
-Oracle provides <a href="#OracleTutorial">a complete tutorial about generics</a>, so we let interested people look around to master the feature and format this post as a summary of the fundamental properties of generics.
+Like a method <code>print(String text)</code> tells that a textual value should be provided to the method, but let the caller choose what the actual value of this text is, generics tell that a type (class or interface) should be provided, but let the caller choose which one.
+Generics and Generic Programming <a href="entry:9">are different</a>, but the confusion between generic programs (the broad sense) and generics (Java generic types and methods) is now established, which is why we mainly find resources about generics when searching about Generic Programming in Java.
+Our global aim is to make generic programs, not to use a given generic feature only, but doing so in Java without speaking using generics would be a mistake, because of the great control they offer for constructing generic programs.
+Oracle provides <a href="#OracleTutorial">a complete tutorial about generics</a>, so we let interested people look around to master the feature and focus this post on a summary of the fundamental properties of generics.
 </p>
 
 <h2>Generic Methods</h2>
@@ -147,7 +147,7 @@ public &lt;T> void print(List&lt;T> list) {
 <p>
 This method allows to print the items contained in the list on the console, but no concrete use is made of <code>T</code>: any instance can be used in this way, thus leading to wonder whether it is worth to specify it in the first place.
 A usual mistake would be to think that, because we use the items as <code>Object</code> instances, we might as well replace <code>T</code> by <code>Object</code>, but it enforces <code>list</code> to be a <code>List&lt;Object></code>, thus forbiding to use this method on a <code>List&lt;Integer></code> for example.
-This is because there is no inheritance link between a <code>List&lt;Object></code> and a <code>List&lt;Integer></code> (see <a href="entry:9#mix_class_and_generics_inheritance">here</a> for an explanation).
+This is because there is no inheritance link between a <code>List&lt;Object></code> and a <code>List&lt;Integer></code> (see <a href="#mix_class_and_generics_inheritance">here</a> for an explanation).
 In this case, we don't want to constrain the <code>List</code> to be on a specific type of items, we explicitly want it to be on <em>any</em> type of item, which is achieved by using the wildcard <code>?</code>:
 </p>
 <pre><code>
@@ -184,12 +184,43 @@ Other limitations can occur, like the <a href="https://docs.oracle.com/javase/tu
 Interested people can also consider <a href="https://docs.oracle.com/javase/tutorial/java/generics/wildcardGuidelines.html">these guidelines</a> to figure out how to use wildcards in there code.
 </p>
 
+<h2 id="mix_class_and_generics_inheritance">About Generics Inheritance</h2>
+
+<p>
+Because <code>String</code> extends <code>Object</code>, a <code>String</code> can be considered as an <code>Object</code>, which means that we can store a <code>String</code> in a variable of type <code>Object</code>.
+Similarly, <code>ArrayList&lt;String></code> extends <code>List&lt;String></code>, so we can also store an <code>ArrayList&lt;String></code> into a variable of type <code>List&lt;String></code>.
+However, a common mistake is to think that one can store an <code>ArrayList&lt;String></code> into a variable of type <code>ArrayList&lt;Object></code>, because <code>String</code> extends <code>Object</code>, but this is wrong.
+Those familiar with <a href="https://docs.oracle.com/javase/tutorial/java/generics/erasure.html">type erasure</a> might think about it as a technical limitation of the Java language, but there is actually a fundamental reason to forbid it.
+</p>
+
+<p>
+This mistake occurs because of the ambiguous interpretation of the relationship between parents and children classes, which is usually called a <q>is a</q> relationship, one of the most ambiguous because of <a href="https://en.wikipedia.org/wiki/Is-a">the many interpretations it can cover</a>.
+Indeed, it is hard to consider any of the three sentences below wrong:
+</p>
+<ul>
+<li>a <code>String</code> is an <code>Object</code>,</li>
+<li>an <code>ArrayList</code> of <code>String</code> instances is a <code>List</code> of <code>String</code> instances,</li>
+<li>an <code>ArrayList</code> of <code>String</code> instances is an <code>ArrayList</code> of <code>Object</code> instances.</li>
+</ul>
+
+<p>
+However, the fact is that parent and children classes are related through a specific kind of <q>is a</q> relationship: the extension relationship, which ensures that any use of the parent is also possible with the child class, because the child only <em>extends</em> the capabilities of the parent, it does not <em>alter</em> it (unless it breaks the <a href="https://en.wikipedia.org/wiki/Open/closed_principle">open/closed principle</a> with a bad design).
+Indeed, <code>String</code> extends <code>Object</code> in the sense that every methods provided by <code>Object</code> can be used exactly in the same way with a <code>String</code> instance.
+Similarly, all the methods of a <code>List&lt;String></code> can be used exactly in the same way on an <code>ArrayList&lt;String></code> instance.
+However, although one can add any <code>Object</code> to an <code>ArrayList&lt;Object></code>, it is not possible with an <code>ArrayList&lt;String></code>, which accepts only <code>String</code> instances.
+This is a fundamental difference: <code>ArrayList&lt;String></code> does not <em>extend</em> <code>ArrayList&lt;Object></code> (indeed they are both the same <code>ArrayList</code> class), it only accepts a smaller range of instances.
+In other words, one could say that it is not the class <code>ArrayList&lt;String></code> which extends <em>the class</em> <code>ArrayList&lt;Object></code>, but the class <code>ArrayList&lt;Object></code> which extends <em>the range</em> of <code>ArrayList&lt;String></code>.
+More details can be found in the Oracle tutorial
+<a href="https://docs.oracle.com/javase/tutorial/java/generics/inheritance.html">[1]</a>
+<a href="https://docs.oracle.com/javase/tutorial/java/generics/subtyping.html">[2]</a>.
+</p>
+
 <h2>Conclusion</h2>
 
 <p>
 This post covers all the fundamental aspects of generics that we can reuse in advanced techniques to produce generic programs.
 We omitted some aspects, like the <a href="https://docs.oracle.com/javase/tutorial/java/generics/erasure.html">type erasure</a>, which are more about technical details to deal with during debugging.
-
+<!-- TODO -->
 </p>
 
 <!-- Auto formatting of code tags as Java code -->

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>About Automatic Retrieval of Java Generics at Runtime</h1>
+
+<p>
+<a href="http://stackoverflow.com/questions/3403909/get-generic-type-of-class-at-runtime">Some people</a> find it interesting to retrieve the value of some generics (i.e. a <code>Class&lt;T></code> instance) in order to perform their own checks or support further features.
+Indeed, because generics are lost at runtime through <a href="https://docs.oracle.com/javase/tutorial/java/generics/erasure.html">type erasure</a>, various tricks may be needed to retrieve the type of instance stored by a <code>List&lt;T></code> or other generic types at runtime.
+However, this requirement is often supported by a bad design, the kind of thing that is more about hacking the language rather than specifying a robust and easy-to-use architecture.
+Of course, we do not say that there is no inconvenient to type erasure (<a href="http://gafter.blogspot.jp/2006/11/reified-generics-for-java.html">there is a lot</a>), but for the specific case of automatic retrieval of generics at runtime, although it is true that type erasure makes it hard, there is actually a good reason why not to do it in the first place.
+</p>
+
+<h2>Context</h2>
+
+<p>
+Let say we develop a program which deals with data, for which we want to produce some statistics.
+For our purpose, we may need to measure the size of some pieces of data, which can be done in various ways depending on their type.
+To keep it generic, we then use a common interface to compute this size, like the following:
+</p>
+<pre><code>
+interface SizeComputer&lt;T> {
+	public long sizeOf(T data);
+}
+</code></pre>
+
+<p>
+One could implement various size computers, like the following one for <code>String</code> instances:
+</p>
+<pre><code>
+SizeComputer&lt;String> stringSize = new SizeComputer&lt;String>() {
+
+	@Override
+	public long sizeOf(String data) {
+		return data.length();
+	}
+};
+</code></pre>
+
+<p>
+Or in a more concise way by using lambda expressions:
+</p>
+<pre><code>
+SizeComputer&lt;String> stringSize = (data) -> data.length();
+</code></pre>
+
+<p>
+Of course, many size computers can be used depending on the type of object, the point then is to retrieve the right computer depending on the type of data we have.
+To do so, we decide to store our computers in a map which, depending on the type of data, will retrieve the correct computer:
+</p>
+<pre><code>
+// Create the computers
+SizeComputer&lt;Byte> byteSize = (data) -> 1;
+SizeComputer&lt;String> stringSize = (data) -> data.length();
+SizeComputer&lt;ArrayList&lt;?>> listSize = (data) -> data.size();
+
+// Store them
+Map&lt;Class&lt;?>, SizeComputer&lt;?>> map = new HashMap&lt;>();
+map.put(Byte.class, byteSize);
+map.put(String.class, stringSize);
+map.put(ArrayList.class, listSize);
+
+// Try on a string
+{
+	String string = "test";
+	SizeComputer&lt;String> sizeComputer = (SizeComputer&lt;String>) map.get(String.class);
+	long size = sizeComputer.sizeOf(string);
+	System.out.println("String size: " + size);// Display 4
+}
+
+// Try on a list
+{
+	ArrayList&lt;Integer> list = new ArrayList&lt;>();
+	list.add(1);
+	list.add(2);
+	list.add(3);
+	SizeComputer&lt;ArrayList&lt;?>> sizeComputer = (SizeComputer&lt;ArrayList&lt;?>>) map.get(ArrayList.class);
+	long size = sizeComputer.sizeOf(list);
+	System.out.println("ArrayList size: " + size);// Display 3
+}
+</code></pre>
+
+<p>
+It works, but the uses (parts in brackets) are not generic enough: many elements are given manually, so we cannot make a method which retrieves the right computer and displays the size for any type.
+A first limitation is that the computers are retrieved by giving the <code>Class</code> instance, but it can be easily fixed by providing instead the class of the data directly.
+For instance, <code>String.class</code> can be replaced by <code>string.getClass()</code> and <code>ArrayList.class</code> by <code>list.getClass()</code>.
+Second, because the types are heterogeneous, we cannot fix them when we declare the <code>Map</code> instance, and consequently we need to make a manual cast when we retrieve the computers.
+We can fix that by using an <a href="entry:7">heterogenous generic type</a>:
+</p>
+<pre><code>
+</code></pre>
+<!-- TODO -->
+
+<h2>Application</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<h2>Advantages</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<h2>Limitations</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<h2 id="links">Related Posts</h2>
+
+TODO
+
+<!--
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="Bloch2008">
+	Bloch, Joshua.
+	<cite>Effective Java</cite>,
+	2nd ed. The Java Series. Upper Saddle River, NJ: Addison-Wesley,
+	<time datetime="2008">2008</time>.
+	ISBN: 978-0-321-35668-0
+</li>
+</ul>
+-->
+</body>
+</html>

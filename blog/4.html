@@ -23,6 +23,33 @@ When speaking about Generic Programming, Java programmers might think about <em>
 In this post, we will focus on what is Generic Programming about, to which extent it is supported by the Java language, and what remains to the programmers' skill.
 </p>
 
+<h2>First Things First: The Definitions</h2>
+
+<p>
+There is not a single interpretation about what Generic Programming is, and because we aim here to minimise subjective biases, let's start from the etymology of the words.
+</p>
+
+<p>
+Starting with the easy one, <q>programming</q>, the <a href="https://www.merriam-webster.com/dictionary/programming">Merriam-Webster dictionary</a> shows that it can be interpreted in several ways, but our focus on Computer Science obviously lead us to speak about <q>the process of preparing an instructional program</q>.
+Despite the <a href="https://www.merriam-webster.com/dictionary/program">even more numerous interpretations</a> the term <q>program</q> may have, the only definition which seems to fit our focus and to avoid recursive definitions is <q>a sequence of coded instructions that can be inserted into a mechanism (as a computer)</q>.
+This analysis can be reproduced with other authorities, like the <a href="https://en.oxforddictionaries.com/definition/programming">Oxford dictionary</a> and its <q>process of writing computer programs</q>, or the <a href="http://dictionary.cambridge.org/dictionary/english/programming">Cambridge dictionary</a> and its <q>activity or job of writing computer programs</q>.
+Nothing hard here, this is the trivial one, but this kind of process can become rather heavy for people not used to it, so it is a good warm up before the main dish.
+</p>
+
+<p>
+While the notion of <q>programming</q> is easy because it is more about selecting which definition corresponds to our situation, <q>generic</q> is harder because it is the one we want to understand, for which we lack the selection criteria, excepted that it should be compatible with a programming activity.
+If we ignore definitions about brands and biology, which do not seem to apply to programming, <a href="https://www.merriam-webster.com/dictionary/generic">Merriam-Webster</a> defines something generic as <q>relating to or characteristic of a whole group or class</q> or <q>having no particularly distinctive quality or application</q>, in other words something which appears to be common within a set of things.
+We can highlight that it is not about mere redundancy, meaning several occurrences in the group, but something which is redundant enough to be common to every members of the group.
+The <a>Cambridge dictionary</a> remain on similar definitions, while the <a href="https://en.oxforddictionaries.com/definition/generic">Oxford dictionary</a> also defines it as <q>not specific</q>, giving us a proper pair of opposites: generic versus specific.
+</p>
+
+<p>
+From these definitions, we can then try to interpret the combination: generic programming is about producing programs which are common to a set of things.
+We should not translate immediately <q>things</q> as <q>programs</q>, because nothing says that a generic thing is of the same kind that the entities sharing it, so we may also speak about programs common to several systems, which include not only software but also hardware, people, or organisations.
+Thus, one could consider a generic program as a program found in several places, but then an issue of informativeness arises: if a program is generic as soon as we can find it in several places, does that mean that a mere copy is enough to call it generic?
+Clearly, there is something wrong here, the intent being to speak about how a program can be <em>used</em> in several contexts, not just <em>present</em>, an interpretation motivated by the history of the concept.
+</p>
+
 <h2>The Inception: Two Ways to Generalise</h2>
 
 <p>
@@ -36,7 +63,7 @@ In this context, Goguen defines an interface as a description of <q>all of the r
 A parameter is then an abstract entity which is assumed to satisfy some requirements and Goguen interchangeably speaks about <q>instantiating a parameter</q> and <q>interfacing a module with an environment</q>.
 In Java, we may speak about generics like <code>T</code> in <code>ArrayList&lt;T></code>, which is instantiated to <code>Integer</code> when we create an instance of <code>ArrayList&lt;Integer></code> or create a class which extends <code>ArrayList&lt;Integer></code>.
 But it also relates to any method parameter, like <code>add(int a, int b)</code> which considers two integers to instantiate, for example by calling <code>add(3, 5)</code>.
-As such, Goguen establishes a kind of Generic Programming which can be called <em>top-down</em>: we first identify the high level features required by the module into an interface, and then we identify instantiate them in specific contexts.
+As such, Goguen establishes a kind of Generic Programming which can be called <em>top-down</em>: we first identify the high level features required by the module into an interface, and then we instantiate them in specific contexts.
 </p>
 
 <p>
@@ -44,7 +71,7 @@ Nevertheless, this is in 1989 that <a href="#GP1989">Musser and Stepanov</a> coi
 In their view, the focus is on generic algorithms, which are <q>parameterized procedural schemata that are completely independent of the underlying data representation and are derived from concrete, efficient algorithms</q>.
 In other words, at the opposite of Goguen, they conceive a framework which aims at building generic programs in a <em>bottom-up</em> manner: starting from existing, low level running code, the goal is to identify common features to extract in higher levels for reuse.
 This process, repeated iteratively, leads to the construction of a hierarchy of codes, where the highest levels provide the most generic parts to be reused in lower levels, until we reach executable code in the lowest parts.
-As described by Musser and Stepanov, while Goguen aims for manipulating theories (especially for instantiating them for a specific context), they aim for building useful theories to manipulate, the usefulness being trivial from the derivation of existing, useful code.
+As described by Musser and Stepanov, while Goguen aims for manipulating theories (especially for instantiating them for a specific context), they aim for building useful theories to manipulate, the usefulness being trivial because of the extraction from existing, useful code.
 </p>
 
 <!-- TODO What to do with that?
@@ -52,6 +79,12 @@ As described by Musser and Stepanov, while Goguen aims for manipulating theories
 This <em>genericness-construction</em> framework focuses on a particular dimension to generalise: the algorithm should be independent of (i.e. generic in regard to) the data representation.
 </p>
 -->
+
+<h2>Generic Programming Today</h2>
+
+<p>
+<a href="#Giovannelli2013">Giovannelli</a>, provides a description of how the early notion of Generic Programming has evolved towards a more focused idea of abstracting data types and how it was implemented in some programming languages, leading in particular to the introduction of generics in Java.
+</p>
 
 <h2>Top-Down Approach: What Makes a Program Generic?</h2>
 
@@ -85,7 +118,7 @@ Finally, the main requirements to retain here, which actually unlock the ability
 In brief, we can mention three main properties of Generic Programming when we take a top-down perspective:
 </p>
 <ul>
-<li>develop independently the modules <em>used</em> and the modules <em>users</em>,</li>
+<li>develop the modules <em>used</em> independently from the modules <em>users</em>,</li>
 <li>make the former customizable through parameters,</li>
 <li>support its adaptation in the latter in a flexible way.</li>
 </ul>
@@ -118,7 +151,7 @@ A generic program is not just a factoring of some existing code, which implies t
 As such, a generic programmer should identify a minimal set of assumptions which describes the situations in which it <em>makes sense</em> to reuse the generic program, independently of where it was generalised from.
 Musser and Stepanov, for instance, had to pay a particular care that items in a list are not always indexed with integers.
 Indeed, a linked list can vary by adding or removing items anywhere in the list, thus integer indexes can vary and should be considered only as a type of <em>coordinate</em> (the generic concept used by Musser and Stepanov) usable only for specific kinds of lists.
-This is a perspective similar to the property described in the top-down approach, which requires to make the modules <em>used</em> and the modules <em>users</em> independent, and which is achieved by identifying the assumptions that the modules used (i.e. generic programs) actually require to be usable.
+This is a perspective similar to the property described in the top-down approach, which requires to make the modules <em>used</em> independent from the modules <em>users</em>, and which is achieved by identifying the assumptions that the modules used (i.e. generic programs) actually require to be usable.
 </p>
 
 <h2>Which One: Top-Down or Bottom-Up?</h2>
@@ -261,6 +294,13 @@ TODO
 	Symbolic and Algebraic Computation, edited by P. Gianni, 358:13–25. Berlin, Heidelberg: Springer Berlin Heidelberg,
 	<time datetime="1989">1989</time>.
 	DOI: <a href="https://dx.doi.org/10.1007/3-540-51084-2_2">10.1007/3-540-51084-2_2</a>
+</li>
+<li id="Giovannelli2013">
+	Giovannelli, Daniel.
+	<cite>Programming in Algorithms: Generic Programming and Its Implementation</cite>,
+	Bachelor of Science, Haverford College. Sept. of Computer Science,
+	<time datetime="2013">2013</time>.
+	URL: <a href="http://hdl.handle.net/10066/11492">http://hdl.handle.net/10066/11492</a>
 </li>
 <li id="GP2005">
 	Dos Reis, Gabriel, and Jaakko Järvi.

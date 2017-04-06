@@ -2,11 +2,97 @@
               GLOBAL
 \*********************************/
 
+/*
+Ensure that padding and borders shrink content instead of extending size.
+*/
+* {
+	box-sizing: border-box;
+}
+
 body {
 }
 
 div {
 	margin: 0;
+	padding: 0;
+}
+
+/*
+Blog pages are produced in separate files which apply the blog ID to the body,
+not an article, so we apply these rules to the ID itself for the style to be
+applied also in this context.
+*/
+article, #blog {
+	counter-reset: figureCounter;
+}
+
+figure {
+	text-align: center;
+	counter-increment: figureCounter;
+}
+
+figcaption {
+	font-weight: bold;
+	margin-top:1em;
+	margin-bottom:1em;
+}
+
+figcaption:before {
+	content: 'Fig.\00a0' counter(figureCounter) '\00a0\2013\00a0';
+}
+
+dl.short dt {
+	display: inline;
+	margin: 0;
+	padding: 0;
+	margin-left: 1.5em;
+}
+
+dl.short dt:before {
+	content: "\25CF\00a0";
+}
+
+dl.short dt:after {
+	content: "\00a0=\00a0";
+}
+
+dl.short dd {
+	display: inline;
+	margin: 0;
+	padding: 0;
+}
+
+dl.short dd:after {
+	content: "\A";
+	white-space: pre;
+}
+
+dl.center {
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+dl.center dt, dl.center dd {
+	display: inline-block;
+	width: 50%;
+	margin: 0;
+	margin-top: 0.5em;
+	padding: 0;
+	vertical-align: top;
+}
+
+dl.center dt {
+	text-align: right;
+	padding-right: 1.5em;
+}
+
+dl.center dd {
+	display: inline-block;
+	width: 50%;
+	margin: 0;
+	margin-top: 0.5em;
 	padding: 0;
 }
 

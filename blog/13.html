@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>How to formalise genericness?</h1>
+
+<h2 id="context">Context</h2>
+
+<!-- TODO -->
+<p>
+- labelling (find a generic property within a group, like topic identification)
+- intelligence (link to paper)
+- generic programming (link to series)
+</p>
+
+<h2 id="question">Question</h2>
+
+&lt;Complete question&gt;
+
+<h2 id="method">Method</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<h3>Dictionary Definitions</h3>
+
+<!-- TODO -->
+<p>
+If we ignore definitions about brands and biology, <a href="https://www.merriam-webster.com/dictionary/generic">Merriam-Webster</a> defines something generic as <q>relating to or characteristic of a whole group or class</q> or <q>having no particularly distinctive quality or application</q>, in other words something which appears to be common within a set of things.
+We can highlight that it is not about mere redundancy, meaning several occurrences in the group, but something which is redundant enough to be common to every members of the group.
+The <a href="http://dictionary.cambridge.org/dictionary/english/generic">Cambridge dictionary</a> remain on similar definitions, while the <a href="https://en.oxforddictionaries.com/definition/generic">Oxford dictionary</a> also defines it as <q>not specific</q>, giving us a proper pair of opposites: generic versus specific.
+</p>
+
+<p>
+This addition gives us the opportunity to look also for the definition of <q>specific</q>.
+Starting from the <a href="http://dictionary.cambridge.org/dictionary/english/specific">Cambridge dictionary</a>, which is the simplest, we say that something is specific when <q>relating to one thing and not others</q>.
+We ignore the alternative definition which makes it a synonymous of exact, which seems far from some opposition to generic.
+Although the definition is rather absolute (we speak about a single thing), the examples illustrate mainly specificness applied to a class of (similar) things, like specific cells or specific purposes.
+In other words, something specific appears to be something which pertains to a group of elements like generic, but at the opposite of generic which is common to all the elements we may speak about, specific clearly entails the idea that there is other elements which do not pertain to this group.
+Switching to the <a href="https://en.oxforddictionaries.com/definition/specific">Oxford dictionary</a>, we retrieve the absolute definition of <q>belonging or relating uniquely to a particular subject</q> as well as the synonymous of exact.
+We also have a definition closer to the meaning we identified in the Cambridge dictionary, with <q>relating to species or a species</q>, but as a biological interpretation only.
+Other and more complex definitions are also given, but again without a clear idea of how it would oppose to the generic notion, which is a bit annoying givne that it is this dictionary which defines generic as not specific.
+It is finally <a href="https://www.merriam-webster.com/dictionary/specific">Merriam-Webster</a> which provides the best understanding in regard to the raw idea we want to represent.
+Indeed, although we retrieve the idea of specific as a synonym of exact, we also find several definitions of interest, like <q>constituting or falling into a specifiable category</q>, which we understand as something which can be expressed as a property common to a category, which is better expressed as <q>sharing or being those properties of something that allow it to be referred to a particular category</q>.
+We also retrieve the idea of a unique individual with <q>restricted to a particular individual, situation, relation, or effect</q>, but again illustrated with a group (i.e. <q>a disease specific to horses</q>).
+We retrieve other definitions provided by the Oxford dictionary, but again they do not show a clear opposition to generic, thus we ignore them.
+</p>
+
+<p>
+We may stop here, but there is a subtle detail to care about, which shows that generic and specific are not strictly opposed to each other.
+Indeed, genericness implies that a property is shared through all the elements, while specificness implies that at least some elements do not, but it is not the only characteristic that specificness entails.
+As we saw in the previous definitions, there should also have at least some elements which do have this property: a property which applies to no elements at all is not specific, in particular we cannot answer the question <q>what is it specific to?</q>.
+Dictionary definitions always specifies that specific applies to identifiable elements, that the property is <em>specific to</em> a group of elements, so we can hardly use it to speak about a property which applies to nothing at all.
+To better grasp the different characteristics and properly choose our wording, let's go back to the roots of these words.
+</p>
+
+<h3>A Bit of Etymology</h3>
+
+<p>
+Generic comes from the Latin word <a href="https://en.wiktionary.org/wiki/genus#Latin">genus</a>, which means kind, type, species, or group.
+Specific comes from the Latin word <a href="https://en.wiktionary.org/wiki/specificus">specificus</a>, which is the composition of speciēs (kind) and faciō (make).
+We see that both builds on the notion of kind, but with different terms: genus on one side and speciēs on the other.
+<a href="https://en.wiktionary.org/wiki/species#Latin">Speciēs</a> is itself a derivation from <a href="https://en.wiktionary.org/wiki/specio#Latin">speciō</a>, which means observing or watching.
+As speciēs, we then speak about a view or appearance, thus a kind in the sense of an observable property, which leads us to interpret specificus as the ability to identify this property.
+To identify a property, one should at least be able to discern when it applies and when it does not, so it makes sense to speak about something specific when we are able to identify both elements having the property and elements not having it.
+On the other side, once we have established what is part of the group and what is not, then we can describe this common part they all share, there common <em>gene</em>, which is the essence of the term genus.
+In other words, one may identify a property specific to some elements, which makes then this property generic to all these elements.
+It is however important to not reduce genericness to this relation: definitions so far highlight that a generic property is common to a group, not necessarily restricted to it.
+</p>
+
+<p>
+Once the etymology of the words is clarified, we can then think about words which could express the missing characteristics that we need.
+In particular, if a generic property is the common genus present in the group, how to express that such a genus is totally absent from the group?
+Building on the notion of specificness would not help, because specificness entails the idea of having both elements with and without the property, so we should find a different notion.
+Some may think about using <a href="https://en.wikipedia.org/wiki/Meronymy">meronymy</a> and its <q>member of</q> or <q>part of</q> relationships, but that would be a mistake: we speak about a group of <em>elements</em>, with these elements having some properties, not a group of properties directly.
+We can say that a property is in (resp. out of) the group to avoid heavy sentences, but it should be interpreted as a property possessed by at least one element in (resp. out of) the group, not a direct membership relation between the property and the group.
+Consequently, a property can be possessed by elements in the group only or elements out of the group only, but also shared by elements in the group and out of it, a case that these relationships do not fit (one cannot be member <em>and</em> not member of a group).
+Instead, we go for a way to reverse the notion of genericness, which can be done by using several <a href="https://msu.edu/~defores1/gre/roots/gre_rts_afx_tab1.htm">prefixes</a>:
+</p>
+<dl class="center">
+<dt>a&ndash;</dt><dd>without, not</dd>
+<dt>anti&ndash;</dt><dd>against</dd>
+<dt>dis&ndash;</dt><dd>not, apart</dd>
+</dl>
+
+<p>
+We can interpret <em>ageneric</em> as a property <em>without</em> genericness in the group, such that it covers also properties which can be found in the group but for which we know that there is at least one element not having it.
+We can interpret <em>antigeneric</em> as a property <em>against</em> genericness in the group, or more formally which negates a generic property of the group, such that it can be possessed only by elements out of the group.
+We can interpret <em>disgeneric</em> as a property <em>apart from</em> genericness in the group, which seems more ambiguous to us and could be interpreted in both the previous ways, so we discard this term in the following.
+With these words, we do some <a href="https://en.wikipedia.org/wiki/Neologism">neologism</a>, hopefully not producing a mere <a href="https://en.wikipedia.org/wiki/Idiolect">idiolect</a>, but we invite readers knowing about existing terms suited to the meanings we cover to notify us.
+If some linguists spot mistakes in our interpretations of the prefixes, we would be glad to hear about it too.
+In summary, as shown in the figure below, we start from all the possible properties (biggest circle), remove the generic properties to obtain the ageneric ones, and remove the properties still possessed by elements in the group to obtain the antigeneric ones.
+</p>
+
+<figure>
+	<figcaption>Types of properties.</figcaption>
+	<svg viewBox="-112 -172 224 224" width="224" height="224"&lt;>
+		<circle cx="0" cy="-60" r="110" stroke="black" stroke-width="3" fill="cyan" />
+		<text x="0" y="-125" fill="black" text-anchor="middle">All</text>
+		<circle cx="0" cy="-30" r="80" stroke="black" stroke-width="3" fill="lime" />
+		<text x="0" y="-65" fill="black" text-anchor="middle">Ageneric</text>
+		<circle cx="0" cy="0" r="50" stroke="black" stroke-width="3" fill="yellow" />
+		<text x="0" y="5" fill="black" text-anchor="middle">Antigeneric</text>
+	</svg>
+</figure>
+
+<h3>Preparation of the Formalisation</h3>
+
+<p>
+Now, several points can be clarified to better grasp how these concepts relate to elements in and out of the group, because they do not split the properties between properties only found in the group and properties only found out of it, as illustrated in the next figure.
+Indeed, if we consider all properties, there is properties which can be possessed by elements in the group and elements out of it, like the property <q>being an element</q> which is shared by all the elements.
+An ageneric property adds the constraint of having at least one element of the group not possessing it, but without constraining elements out of the group, thus it can again be possessed by both types of elements.
+An antigeneric property, at the opposite, negates a generic property of the group, which means that elements in the group <em>necessarily</em> do not possess this property (because they possess the generic one), thus restricting antigeneric properties to elements out of the group only.
+Several questions then may arise regarding how antigeneric properties and elements out of the group relate to each other.
+A first question is whether or not <em>any element possessing an antigeneric property is out of the group</em>, which by definition is true because an antigeneric property can only be possessed by elements out of the group, but what makes it interesting is to answer the next question.
+Indeed, we can also wonder whether or not <em>any element out of the group possesses an antigeneric property</em>, which can be answered positively because any group has a generic property <q>being part of the group</q> negated by the antigeneric property <q>being out of the group</q>, property which is common to all the elements out of the group.
+From these two answers, we can already say that <strong>being out of the group is equivalent to having an antigeneric property</strong>, which already draws a strong tie between antigeneric properties and elements out of the group.
+However, despite this equivalence, it is not because an element is out of the group that all its properties are antigeneric: any element possesses the property <q>being an element</q>, which is thus a generic property for any non-empty group, so any element has at least a generic property.
+Not only this example shows that being out of the group does not mean having only antigeneric properties but, given a group, <strong>no element have only antigeneric properties</strong>.
+These are important aspects that should be complied with when formalising our concepts, including the case of the empty group described next.
+</p>
+
+<figure>
+	<figcaption>Properties in/out of the group</figcaption>
+	<svg viewBox="-112 -172 350 254" width="350" height="254"&lt;>
+		<circle cx="0" cy="-60" r="110" stroke="black" stroke-width="3" fill="cyan" />
+		<text x="0" y="-125" fill="black" text-anchor="middle">All</text>
+		<circle cx="0" cy="-30" r="80" stroke="black" stroke-width="3" fill="lime" />
+		<text x="0" y="-65" fill="black" text-anchor="middle">Ageneric</text>
+		<text x="0" y="70" fill="black" text-anchor="middle">In or out of the group</text>
+		
+		<circle cx="184" cy="0" r="50" stroke="black" stroke-width="3" fill="yellow" />
+		<text x="184" y="5" fill="black" text-anchor="middle">Antigeneric</text>
+		<text x="184" y="70" fill="black" text-anchor="middle">Out of the group</text>
+	</svg>
+</figure>
+
+<p>
+The empty group is a particular case and should be carefully dealt with.
+First, we consider whether or not <strong>any property possessed only by elements out of the group is antigeneric</strong>, which can be answered positively if we assume the <a href="https://en.wikipedia.org/wiki/Law_of_excluded_middle">law of excluded middle</a>, which states that, for any element, a property is either possessed or not possessed by it.
+With this assumption, a property possessed only by elements out of the group is negated by a property which is necessarily possessed by all the other elements, including all the elements in the group.
+This negation is thus a generic property for the group, leading the negated property to be, by definition, an antigeneric property.
+The empty group, however, brakes the logic: if the group is empty, then the negation is a generic property for the (empty) group, but any element having this generic property is itself out of the group, which makes this generic property also antigeneric, which is absurd (an element cannot be in <em>and</em> out of the group).
+The case of the empty group thus lead to an undefined genericness, such that one cannot say whether a property is generic, ageneric, antigeneric, or, as we see next, specific.
+</p>
+
+<p>
+As we can see so far, all these terms apply depending on the group considered, so a property can be generic for a given group but ageneric or antigeneric for another one.
+Before to say whether a property is of a given kind, one should first specify the group of elements considered, which means that our formalisation cannot define them without including a dependence to this group either.
+This is another requirement for us to comply with in our formalisation.
+</p>
+
+<p>
+We can now close our analysis by summarising our interpretation of genericness and specificness based on the defined concepts, as illustrated in the figure below.
+One may speak about a <em>generic</em> property for a group of elements, which is a property that every elements of the group has, while all the other properties are <em>ageneric</em>, which means that at least one element of the group does not have it.
+<em>Antigeneric</em> properties are properties negating these generic properties, so only elements out of the group can have them.
+<em>Specific</em> properties are the remaining: properties which are neither generic nor antigeneric, or ageneric properties which are not antigeneric, so not only they are not shared by all the elements of the group, but they are not totally absent either.
+</p>
+
+<figure>
+	<figcaption>Generic and specific properties</figcaption>
+	<svg viewBox="-114 -202 536 286" width="536" height="286"&lt;>
+		<circle cx="0" cy="-60" r="110" stroke="black" stroke-width="3" fill="cyan" />
+		<circle cx="0" cy="-30" r="80" stroke="black" stroke-width="3" fill="white" />
+		<text x="0" y="-125" fill="black" text-anchor="middle">Generic</text>
+		
+		<circle cx="214" cy="-30" r="80" stroke="black" stroke-width="3" fill="lime" />
+		<circle cx="214" cy="0" r="50" stroke="black" stroke-width="3" fill="white" />
+		<text x="214" y="-65" fill="black" text-anchor="middle">Specific</text>
+		
+		<circle cx="368" cy="0" r="50" stroke="black" stroke-width="3" fill="yellow" />
+		<text x="368" y="5" fill="black" text-anchor="middle">Antigeneric</text>
+		
+		<polyline points="-110,50 -110,60 294,60 294,50" style="fill:none;stroke:black;stroke-width:3" />
+		<text x="92" y="80" fill="black" text-anchor="middle">In the group</text>
+		<polyline points="318,50 318,60 418,60 418,50" style="fill:none;stroke:black;stroke-width:3" />
+		<text x="368" y="80" fill="black" text-anchor="middle">Out of the group</text>
+		
+		<polyline points="-110,-170 -110,-180 110,-180 110,-170" style="fill:none;stroke:black;stroke-width:3" />
+		<text x="0" y="-190" fill="black" text-anchor="middle">Generic</text>
+		<polyline points="134,-170 134,-180 418,-180 418,-170" style="fill:none;stroke:black;stroke-width:3" />
+		<text x="276" y="-190" fill="black" text-anchor="middle">Ageneric</text>
+	</svg>
+</figure>
+
+<h3>Preliminary Formalisation</h3>
+
+<p>
+For our formalisation, we build on the mathematical notion of <a href="https://en.wikipedia.org/wiki/Set_(mathematics)">sets</a>, such that a set \(S\) is a group of elements \(\{s_0, s_1, s_2, ...\}\).
+We can express the <a href="https://en.wikipedia.org/wiki/Cardinality">cardinality</a> of this set through \(|S| \in \mathbb{R}^+\) in order to know how many elements it contains.
+To properly identify the groups, we need to speak about the properties they represent, which we model through <a href="https://en.wikipedia.org/wiki/Predicate_(mathematical_logic)">predicates</a> \(p: S \rightarrow \{\top, \bot\}\), so if \(p(s) = \top\) then \(s\) is a member of the group represented by the property \(p\).
+Beside this choice of using the set theory to formalise them, other basic characteristics can be reminded, especially because they provide some support for the proofs of the next section.
+We describe them below, show what they mean in our context from a formal perspective, and derive what we need for later reuse.
+</p>
+
+<p>
+One of them is the <a href="https://en.wikipedia.org/wiki/Law_of_noncontradiction">law of noncontradiction</a>, which means that a property cannot be at the same time true and false, and from which we can infer that a set built on that assumption is necessarily empty:
+</p>
+\[\begin{align}
+\nonumber
+           & \forall s \in S, p(s) \wedge \neg p(s) = \bot\\
+\label{eq:noncontradiction}
+\Rightarrow& \{s \in S | p(s) \wedge \neg p(s) \} = \emptyset\\
+\end{align}\]
+
+<p>
+The second one is the <a href="https://en.wikipedia.org/wiki/Law_of_excluded_middle">law of excluded middle</a>, which assumes that a property is either true or false, nothing else.
+Such an assumption implies that a set which combines elements having a property \(p\) and elements not having it simply contains every elements:
+</p>
+\[\begin{align}
+\nonumber
+           & \forall s \in S, p(s) \vee \neg p(s) = \top\\
+\label{eq:excludedMiddle}
+\Rightarrow& \{s \in S | p(s) \vee \neg p(s) \} = S\\
+\end{align}\]
+
+<p>
+The third property we will use relates to the cardinality of <a href="https://en.wikipedia.org/wiki/Cardinality#Union_and_intersection">the union of sets</a>, which should not count twice the elements that we find in both sets:
+</p>
+\[\begin{align}
+\label{eq:unionCardinality}
+|A \cup B| = |A| + |B| - |A \cap B|\\
+\end{align}\]
+
+<p>
+From all these characteristics, we can infer that the cardinality of a set \(S\) can be expressed as the sum of the cardinalities of two sets: the set of the elements having a property \(p\) and the set of elements not having it, which we formalise below:
+</p>
+\[\begin{align}
+\nonumber
+|S| &= |\{ s \in S | p(s) \vee \neg p(s)\}| &(\text{Eq \eqref{eq:excludedMiddle}})\\
+\nonumber
+    &= |\{ s \in S | p(s) \}| + |\{ s \in S | \neg p(s)\}| - |\{ s \in S | p(s) \wedge \neg p(s)\}| &(\text{Eq \eqref{eq:unionCardinality}})\\
+\label{eq:composition}
+    &= |\{ s \in S | p(s) \}| + |\{ s \in S | \neg p(s)\}|&(\text{Eq \eqref{eq:noncontradiction}})\\
+\end{align}\]
+
+<h3>Formalisation of Strict Genericness and Specificness</h3>
+
+<p>
+Once the preliminary characteristics are identified, we can properly formalise our concepts of genericness and specificness.
+Because they are supposed to oppose each other, we should define one and assume the other to be its negation, the question being: which one to start from?
+Our main interest is to express genericness, but we will see later that it is not the most convenient, so we will start from formalising what a specific property is, that is being a property that other elements do not have:
+</p>
+\[\begin{align}
+specific(p, S) &= \exists s \in S, \neg p(s) \\
+generic(p, S) &= \neg specific(p, S) \\
+\nonumber     &= \nexists s \in S, \neg p(s)\\
+\nonumber     &\Rightarrow \forall s \in S, p(s)\\
+\end{align}\]
+
+<p>
+We see that, by negating our definition of \(specific\), we obtain the definition that the property \(p\) is shared by all the elements \(s\) of the set \(S\), which is exactly the meaning we intended to have for genericness.
+However, it is not a strict equality but a one way implication, which is due to the extreme case of having an empty set \(S = \emptyset\).
+In this case, one can hardly interpret whether or not a property \(p\) is generic: there is no such element to apply it to, so how can we faithfully state that all the elements have this property?
+To be fair, we should have considered that \(generic\) is not defined in this case by using this formula as the main definition.
+Instead, we consider it as the strict opposite of \(specific\), which is properly defined for an empty set: if no element exist, then no element having the property \(p\) exist either, leading to consider \(specific(p, \emptyset)\) as false, and by extension \(generic(p, \emptyset)\) as true.
+In other words, if \(S\) is empty, any property is generic under our model because no counter-example can be found to show that the property does not apply.
+</p>
+
+<p>
+Another extreme case should be considered: what if, despite having a non empty set \(S\), no element of it has the property \(p\)?
+In this case, our formal definition states that the property is specific, but as we saw in the definitions from dictionaries, it should at least apply to some elements.
+</p>
+
+<h3>Formalisation of Degree of Genericness and Specificness</h3>
+
+<p>
+We may stop here, but the formalisation of genericness and specificness as boolean values is not the only interesting way to model them.
+Indeed, although \(generic\) covers a single case (i.e. all the elements of \(S\) have the property \(p\)), \(specific\) covers all the others, from one element not having it to all the elements not having it.
+Thus, when speaking about two specific properties, one could be interested to know whether one is more specific than the other, which requires to introduce a proper scale to speak about degrees of genericness and specificness.
+Because genericness and specificness are defined based on an overall set \(S\), we can consider to formalise these degrees as a ratio: a <em>specificity</em> close to 0% would mean that the property is shared by many elements, leading to a <em>genericity</em> close to 100%, and vice versa.
+</p>
+
+<p>
+However, an interpretation issue arises: what means a specificity of 100%?
+On one side, saying that a property is specific 
+At the opposite, a \(specificity\) of 100% would mean that only one element of the set has the property, leading to a \(genericity\) of 0%.
+In order to remain simple, we would like these ratios to be linear, such that half of the set having the property would lead to a \(specificity\) and a \(genericity\) of 50%.
+</p>
+\[\begin{align}
+specificity(p, S) &= \frac{|\{ s \in S | \neg p(s) \}|}{|S|} \\
+genericity(p, S) &= \frac{|\{ s \in S | p(s) \}|}{|S|} \\
+\nonumber        &= \frac{|\{ s \in S | p(s) \}| + |\{ s \in S | \neg p(s) \}| - |\{ s \in S | \neg p(s) \}|}{|S|} \\
+\nonumber        &= \frac{|S| - |\{ s \in S | \neg p(s) \}|}{|S|} &(\text{Eq \eqref{eq:composition}})\\
+\nonumber        &= \frac{|S|}{|S|} - \frac{|\{ s \in S | \neg p(s) \}|}{|S|}\\
+                 &= 1 - specificity(p, S) \\
+\end{align}\]
+
+<ul>
+<li>If \(S = \emptyset\) then \(specificity\) and \(genericity\) are not defined.</li>
+<li>If extension to \(|S| = \infty\) then \(specificity\) and \(genericity\) can be computed through Monte-Carlo.</li>
+</ul>
+
+\[\begin{align}
+(\forall s \in S, p_1(s) \Rightarrow p_2(s)) &\Rightarrow specificity(p_1, S) > specificity(p_2, S)\\
+\nonumber                                    &\Rightarrow -specificity(p_1, S) < -specificity(p_2, S)\\
+\nonumber                                    &\Rightarrow 1 - specificity(p_1, S) < 1 - specificity(p_2, S)\\
+                                             &\Rightarrow genericity(p_1, S) < genericity(p_2, S)\\
+\end{align}\]
+
+<h2 id="answer">Answer</h2>
+
+&lt;Answer to the question.&gt;
+
+<h2 id="links">Related Questions</h2>
+
+&lt;Links to other questions.&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="id">Authors. <cite>Title</cite>, publication, <time datetime="date">date</time>. doi:<a href="https://dx.doi.org/xxx">xxx</a></li>
+</ul>
+
+</body>
+</html>

@@ -61,13 +61,13 @@ Parametric polymorphism is a polymorphism which only cares about the <em>apparen
 Ad hoc polymorphism, at the opposite, simply hides the type-specific details, like the following method:
 </p>
 
-<pre><code>&lt;T> T add(T a, T b) {
+<pre id="non_generic_addition"><code>&lt;T> T add(T a, T b) {
 	if (a instanceof Integer) {
 		// Add 2 integers
 		return (T) new Integer((Integer) a + (Integer) b);
-	} else if (a instanceof Float) {
-		// Add 2 floats
-		return (T) new Float((Float) a + (Float) b);
+	} else if (a instanceof Double) {
+		// Add 2 doubles
+		return (T) new Double((Double) a + (Double) b);
 	} else if (a instanceof String) {
 		// Concatenate 2 strings
 		return (T) ((String) a + (String) b);
@@ -80,8 +80,8 @@ Ad hoc polymorphism, at the opposite, simply hides the type-specific details, li
 <p>
 We can criticise this method in several ways, but let's focus on the polymorphism aspect.
 With this code, it is true that the method can receive any type, but this is an example of code which needs to know the <em>actual</em> type of the instance to be implemented.
-This is an example of program which uses generics while it is not generic in the broad sense, because it only manages the implemented types, not any type for which such a method would make sense (e.g. <code>Double</code> and <code>Long</code> are not managed).
-This is again an evidence that generics is not all what there is to make generic programs.
+This is an example of program which uses generics while it is not generic in the broad sense, because it only manages the implemented types, not any type for which such a method would make sense (e.g. <code>Float</code> and <code>Long</code> are not managed).
+We give <a href="#specificity_hiding">later</a> a more detailed explanation of why it is not generic, but this is again an evidence that generics is not all what there is to make generic programs.
 </p>
 
 <h2>Specify useless bounds</h2>
@@ -144,11 +144,11 @@ This is again an application of the <a href="entry:6">information layering</a> a
 <h2>Omit generics (raw types)</h2>
 
 <p>
-Raw types are generic types for which we omit to specify the type at instantiation time, like <code>new Storage()</code> which omits to tell which type of data is stored.
-These raw types act as if we provide the most generic type possible<!-- wildcard rather than most generic? -->, so <code>new Storage&lt;Object>()</code> in this example, or <code>new Storage&lt;Number>()</code> if the class is bounded to <code>Number</code> types only.
-However, it only does so loosely: a raw type is not strictly specified, for instance while the compiler complains with <code>Storage&lt;Object> s = new Storage&lt;String>()</code>, it does not for <code>Storage s = new Storage&lt;String>()</code>.
+Raw types are generic types for which we omit to specify the type at instantiation time, like <code>new ArrayList()</code> which omits to tell which type of item is listed.
+These raw types act as if we provide the most generic type possible<!-- wildcard rather than most generic? -->, so <code>new ArrayList&lt;Object>()</code> in this example<!--<code>new ArrayList&lt;Number>()</code> if the class was bounded to <code>Number</code> types only-->.
+However, it only does so loosely: a raw type is not strictly specified, for instance while the compiler complains with <code>ArrayList&lt;Object> list = new ArrayList&lt;String>()</code>, it does not for <code>ArrayList list = new ArrayList&lt;String>()</code>.
 This behaviour is for retrocompatibility with legacy code made before Java 5, when generics did not exist yet.
-Consequently, you may then write <code>s.set(1)</code>, which only generates a warning but fails at runtime because you provide an <code>Integer</code> instead of a <code>String</code>.
+Consequently, you may then write <code>s.set(1)</code>, which only generates a warning at compile time but fails at runtime because you provide an <code>Integer</code> instead of a <code>String</code>.
 </p>
 
 <p>
@@ -164,27 +164,64 @@ A last justification is that, for advanced generic programming, a particular car
 Consequently, refusing to decide which type to use is not a behaviour compatible with a generic programming mindset.
 </p>
 
-<h2 id="mix_class_and_generics_inheritance">Mix class inheritance with generics inheritance</h2>
+<h2 id="specificity_hiding">Hide Specific Code With Generics</h2>
 
+<!-- TODO Rewrite the information layering principle post (entry 6), which should give the relevant material for explaining this point. Then build on that post to simplify the explanation here. -->
 <p>
-<!-- TODO String is a child of Object -->
-<!-- TODO Because of type erasure, generics have no impact on inheritance at runtime -->
-<!-- TODO MyClass<String> is not a child of MyClass<Object>, because actually both are MyClass, so no inheritance involved -->
+When designing a generic program, one should pay a particular attention not to be bound to a set of contexts which are over-restricted, for example by implementing a generic type which is applicable to specific implementations only, like the code provided <a href="#non_generic_addition">at the beginning</a>.
+Despite the method accepting a pair of parameters with any type, the implementation clearly shows that it only covers pairs of <code>Integer</code>, <code>Double</code>, or <code>String</code> instances.
+Such a method builds on a contradiction: on one side the assumption that we <em>don't need to know</em> the type of the parameters, so using generics is enough, and on the other side the assumption that we <em>need to know</em> the type of the parameters, otherwise we cannot apply the proper operation.
+Said another way, it is a consequence of the inability for the designer to answer this very basic question: should the code be generic or not?
 </p>
 
 <p>
-<!-- TODO MyChildClass<String> is a child of MyParentClass<String>, because actually MyChildClass is a child of MyParentClass -->
-<!-- TODO MyChildClass<String> is a child of MyParentClass<Object>, because actually MyChildClass is a child of MyParentClass, not because String is a child of Object -->
-<!-- TODO MyChildClass<Object> also a child of MyParentClass<String>, because actually MyChildClass is a child of MyParentClass -->
+Being generic is not a quality, it is a design choice: a generic code aims for reusability, which means that context-specific aspects <em>must</em> be ignored, at least at this level, otherwise we loose the ability to use it in more contexts.
+The opposite of generic code is not bad code, it is optimised code: code which exploits at best the specific properties of the context to improve one or more aspects, like exploiting specific CPU or GPU instructions to compute some operations faster.
+Of course, it does not mean that generic and optimised codes are incompatible, one can make a generic interface with specific, highly optimised implementations, but one cannot implement a piece of code which is at the same time generic and optimised.
+Like a building can have a 1<sup>st</sup> and a 2<sup>nd</sup> floor but no floor can be at the same time the 1<sup>st</sup> and the 2<sup>nd</sup>, generic and optimised code can coexist but no piece of code can be both at the same time.
 </p>
 
 <p>
-<!-- TODO Generics only have impact on inheritance at coding time, because they must be compliant with parent bounds -->
-<!-- TODO If inheritance must be checked between generics, consider to use "? extends ParentClass" -->
-More details in the Oracle tutorial
-<a href="https://docs.oracle.com/javase/tutorial/java/generics/inheritance.html">[1]</a>
-<a href="https://docs.oracle.com/javase/tutorial/java/generics/subtyping.html">[2]</a>.
+In our case, a smarter choice is to establish a generic interface, which gives the global shape that will be reused, and context-specific implementations, which can be used in the relevant contexts.
+For example, we may have the generic interface:
 </p>
+<pre><code>
+public interface Adder&lt;T> {
+	T add(T a, T b);
+}
+</code></pre>
+
+<p>
+Additionally, this is a <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html#approach5">functional interface</a>, which means that you can use <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html">lambda expressions</a> to implement it, which reduces the effort significantly:
+</p>
+<pre><code>
+Adder&lt;Integer> intAdder = (a, b) -> a + b;
+Adder&lt;Double> doubleAdder = (a, b) -> a + b;
+Adder&lt;String> stringAdder = (a, b) -> a + b;
+Adder&lt;List&lt;?>> listAdder = (a, b) -> Stream.concat(a.stream(), b.stream()).collect(Collectors.toList());
+
+System.out.println(intAdder.add(3, 5));// Display 8
+System.out.println(doubleAdder.add(1.2, 3.4));// Display 4.6
+System.out.println(stringAdder.add("Te", "st"));// Display Test
+System.out.println(listAdder.add(Arrays.asList(1, 2), Arrays.asList(3, 4)));// Display [1, 2, 3, 4]
+</code></pre>
+
+<p>
+Meanwhile, at the cost of some loss in the semantics, one can use <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html#approach6">standard functional interfaces</a> for the simplest cases, like <code>BinaryOperator</code> instead of our <code>Adder</code> here, which replaces the method <code>add(a, b)</code> by a less informative <code>apply(t, u)</code>.
+Considering that generic programs are motivated by a better understanding, we cannot recommended such a replacement here, but it is important to know about the various standard functional interfaces available to give inspiration for better designs.
+</p>
+
+<h2>Retrieve the Actual Type of Generics</h2>
+
+<p>
+</p>
+<!-- TODO -->
+
+<h2>conclusion</h2>
+
+<p>
+</p>
+<!-- TODO -->
 
 <!-- Auto formatting of code tags as Java code -->
 <script language="Javascript" type="text/javascript">
@@ -207,6 +244,7 @@ TODO
 	<time datetime="2000">2000</time>.
 	DOI: <a href="https://dx.doi.org/10.1023/A:1010000313106">10.1023/A:1010000313106</a>
 </li>
+<!--
 <li id="Mathur2011">
 	Mathur, Shilpa.
 	<cite>Generic Programming in C++ and Java.</cite>,
@@ -214,6 +252,7 @@ TODO
 	<time datetime="2011">2011</time>.
 	URL: <a href="http://paper.ijcsns.org/07_book/html/201109/201109010.html">http://paper.ijcsns.org/07_book/html/201109/201109010.html</a>
 </li>
+-->
 <li id="Giovannelli2013">
 	Giovannelli, Daniel.
 	<cite>Programming in Algorithms: Generic Programming and Its Implementation</cite>,
