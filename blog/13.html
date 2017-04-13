@@ -328,7 +328,7 @@ ageneric(p, S) &= \neg generic(p, S) \\
 \end{align}\]
 
 <p>
-Notice the condition of the second line, which is due to the empty set leading to a vacuous truth: because both a property and its negation can be considered as true, it makes no sense to derive the second line in the case of the empty set.
+Notice the condition of the last line, which is due to the empty set leading to a vacuous truth: because both a property and its negation can be considered as true, there is no reason to infer the last line, which would be false in the case of an empty set rather than undefined.
 Going further, if a property is totally absent from the set (a definition also subject to vacuous truth), it is antigeneric:
 </p>
 
@@ -339,7 +339,7 @@ antigeneric(p, S) &= \forall s \in S, \neg p(s) \\
 
 <p>
 Thus, we see our two ways of negating genericness: ageneric is about negating the whole relation (\(generic\) vs. \(\neg generic\)) while antigeneric is about negating the generic property (\(p\) vs. \(\neg p\)).
-From these definitions, we can then formally define specificness, starting from the last figure which shows how specific properties are neither generic nor antigeneric:
+From these definitions, we can then formally define specificness, stating like <a href="#generic_and_specific_properties">Fig. 3</a> that specific properties are neither generic nor antigeneric:
 </p>
 
 \[\begin{align}
@@ -356,22 +356,23 @@ This formalisation properly describes that a specific property is a property whi
 It is important to not read \(specific(p, S)\) as \(p\) being specific <em>to</em> the set \(S\), but being specific <em>in</em> the set, such that we can find a subset <em>to</em> which it is specific.
 In other words, there is a set \(S_p \subset S\), which can be called the reduction of \(S\) through \(p\), such that \(0 &lt; |S_p| &lt; |S|\) (it is neither the empty set nor \(S\) itself) and \(generic(p, S_p)\).
 At the opposite, the reduction of the set through a generic property leads to the set itself, while a reduction through an antigeneric property leads to the empty set.
-This notion of reduction is formally described in the next section, where we use it extensively to establish an order between properties, but before to speak about orders, we should close this section, which still did not consider the extreme case of empty sets and how they apply to our definitions.
+This notion of reduction is formally described in the next section, where we use it extensively to establish an order between properties, but before to speak about orders, we should close this section, which still did not consider the extreme cases and how they impact our definitions.
 </p>
 
 <p>
 Although reductions can lead to having an empty set, we can also wonder what happens when \(S\) itself is empty: is there generic or specific properties with an empty set?
 We already saw that our generic and antigeneric formalisation are subjects to the vacuous truth in the case of the empty set, and we can see that it is also the case for specific which requires, for the same reasons, the set to be non empty to derive Equation \eqref{eq:formalSpecificDetailed} from Equation \eqref{eq:formalSpecific}.
-Because vacuous truth leads to consider that a property both holds and does not hold, we can say that this property is generic and antigeneric, inferring from Equation \eqref{eq:formalSpecific} that it is not specific.
-But similarly, because it does not hold and it holds, we can also say that it is neither generic nor antigeneric, such that we can infer from the same equation that it is, indeed, specific.
-Thus, like we interpret this kind of paradox as an undefined state for generic and antigeneric, we also consider it as an undefined state for specific and ageneric, which allows us to remain consistent with the reasoning provided in <a href="#formalisation_preparation">section 3.3</a>.
+But specific is more fundamentally impacted by vacuous truth, which leads to consider that a property both holds and does not hold, so we can say that this property is generic and antigeneric, inferring from Equation \eqref{eq:formalSpecific} that it is not specific.
+But similarly, because it does not hold and holds, we can also say that it is neither generic nor antigeneric, such that we can infer from the same equation that it is, indeed, specific.
+Thus, like we interpret this kind of paradox as an undefined state for generic and antigeneric, we also consider it as an undefined state for specific (and ageneric which directly depends on generic), which allows us to remain consistent with the requirements established in <a href="#formalisation_preparation">section 3.3</a>.
 </p>
 
 <p>
 Another extreme case is when the set has a single element.
-Indeed, although one can say whether a property is generic or antigeneric depending on whether the single element has the property or not, one cannot say whether or not the property is specific, because Equation \eqref{eq:formalSpecificDetailed} requires at least 2 elements to define it.
-However, Equation \eqref{eq:formalSpecific} clearly states that a property is specific when it is neither generic nor antigeneric, but because a single element in the set leads the property to be either generic or antigeneric, we can infer that no property can be specific with a set of one element.
-To be correct, we should add the condition \(|S| \geq 2\) to the line inferring Equation \eqref{eq:formalSpecificDetailed}, because \(s_1\) and \(s_2\) cannot be the same element if the property holds on one and not on the other.
+Indeed, although one can say whether a property is generic or antigeneric depending on whether the single element has the property or not, specific requires 2 elements to be established.
+More precisely, Equation \eqref{eq:formalSpecificDetailed} defines a specific property by having at least 2 elements because one element cannot have and nothave the property, which means that if one of them is missing, Equation \eqref{eq:formalSpecificDetailed} returns false.
+This is confirmed from the initial definition, provided by Equation \eqref{eq:formalSpecific}, which clearly states that a property is specific when it is neither generic nor antigeneric.
+Indeed, a set of one element can have only two cases: whether the property is possessed by this element and it is a generic property, or it does not and it is antigeneric, which means that in any case the property cannot be specific.
 </p>
 
 <h3 id="relative_formalisation">Formalisation of Relative Genericness and Specificness</h3>
@@ -659,9 +660,10 @@ But because we work with discrete values, such that no size exists between 0 and
 Once again, we can analyse how our expressions are impacted by the set \(S\) in extreme cases.
 When the set is empty, the genericity computed with Equation \eqref{eq:formalGenericity} is undefined because of the denominator, while antigenericity is undefined by definition with Equation \eqref{eq:formalAntigenericity} and because of the denominator in Equation \eqref{eq:formalAntigenericityDetailed}.
 Specificity is also undefined with Equation \eqref{eq:formalSpecificity}, because the modulo is undefined for a null divisor: building a modulo implies to divide by the divisor, thus it is again undefined because of a null denominator.
+All these undefined values complies with the requirements established in section <a href="#formalisation_preparation">section 3.3</a>.
 The other extreme case is when the set has only one element, such that the property either applies, leading to a genericity of 1 and an antigenericity of 0, or not, leading to a genericity of 0 and an antigenericity of 1.
-For the specificity computation, Equation \eqref{eq:formalSpecificity} gives us an undefined value again, but this time because of the denominator.
-All these undefined values complies with the requirements we defined in section <a href="#formalisation_preparation">section 3.3</a>.
+For the specificity computation, Equation \eqref{eq:formalSpecificity} gives us an undefined value because of the denominator, which is in disagreement with the absolute case, which states that a property is necessarily not specific if the set has only one element.
+This is a limitation which may lead to a revision of our equation of specificity, but so far this is the best expression we could establish (beside splitting the definition in two).
 </p>
 
 <h2 id="answer">Answer</h2>
@@ -671,9 +673,9 @@ We asked several questions, thus we provide an answer for each of them:
 </p>
 <ul>
 <li>A <q>generic property</q>, given a group of elements, is defined as a property possessed by all the elements of the group. We formalise a property \(p\) as being generic in a set \(S\) through \(generic(p, S) = \forall s \in S, p(s)\). One cannot say whether or not a property is generic if the set is empty.</li>
-<li>A <q>specific property</q> is defined as a property possessed by at least one element of the group and not possessed by at least one other element of the group. We formalise a property \(p\) as being specific in a set \(S\) through \(specific(p, S) = \exists s_1, s_2 \in S, \neg p(s_1) \wedge p(s_2)\). One cannot say whether or not a property is specific if the set is empty or has only one element.</li>
-<li>A <q>property being more generic than another</q> is a property possessed by a greater number of elements in the group. We measure this quantity through the genericity of the property, formalised as \(genericity(p, S) = \frac{|\{s \in S | p(s)\}|}{|S|}\). The comparison cannot be made if the set is empty.</li>
-<li>A <q>property being more specific than another</q> is a property possessed by a lower number of elements (but at least one) in the group. We measure this quantity through the specificity of the property, formalised as \(specificity(p, S) = \frac{|\{s \in S | \neg p(s)\}| ~ mod ~ |S|}{|S|-1}\). The comparison cannot be made if the set is empty or has only one element.</li>
+<li>A <q>specific property</q> is defined as a property possessed by at least one element of the group and not possessed by at least one other element of the group. We formalise a property \(p\) as being specific in a set \(S\) through \(specific(p, S) = \exists s_1, s_2 \in S, \neg p(s_1) \wedge p(s_2)\). One cannot say whether or not a property is specific if the set is empty, and it is necessarily false if the set has only one element.</li>
+<li>A <q>property being more generic than another</q> is a property possessed by a greater number of elements in the group. We measure this quantity through the genericity of the property, formalised as \(genericity(p, S) = \frac{|\{s \in S | p(s)\}|}{|S|}\). The comparison cannot be done if the set is empty.</li>
+<li>A <q>property being more specific than another</q> is a property possessed by a lower number of elements (but at least one) in the group. We measure this quantity through the specificity of the property, formalised as \(specificity(p, S) = \frac{|\{s \in S | \neg p(s)\}| ~ mod ~ |S|}{|S|-1}\). The comparison cannot be done if the set is empty. If the set has only one element, it cannot be done either, while we would expect to obtain 0 to remain compliant with the formalisation of specific. This is a current limitation of our answer which should be investigated for improvement.</li>
 </ul>
 
 <!--
