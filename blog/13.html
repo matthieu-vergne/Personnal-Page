@@ -40,7 +40,7 @@ The current post should be of particular help for this series.
 
 <p>
 This separation between generic and specific is also a perspective that we can find in <a href="https://en.wikipedia.org/wiki/Artificial_intelligence">Artificial Intelligence</a> (AI), where many subfields deal with specific goals, like <a href="https://en.wikipedia.org/wiki/Computer_vision">Computer Vision</a>, <a href="https://en.wikipedia.org/wiki/Expert_system">Expert Systems</a>, <a href="https://en.wikipedia.org/wiki/Machine_learning">Machine Learning</a>, or <a href="https://en.wikipedia.org/wiki/Machine_translation">Machine Translation</a>, while the subfield of <a href="https://en.wikipedia.org/wiki/Artificial_general_intelligence">Artificial General Intelligence</a> (AGI) focuses on the generic aspects of intelligence that should be common to all the others.
-From our perspective, the complementarity observed in AI <!-- TODO Link to my publication -->has led us to think deeper about how AGI focuses on obtaining high performance from machines in a <em>domain-generic</em> manner, while other subfields deal with <em>domain-relevant</em> tasks, which we relate respectively to intelligence and expertise, two complementary ways to achieve high performance.
+From our perspective, the complementarity observed in AI <a href="#Vergne2017">has led us</a> to think deeper about how AGI focuses on obtaining high performance from machines in a <em>domain-generic</em> manner, while other subfields deal with <em>domain-relevant</em> tasks, which we relate respectively to intelligence and expertise, two complementary ways to achieve high performance.
 In order to better grasp this notion and go towards proper implementations, such informal definitions are however not enough, and proper formalisation should be provided.
 This is the main incentive of this post: to formalise what we mean by <em>generic</em> and <em>specific</em>, two terms that we consider complementary, a step which should be completed with the formalisation of other concepts, like relevance and domain<!-- TODO Link to posts on these matters -->.
 </p>
@@ -80,9 +80,8 @@ So we also checkout the etymology of the words to better grasp their differences
 Finally, once the informal definitions are precise enough, we go through the formalisation process.
 </p>
 
-<h3>Dictionary Definitions</h3>
+<h3 id="dictionary_definitions">Dictionary Definitions</h3>
 
-<!-- TODO -->
 <p>
 If we ignore definitions about brands and biology, <a href="https://www.merriam-webster.com/dictionary/generic">Merriam-Webster</a> defines something generic as <q>relating to or characteristic of a whole group or class</q> or <q>having no particularly distinctive quality or application</q>, in other words something which appears to be always present within a group of elements.
 We can highlight that it is not about mere <em>redundancy</em>, or even being <em>common</em> in the group, but something which is so frequent that every members of the group are concerned.
@@ -114,7 +113,7 @@ Once we have understood this difference, can we really consider that generic and
 To better grasp the different characteristics and properly choose our wording, let's go back to the roots of these words.
 </p>
 
-<h3>A Bit of Etymology</h3>
+<h3 id="etymology">A Bit of Etymology</h3>
 
 <p>
 Generic comes from the Latin word <a href="https://en.wiktionary.org/wiki/genus#Latin">genus</a>, which means kind, type, species, or group.
@@ -162,7 +161,7 @@ In summary, as shown in the figure below, we start from all the possible propert
 	</svg>
 </figure>
 
-<h3>Preparation of the Formalisation</h3>
+<h3 id="formalisation_preparation">Preparation of the Formalisation</h3>
 
 <p>
 Now, several points can be clarified to better grasp how these concepts relate to elements in and out of the group, because they do not split the properties between properties only found in the group and properties only found out of it, as illustrated in the next figure.
@@ -199,7 +198,7 @@ First, we consider whether or not <strong>any property possessed only by element
 With this assumption, a property possessed only by elements out of the group is negated by a property which is necessarily possessed by all the other elements, including all the elements in the group.
 This negation is thus a generic property for the group, leading the negated property to be, by definition, an antigeneric property.
 The empty group, however, brakes the logic: if the group is empty, then the negation is a generic property for the (empty) group, but any element having this generic property is itself out of the group, which makes this generic property also antigeneric, which is absurd (an element cannot be in <em>and</em> out of the group).
-The case of the empty group thus lead to an undefined genericness, such that one cannot say whether a property is generic, ageneric, antigeneric, or, as we see next, specific.<!-- TODO Formalisation not compliant with this aspect -->
+The case of the <strong>empty group thus lead to an undefined genericness</strong>, such that one cannot say whether a property is generic, ageneric, antigeneric, or, as we see next, specific.
 </p>
 
 <p>
@@ -241,7 +240,7 @@ One may speak about a <em>generic</em> property for a group of elements, which i
 	</svg>
 </figure>
 
-<h3>Preliminary Formalisation</h3>
+<h3 id="preliminary_formalisation">Preliminary Formalisation</h3>
 
 <p>
 For our formalisation, we build on the mathematical notion of <a href="https://en.wikipedia.org/wiki/Set_(mathematics)">sets</a>, such that a set \(S\) is a group of elements \(\{s_0, s_1, s_2, ...\}\).
@@ -289,19 +288,19 @@ From all these characteristics, we can infer that the cardinality of a set \(S\)
 |S| &= |\{ s \in S | p(s) \vee \neg p(s)\}| &(\text{Eq \eqref{eq:excludedMiddle}})\\
 \nonumber
     &= |\{ s \in S | p(s) \}| + |\{ s \in S | \neg p(s)\}| - |\{ s \in S | p(s) \wedge \neg p(s)\}| &(\text{Eq \eqref{eq:unionCardinality}})\\
-\label{eq:composition}
+\nonumber
     &= |\{ s \in S | p(s) \}| + |\{ s \in S | \neg p(s)\}|&(\text{Eq \eqref{eq:noncontradiction}})\\
 \end{align}\]
 
 <p>
-In other words, the sets \(\{ s \in S | p(s) \}\) and \(\{ s \in S | \neg p(s) \}\) are disjoint sets which, when combined, cover all the elements of the full set, such that:
+The last line can also be rewritten as:
 </p>
 \[\begin{align}
-\label{eq:complement}
-S \setminus \{ s \in S | p(s) \} &= \{ s \in S | \neg p(s) \}\\
+\label{eq:complementCardinal}
+|S| - |\{ s \in S | p(s) \}| &= |\{ s \in S | \neg p(s)\}|\\
 \end{align}\]
 
-<h3>Formalisation of Boolean Genericness and Specificness</h3>
+<h3 id="absolute_formalisation">Formalisation of Absolute Genericness and Specificness</h3>
 
 <p>
 Once the preliminary characteristics are identified, we can properly formalise our concepts of genericness and specificness based on the previous analysis of the terms.
@@ -313,18 +312,24 @@ generic(p, S) &= \forall s \in S, p(s) \\
 \end{align}\]
 
 <p>
-At the opposite, a property which is not generic is ageneric:
+A specific attention should be paid to this definition, because it is subject to <a href="https://en.wikipedia.org/wiki/Vacuous_truth">vacuous truth</a> in the case of the empty set.
+Indeed, if the set is empty, we cannot find an element in it for which the property holds, but we cannot either find an element for which it does not hold, so it is equivalently true to say one or the other.
+As we discussed in the analysis above, the empty set breaks the logic we want to formalise, so we interpret vacuous truth as an undefined state.
+Once we have formalised a generic property, we can define the ageneric property which opposes it:
 </p>
 
 \[\begin{align}
 \label{eq:formalAgeneric}
 ageneric(p, S) &= \neg generic(p, S) \\
 \nonumber
-               &= \exists s \in S, \neg p(s) \\
+               &= \neg (\forall s \in S, p(s)) \\
+\nonumber
+               &= \exists s \in S, \neg p(s) &(S \neq \emptyset)\\
 \end{align}\]
 
 <p>
-Going further, if a property is totally absent from the set, it is antigeneric:
+Notice the condition of the second line, which is due to the empty set leading to a vacuous truth: because both a property and its negation can be considered as true, it makes no sense to derive the second line in the case of the empty set.
+Going further, if a property is totally absent from the set (a definition also subject to vacuous truth), it is antigeneric:
 </p>
 
 \[\begin{align}
@@ -340,9 +345,8 @@ From these definitions, we can then formally define specificness, starting from 
 \[\begin{align}
 \label{eq:formalSpecific}
 specific(p, S) &= \neg generic(p,S) \wedge \neg antigeneric(p, S) \\
-\nonumber      &= ageneric(p,S) \wedge \neg antigeneric(p, S) \\
-\nonumber      &= (\exists s \in S, \neg p(s)) \wedge \neg (\forall s \in S, \neg p(s)) \\
-\nonumber      &= (\exists s \in S, \neg p(s)) \wedge (\exists s \in S, p(s)) \\
+\nonumber      &= \neg (\forall s \in S, p(s)) \wedge \neg (\forall s \in S, \neg p(s)) \\
+\nonumber      &= (\exists s \in S, \neg p(s)) \wedge (\exists s \in S, p(s)) &(S \neq \emptyset)\\
 \label{eq:formalSpecificDetailed}
                &= \exists s_1, s_2 \in S, \neg p(s_1) \wedge p(s_2) \\
 \end{align}\]
@@ -357,25 +361,24 @@ This notion of reduction is formally described in the next section, where we use
 
 <p>
 Although reductions can lead to having an empty set, we can also wonder what happens when \(S\) itself is empty: is there generic or specific properties with an empty set?
-Equation \eqref{eq:formalSpecificDetailed} shows that no property can be specific in an empty set, because no element having (or not) the property exist in the empty set, or more informally we can say that there is no element (or subset) to which a property can be specific to.
-Similarly, although it is hard to consider whether or not a property is generic to an empty set based on Equation \eqref{eq:formalGeneric}, it is clear from Equation \eqref{eq:formalAgeneric} that a property cannot be ageneric to the empty set for a similar reason than specificness.
-By inference, properties can be considered as generic to the empty set.
-Regarding antigeneric properties, we have the same problem than genericness, but it is clear from its negation that there is no element of the empty set which has the property, so by inference a property can be considered as antigeneric too.
-In other words, if \(S\) is empty, all properties are generic and antigeneric while no property is specific or ageneric.
-It is however interesting to highlight that the empty set is the only set for which a property can be at the same time generic and antigeneric, because as soon as the set has an element, the element cannot both have the property and not have it because of the <a href="https://en.wikipedia.org/wiki/Law_of_noncontradiction">law of noncontradiction</a>.
+We already saw that our generic and antigeneric formalisation are subjects to the vacuous truth in the case of the empty set, and we can see that it is also the case for specific which requires, for the same reasons, the set to be non empty to derive Equation \eqref{eq:formalSpecificDetailed} from Equation \eqref{eq:formalSpecific}.
+Because vacuous truth leads to consider that a property both holds and does not hold, we can say that this property is generic and antigeneric, inferring from Equation \eqref{eq:formalSpecific} that it is not specific.
+But similarly, because it does not hold and it holds, we can also say that it is neither generic nor antigeneric, such that we can infer from the same equation that it is, indeed, specific.
+Thus, like we interpret this kind of paradox as an undefined state for generic and antigeneric, we also consider it as an undefined state for specific and ageneric, which allows us to remain consistent with the reasoning provided in <a href="#formalisation_preparation">section 3.3</a>.
 </p>
 
 <p>
 Another extreme case is when the set has a single element.
 Indeed, although one can say whether a property is generic or antigeneric depending on whether the single element has the property or not, one cannot say whether or not the property is specific, because Equation \eqref{eq:formalSpecificDetailed} requires at least 2 elements to define it.
 However, Equation \eqref{eq:formalSpecific} clearly states that a property is specific when it is neither generic nor antigeneric, but because a single element in the set leads the property to be either generic or antigeneric, we can infer that no property can be specific with a set of one element.
+To be correct, we should add the condition \(|S| \geq 2\) to the line inferring Equation \eqref{eq:formalSpecificDetailed}, because \(s_1\) and \(s_2\) cannot be the same element if the property holds on one and not on the other.
 </p>
 
-<h3>Formalisation of Degree of Genericness and Specificness</h3>
+<h3 id="relative_formalisation">Formalisation of Relative Genericness and Specificness</h3>
 
 <p>
-We may stop here, but the formalisation of genericness and specificness as boolean values is not the only interesting way to model them, and in particular it is not rare to describe something as more generic or more specific than another.
-This leads to the need of describing degrees or levels of genericness and specificness, which we will call <em>genericity</em> and <em>specificity</em> to differentiate them from their boolean counterparts <em>generic</em> and <em>specific</em>.
+So far, we focused on the absolute evaluation of genericness and specificness, which allows to say whether or not a property is generic/specific, and we need now to formalise the relative perspective, where a property is more generic/specific than another.
+This leads to the need of describing degrees or levels of genericness and specificness, which we will call <em>genericity</em> and <em>specificity</em> to differentiate them from their absolute counterparts <em>generic</em> and <em>specific</em>.
 To express degrees, we need to establish an order between properties based on some measures but, although a generic property can be considered as having more genericity than a specific one, we cannot order two specific properties based solely on the previous definitions.
 To fix that, we will build on the previous observation we made, such that a property \(p\) specific in a set \(S\) can reduce the set to a subset \(S_p\) where this property is generic.
 Thus, we need to formally define this reduction process, and we do so as follows:
@@ -399,18 +402,23 @@ We can also see that this kind of order applies also between specific properties
 Although this subset ordering provides a nice support to express degrees of genericness and specificness, it is still incomplete, because we cannot order two specific properties if they are disjoint or if they only partially overlap.
 We may consider them as equal, but if we take a set of 10 elements and split it into two disjoint subsets of 9 elements and 1 element, it seems hard to motivate that the subset of 9 elements has as much specificity than the subset of 1 element.
 Consequently, instead of considering an order based on the reductions themselves, we consider an order based on their cardinality \(|reduction(p, S)|\), which allows to properly compare any reductions.
-In particular, if we consider the three properties we used before, the generic property \(p_1\) has a cardinality of \(|S|\), the antigeneric \(p_2\) has a cardinality of 0, and the cardinality of a specific property \(p_3\) is between the two previous values.
-Thus, we obtain the same order than before but based on which value is inferior to the other rather than which reduction is included in the other.
-If the reduction of a specific property is included in the reduction of another specific property, the cardinality of the former is also lower than the one of the latter, giving again the same order than before.
-But additionally, if two reductions are disjoint or overlapping, they will be equal only if they have the same number of elements, while a bigger (resp. smaller) reduction gives a higer (resp. lower) cardinality to its property.
+In the following, when we speak about the cardinality of a property, we speak about the cardinality of the reduction of the set based on this property.
 </p>
 
 <p>
-With this cardinality computation, we obtain the order that we want, but if we consider the values separately, it is hard to tell which kind of property we have, excepted for antigeneric properties which are the only ones having a cardinality of 0.
+If we consider the three properties we used before, the generic property \(p_1\) has a cardinality of \(|S|\), the antigeneric \(p_2\) has a cardinality of 0, and the cardinality of a specific property \(p_3\) is in ]0;1[.
+Thus, we obtain the same order than before but based on which value is inferior to the other rather than which reduction is included in the other.
+If the reduction of a specific property is included in the reduction of another specific property, the cardinality of the former is also lower than the cardinality of the latter, giving again the same order than before.
+But additionally, if two reductions are disjoint or overlapping, their cardinality is equal only if they have the same number of elements, while a bigger (resp. smaller) reduction gives a higer (resp. lower) cardinality to its property.
+</p>
+
+<p>
+With this cardinality computation, we obtain the order that we want, but we can go a step further to properly relate the formalisation of the relative perspective with the one of the absolute perspective.
+Indeed, if we consider the values we compute so far, it is hard to tell which kind of property we have, excepted for antigeneric properties which are the only ones having a cardinality of 0.
 If the cardinality of a property is 3, we need to know how many elements are in the set to know whether the property is generic (i.e. set of 3 elements) or not (i.e. more than 3 elements), and in order to understand to which extent it is generic (e.g. 3 in a set of 4 is close to generic, 3 in 300 is not).
-To simplify the interpretation we can normalise the value based on the cardinality of the set, such that we obtain a value in [0;1], with 0 for antigeneric properties, 1 for generic ones, and values in between for specific properties, depending on how close they are to be generic.
+To simplify the interpretation we can normalise the value based on the cardinality of the set, such that we obtain a <em>proportion</em> (a value in [0;1]), with 0 for antigeneric properties, 1 for generic ones, and values in between for specific properties, depending on how close they are to be generic.
 This normalisation allows to use especially the convenient representation of percentages by multiplying by 100: generic properties have a genericity of 100%, antigeneric properties have a genericity of 0%, and specific properties are in between.
-Thus, we can compute the genericity of a property through this formula:
+In summary, we define the genericity of a property in a given set as:
 </p>
 
 \[\begin{align}
@@ -419,7 +427,7 @@ genericity(p, S) &= \frac{|reduction(p, S)|}{|S|} \\
 \end{align}\]
 
 <p>
-The next figure shows how the genericity evolves based on the size of the reduction, showing especially that antigeneric properties start the genericity at 0, followed by specific properties with growing genericity, until we reach the generic properties with a genericity of 1.
+The next figure shows how the genericity evolves based on the size of the reduction, showing especially the linear evolution from antigeneric properties at 0 to generic properties at 1.
 Obviously, the line is not continuous because we deal with sets of discrete elements, but it is an important aspect that we will exploit later, so it is a good thing to highlight it now.
 It is even more important to notice that a property is more generic than another <em>given a set \(S\)</em>, while comparing \(genericity(p_1, S_1)\) and \(genericity(p_2, S_2)\) does not allow to tell which one is more generic than the other because they are computed on different contexts.
 In particular, one could choose the right sets to have one property more generic than another, and another pair of sets to reverse their order.
@@ -433,18 +441,6 @@ In particular, one could choose the right sets to have one property more generic
 				<g id="graph_basics">
 					<!-- Axes -->
 					<path d="M 0 -200 m -10 +10 l +10 -10 l +10 +10 m -10 -10 l 0 200 l 400 0 m -10 -10 l +10 +10 l -10 +10" />
-					<!--
-					<foreignObject x="400" y="-20" width="10" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
-						<body xmlns="http://www.w3.org/1999/xhtml"><div>
-							x
-						</div></body>
-					</foreignObject>
-					<foreignObject x="5" y="-215" width="10" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
-						<body xmlns="http://www.w3.org/1999/xhtml"><div>
-							y
-						</div></body>
-					</foreignObject>
-					-->
 					
 					<!-- X values -->
 					<line x1="0" y1="0" x2="0" y2="+5" />
@@ -504,28 +500,27 @@ In particular, one could choose the right sets to have one property more generic
 </figure>
 
 <p>
-Now that we know how to compute a degree of genericness through genericity, we may look for a formalisation of degrees of specificness through specificity.
-However, during our preliminary analysis, we saw that generic and specific are not formally negating each other, in the sense that a generic property is negated by an ageneric property, while a specific property is not only ageneric but also not antigeneric.
+Now that we know how to compute a proportion of genericness through genericity, we may design a proportion of specificness through specificity.
+However, we saw in our preliminary analysis that generic and specific are not formally negating each other, in the sense that a generic property is negated by an ageneric property, while a specific property is not only ageneric but also not antigeneric.
 Similarly, it seems unreliable to define specificity simply as opposed to genericity because a specificity of 1 would mean that the property is antigeneric, which conflicts with our definition of specific given in Equation \eqref{eq:formalSpecific}.
-Rather, we can define the antigenericity to measure this value, ensuring that we remain consistent with our previous definitions:
+Moreover, generic properties correspond to a genericity of 100%, while ageneric properties correspond to any other value, thus it seems hard to motivate the usefulness of an <em>agenericity</em> measure, unless we count the elements out of the group, which is not our intent.
+Rather, we choose to define the antigenericity to measure this negation:
 </p>
-<!-- TODO Replace (reduction(p, S) \subseteq S) by better proof. -->
 \[\begin{align}
 \label{eq:formalAntigenericity}
 antigenericity(p, S) &= 1 - genericity(p, S) \\
 \nonumber            &= 1 - \frac{|reduction(p, S)|}{|S|} &(\text{Eq. \eqref{eq:formalGenericity}})\\
 \nonumber            &= \frac{|S|}{|S|} - \frac{|reduction(p, S)|}{|S|} \\
 \nonumber            &= \frac{|S| - |reduction(p, S)|}{|S|} \\
-\nonumber            &= \frac{|S \setminus reduction(p, S)|}{|S|} &(reduction(p, S) \subseteq S)\\
-\nonumber            &= \frac{|S \setminus \{s \in S | p(s)\}|}{|S|} &(\text{Eq. \eqref{eq:formalReduction}})\\
-\nonumber            &= \frac{|\{s \in S | \neg p(s)\}|}{|S|} &(\text{Eq. \eqref{eq:complement}})\\
+\nonumber            &= \frac{|S| - |\{s \in S | p(s)\}|}{|S|} &(\text{Eq. \eqref{eq:formalReduction}})\\
+\nonumber            &= \frac{|\{s \in S | \neg p(s)\}|}{|S|} &(\text{Eq. \eqref{eq:complementCardinal}})\\
 \label{eq:formalAntigenericityDetailed}
                      &= \frac{|reduction(\neg p, S)|}{|S|} &(\text{Eq. \eqref{eq:formalReduction}})\\
 \end{align}\]
 
 <p>
 Then, how illustrated in the next figure, an antigenericity of 0 means that the property is generic, and antigenericity of 1 (or 100%) means that the property is antigeneric, and a value in between that the property is specific.
-We obtain again an order, like with genericity, but for which the order is reversed such that \(antigenericity(p_2, S) > antigenericity(p_3, S) > antigenericity(p_1, S)\).
+We obtain again an order, like with genericity, but reversed such that \(antigenericity(p_2, S) > antigenericity(p_3, S) > antigenericity(p_1, S)\).
 Of course, like for genericity, this order also applies to specific properties depending on the size of their reductions, thus being defined whether or not they overlap.
 </p>
 
@@ -635,11 +630,9 @@ specificity(p, S) &= \frac{-1}{|S|-1} |reduction(p, S)| + \frac{|S|}{|S|-1} \\
 \nonumber
                   &= \frac{|S|-|reduction(p, S)|}{|S|-1} \\
 \nonumber
-                  &= \frac{|S \setminus reduction(p, S)|}{|S|-1} &(reduction(p, S) \subseteq S)\\
+                  &= \frac{|S|-|\{s \in S | p(s)\}|}{|S|-1} &(\text{Eq. \eqref{eq:formalReduction}})\\
 \nonumber
-                  &= \frac{|S \setminus \{s \in S | p(s)\}|}{|S|-1} &(\text{Eq. \eqref{eq:formalReduction}})\\
-\nonumber
-                  &= \frac{|\{s \in S | \neg p(s)\}|}{|S|-1} &(\text{Eq. \eqref{eq:complement}})\\
+                  &= \frac{|\{s \in S | \neg p(s)\}|}{|S|-1} &(\text{Eq. \eqref{eq:complementCardinal}})\\
 \label{eq:formalSpecificityPartial}
                   &= \frac{|reduction(\neg p, S)|}{|S|-1} &(\text{Eq. \eqref{eq:formalReduction}})\\
 \end{align}\]
@@ -649,7 +642,7 @@ This expression is almost equal to the antigenericity expression because it buil
 Now, this expression does not fit for antigeneric properties, because the value reached when the reduction is empty is \(\frac{|S|}{|S|-1}\) (the value of the intercept) instead of 0.
 To replace this value, we may split the definition of the function, such that different ranges have different definitions, but because we deal with discrete values, we can actually keep everything together while applying an operation which changes the value only when the reduction is empty.
 This operation is the <a href="https://en.wikipedia.org/wiki/Modulo_operation">modulo</a>, which is usually defined as an application of a divisor (\(d\)) to a dividend (\(x\)) to obtain a remainder (\(x ~ mod ~ d\)), and which can be used as a periodic reset function.
-Indeed, instead of using directly the cardinality of the reduction, we can use its modulo such that, when the reduction reaches a size of \(|S|\), it resets to 0.
+Indeed, instead of using directly the cardinality of the reduction, we can use its modulo such that, when the reduction reaches a size of \(|S|\), which is reach only when the property is antigeneric, it resets to 0.
 In other words, we slightly refine the previous specificity function in the following way:
 </p>
 \[\begin{align}
@@ -658,33 +651,36 @@ specificity(p, S) &= \frac{|reduction(\neg p, S)| ~ mod ~ |S|}{|S|-1} \\
 \end{align}\]
 
 <p>
-This function, when reaching \(\frac{|S|}{|S|-1}\), restart from \(\frac{0}{|S|-1} = 0\), which is exactly what we want: this value is reached only when we have an antigeneric property, while all the other situations provide a lower value.
-This is what allows us to transform our strictly aligned dots into the more exotic configuration shown in <a href="#specificity_graph">Fig. 6</a>.
 In the case where the line would have been continuous, the modulo would have moved only the very first point of the curve, which means that we would have values with a specificity higher than 1 for reductions having a size between 0 and 1.
-But because we work with discrete values, such that no size exists between 0 and 1, using the modulo is enough to obtain the function we want.
+But because we work with discrete values, such that no size exists between 0 and 1, using the modulo is enough to obtain the function shown in <a href="#specificity_graph">Fig. 6</a>.
 </p>
 
 <p>
-Once again, we can analyse how our expressions are impacted by the composition of the set \(S\) in extreme cases.
-When the set is empty, the genericity computed with Equation \eqref{eq:formalGenericity} is undefined, unless we consider the reduction of an empty set to be the same empty set, thus giving a value of 1.
-Depending on the engine used, both values could be obtained, but if we want to remain consistent with the boolean case, the correct value should be 1.
-In such a situation, while the initial definition of antigenericity given by Equation \eqref{eq:formalAntigenericity} would lead to a value of 0, the resulting expression given by Equation \eqref{eq:formalAntigenericityDetailed} leads to the same reasoning than for genericity, and thus the value of 1.
-Again, considering our analysis for the boolean case, we should also prefer the latter, such that any property has at the same time a genericity and an antigenericity of 1 when the set is empty.
-Specificity, however, is not undefined: Equation \eqref{eq:formalSpecificity} leads to compute a value of 0, which is already consistent with the boolean case.
-</p>
-
-<p>
+Once again, we can analyse how our expressions are impacted by the set \(S\) in extreme cases.
+When the set is empty, the genericity computed with Equation \eqref{eq:formalGenericity} is undefined because of the denominator, while antigenericity is undefined by definition with Equation \eqref{eq:formalAntigenericity} and because of the denominator in Equation \eqref{eq:formalAntigenericityDetailed}.
+Specificity is also undefined with Equation \eqref{eq:formalSpecificity}, because the modulo is undefined for a null divisor: building a modulo implies to divide by the divisor, thus it is again undefined because of a null denominator.
 The other extreme case is when the set has only one element, such that the property either applies, leading to a genericity of 1 and an antigenericity of 0, or not, leading to a genericity of 0 and an antigenericity of 1.
-For the specificity computation, however, Equation \eqref{eq:formalSpecificity} gives us an undefined value, which should then be enforced to 0 in order to remain consistent with the boolean case.
+For the specificity computation, Equation \eqref{eq:formalSpecificity} gives us an undefined value again, but this time because of the denominator.
+All these undefined values complies with the requirements we defined in section <a href="#formalisation_preparation">section 3.3</a>.
 </p>
 
 <h2 id="answer">Answer</h2>
 
-&lt;Answer to the question.&gt;
+<p>
+We asked several questions, thus we provide an answer for each of them:
+</p>
+<ul>
+<li>A <q>generic property</q>, given a group of elements, is defined as a property possessed by all the elements of the group. We formalise a property \(p\) as being generic in a set \(S\) through \(generic(p, S) = \forall s \in S, p(s)\). One cannot say whether or not a property is generic if the set is empty.</li>
+<li>A <q>specific property</q> is defined as a property possessed by at least one element of the group and not possessed by at least one other element of the group. We formalise a property \(p\) as being specific in a set \(S\) through \(specific(p, S) = \exists s_1, s_2 \in S, \neg p(s_1) \wedge p(s_2)\). One cannot say whether or not a property is specific if the set is empty or has only one element.</li>
+<li>A <q>property being more generic than another</q> is a property possessed by a greater number of elements in the group. We measure this quantity through the genericity of the property, formalised as \(genericity(p, S) = \frac{|\{s \in S | p(s)\}|}{|S|}\). The comparison cannot be made if the set is empty.</li>
+<li>A <q>property being more specific than another</q> is a property possessed by a lower number of elements (but at least one) in the group. We measure this quantity through the specificity of the property, formalised as \(specificity(p, S) = \frac{|\{s \in S | \neg p(s)\}| ~ mod ~ |S|}{|S|-1}\). The comparison cannot be made if the set is empty or has only one element.</li>
+</ul>
 
+<!--
 <h2 id="links">Related Questions</h2>
 
 &lt;Links to other questions.&gt;
+-->
 
 <h2 id="bibliography">Bibliography</h2>
 
@@ -709,6 +705,13 @@ For the specificity computation, however, Equation \eqref{eq:formalSpecificity} 
 	Symbolic and Algebraic Computation, edited by P. Gianni, 358:13–25. Berlin, Heidelberg: Springer Berlin Heidelberg,
 	<time datetime="1989">1989</time>.
 	DOI: <a href="https://dx.doi.org/10.1007/3-540-51084-2_2">10.1007/3-540-51084-2_2</a>
+</li>
+<li id="Vergne2017">
+	Vergne, Matthieu.
+	<cite>Artificial Intelligence and Expertise: The Two Faces of the Same Artificial Performance Coin</cite>,
+	Workshops at the Thirty-First AAAI Conference on Artificial Intelligence,
+	<time datetime="2017">2017</time>.
+	URL: <a href="http://www.aaai.org/ocs/index.php/WS/AAAIW17/paper/view/15148">http://www.aaai.org/ocs/index.php/WS/AAAIW17/paper/view/15148</a>
 </li>
 </ul>
 

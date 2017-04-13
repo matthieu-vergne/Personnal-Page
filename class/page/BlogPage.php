@@ -56,6 +56,7 @@ class BlogPage extends InternalPage {
 			<p>Questions of interest:</p>
 			<ul>
 			<li><a href="entry:0">Can we use accuracy with unbalanced datasets?</a></li>
+			<li><a href="entry:13">How to formalise generic/specific?</a></li>
 			</ul>';
 			$content = $this->expandEntryLinks($content);
 			return $content;
