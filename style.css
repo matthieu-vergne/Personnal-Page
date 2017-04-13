@@ -285,7 +285,27 @@ article div#lastUpdateTime {
 }
 
 #blog h1 {
+	counter-reset: sectionCounter;
 	text-align: center;
+}
+
+#blog h2 {
+	counter-reset: subsectionCounter;
+	counter-increment: sectionCounter;
+	margin-left: 1em;
+}
+
+#blog h3 {
+	counter-increment: subsectionCounter;
+	margin-left: 2em;
+}
+
+#blog h2:before {
+	content: counter(sectionCounter) '.\00a0';
+}
+
+#blog h3:before {
+	content: counter(sectionCounter) '.' counter(subsectionCounter) '.\00a0';
 }
 
 #blog table {
