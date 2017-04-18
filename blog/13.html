@@ -47,9 +47,10 @@ This is the main incentive of this post: to formalise what we mean by <em>generi
 
 <p>
 Consequently, our aim is to clarify the meaning that we assign to the notions of <em>genericness</em> and <em>specificness</em>, but at the same time we want this meaning to be the most natural, not to be a mere personal definition for the sake of our isolated work.
-We want our work to be reused and people to build on it, and as such we try here to be as objective as possible regarding the meanings that should be associated to these terms, a requirement that leads us to first look at official dictionaries as well as the etyomology of the words.
-Then, from the definitions which fit at best the notions we want to cover, we want to design a formal version that can be reused for designing programs, in particular in AI and GP.
-In particular, in addition to consider both genericness and specificness, we also need to consider two variants of these notions: absolute and relative.
+Formalising natural language depends primarily on how we understand it, which is why we need to focus on a specific interpretation.
+We choose here to rely on dictionaries because we assume that they are the most natural to expect, first because they build on previous and actual usage, and second because our experience shows that they are often accepted as relevant references in discussions where people have different understandings of a term.
+Then, from the definitions which fit at best the notions we want to cover, we want to design a formal version that can be reused for computation purpose, in particular in AI and GP.
+Going further, in addition to consider both genericness and specificness, we also need to consider two variants of these notions: absolute and relative.
 If we take the example of genericness, by absolute we mean that something <em>is generic</em>, like a piece of code which is shared by a group of projects, while by relative we mean that something <em>is more generic than</em> something else, like a piece of code reused more often than another.
 In the case of specificness, we would say that something <em>is specific</em> with the absolute stance, and that something <em>is more specific than</em> something else with the relative stance.
 </p>
@@ -60,15 +61,15 @@ In the case of specificness, we would say that something <em>is specific</em> wi
 Our main question is, consequently, about the formalisation of these two notions of genericness and specificness from two perspectives, which leads us to consider actually 4 questions:
 </p>
 <ul>
-<li>How to formalise a <q>generic property</q>?</li>
-<li>How to formalise a <q>property being more generic than another</q>?</li>
-<li>How to formalise a <q>specific property</q>?</li>
-<li>How to formalise a <q>property being more specific than another</q>?</li>
+<li>How to formalise the definition of a <q>generic property</q>?</li>
+<li>How to formalise the definition of a <q>property being more generic than another</q>?</li>
+<li>How to formalise the definition of a <q>specific property</q>?</li>
+<li>How to formalise the definition of a <q>property being more specific than another</q>?</li>
 </ul>
 
 <p>
 Although we speak here about <q>properties</q>, a piece of code X shared by several projects can be described as the property <q>using the piece of code X</q> shared by all these projects.
-Similarly, a task X can be described as the property <q>executing the task X</q>, or a skill X as the property <q>having the skil X</q>, so although we speak about <q>properties</q>, we just remain at a high level of abstraction to cover as much cases as possible.
+Similarly, a task X can be described as the property <q>executing the task X</q>, or a skill X as the property <q>having the skill X</q>, so although we speak about <q>properties</q>, we just remain at a high level of abstraction to cover as much cases as possible.
 </p>
 
 <h2 id="method">Method</h2>
@@ -76,7 +77,7 @@ Similarly, a task X can be described as the property <q>executing the task X</q>
 <p>
 To answer these questions, we first need to get a better grasp of the usual meanings behind these terms, which is why we first look at official English dictionaries.
 Although dictionary definitions are important, they are still natural language definitions, and we will see below that they can fall short in providing a precise definition.
-So we also checkout the etymology of the words to better grasp their differences, and exploit these aspects to design additional concepts that helps us to better explain the meanings we want to cover.
+So we also checkout the etymology of the words to better grasp their differences, and exploit these aspects to design additional concepts that helps us to better represent the meanings we want to cover.
 Finally, once the informal definitions are precise enough, we go through the formalisation process.
 </p>
 
@@ -113,7 +114,7 @@ Once we have understood this difference, can we really consider that generic and
 To better grasp the different characteristics and properly choose our wording, let's go back to the roots of these words.
 </p>
 
-<h3 id="etymology">A Bit of Etymology</h3>
+<h3 id="etymology">A Bit of Etymology for Additional Concepts</h3>
 
 <p>
 Generic comes from the Latin word <a href="https://en.wiktionary.org/wiki/genus#Latin">genus</a>, which means kind, type, species, or group.
@@ -161,7 +162,7 @@ In summary, as shown in the figure below, we start from all the possible propert
 	</svg>
 </figure>
 
-<h3 id="formalisation_preparation">Preparation of the Formalisation</h3>
+<h3 id="formalisation_preparation">Informal Summary Before Proper Formalisation</h3>
 
 <p>
 Now, several points can be clarified to better grasp how these concepts relate to elements in and out of the group, because they do not split the properties between properties only found in the group and properties only found out of it, as illustrated in the next figure.
@@ -240,7 +241,7 @@ One may speak about a <em>generic</em> property for a group of elements, which i
 	</svg>
 </figure>
 
-<h3 id="preliminary_formalisation">Preliminary Formalisation</h3>
+<h3 id="preliminary_formalisation">Formal Concepts to Build on</h3>
 
 <p>
 For our formalisation, we build on the mathematical notion of <a href="https://en.wikipedia.org/wiki/Set_(mathematics)">sets</a>, such that a set \(S\) is a group of elements \(\{s_0, s_1, s_2, ...\}\).
