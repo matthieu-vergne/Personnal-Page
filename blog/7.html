@@ -82,12 +82,12 @@ This code can be tested in this way:
 // Instantiate the heterogeneous map
 HeterogeneousMap map = new HeterogeneousMap();
 
-// The key's type is automatically inferred from the item
+// The IDE can automatically infer the key's type from the item
 Key&lt;Integer> key1 = map.store(1);
 System.out.println(map.retrieve(key1));// 1
 System.out.println();
 
-// Different types can be used
+// Different types can be used in the same map
 Key&lt;String> key2 = map.store("test");
 System.out.println(map.retrieve(key1));// 1
 System.out.println(map.retrieve(key2));// test

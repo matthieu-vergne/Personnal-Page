@@ -48,6 +48,8 @@ From these definitions, we can then try to interpret the combination: generic pr
 We should not translate immediately <q>things</q> as <q>programs</q>, because nothing says that a generic thing is of the same kind that the entities sharing it, so we may also speak about programs common to several systems, which include not only software but also hardware, people, or organisations.
 Thus, one could consider a generic program as a program found in several places, but then an issue of informativeness arises: if a program is generic as soon as we can find it in several places, does that mean that a mere copy is enough to call it generic?
 Clearly, there is something wrong here, the intent being to speak about how a program can be <em>used</em> in several contexts, not just <em>present</em>, an interpretation motivated by the history of the concept.
+<!-- TODO Finalise -->
+<!-- TODO Link to my formalisation of the concept of genericness. -->
 </p>
 
 <h2>The Inception: Two Ways to Generalise</h2>
@@ -63,13 +65,13 @@ In this context, Goguen defines an interface as a description of <q>all of the r
 A parameter is then an abstract entity which is assumed to satisfy some requirements and Goguen interchangeably speaks about <q>instantiating a parameter</q> and <q>interfacing a module with an environment</q>.
 In Java, we may speak about generics like <code>T</code> in <code>ArrayList&lt;T></code>, which is instantiated to <code>Integer</code> when we create an instance of <code>ArrayList&lt;Integer></code> or create a class which extends <code>ArrayList&lt;Integer></code>.
 But it also relates to any method parameter, like <code>add(int a, int b)</code> which considers two integers to instantiate, for example by calling <code>add(3, 5)</code>.
-As such, Goguen establishes a kind of Generic Programming which can be called <em>top-down</em>: we first identify the high level features required by the module into an interface, and then we instantiate them in specific contexts.
+As such, Goguen establishes a kind of Generic Programming which can be called <strong>top-down</strong>: we first identify the high level features required by the module into an interface, and then we instantiate them in specific contexts.
 </p>
 
 <p>
 Nevertheless, this is in 1989 that <a href="#GP1989">Musser and Stepanov</a> coin the term <q>Generic Programming</q>, namely as <q>the definition of algorithms and data structures at an abstract or generic level</q>, again working mainly with the Ada language.
 In their view, the focus is on generic algorithms, which are <q>parameterized procedural schemata that are completely independent of the underlying data representation and are derived from concrete, efficient algorithms</q>.
-In other words, at the opposite of Goguen, they conceive a framework which aims at building generic programs in a <em>bottom-up</em> manner: starting from existing, low level running code, the goal is to identify common features to extract in higher levels for reuse.
+In other words, at the opposite of Goguen, they conceive a framework which aims at building generic programs in a <strong>bottom-up</strong> manner: starting from existing, low level running code, the goal is to identify common features to extract in higher levels for reuse.
 This process, repeated iteratively, leads to the construction of a hierarchy of codes, where the highest levels provide the most generic parts to be reused in lower levels, until we reach executable code in the lowest parts.
 As described by Musser and Stepanov, while Goguen aims for manipulating theories (especially for instantiating them for a specific context), they aim for building useful theories to manipulate, the usefulness being trivial because of the extraction from existing, useful code.
 </p>
@@ -84,6 +86,7 @@ This <em>genericness-construction</em> framework focuses on a particular dimensi
 
 <p>
 <a href="#Giovannelli2013">Giovannelli</a>, provides a description of how the early notion of Generic Programming has evolved towards a more focused idea of abstracting data types and how it was implemented in some programming languages, leading in particular to the introduction of generics in Java.
+<!-- TODO -->
 </p>
 
 <h2>Top-Down Approach: What Makes a Program Generic?</h2>
@@ -115,7 +118,7 @@ Other bullets underline the necessity to understand well the program, like the <
 Other bullets are also for a more formal support of the validation of the program, like the <em>strong typing</em>, the <em>requirements for parameters</em>, the <em>information hiding</em>, and the <em>formal semantics</em>.
 They clearly provide added value to the development process by enforcing genericity, and we may use them as arguments to explain why a design is more generic than another, but a generic program made with them still remain a valid (and generic) program once we remove them, showing their optional characteristics.
 Finally, the main requirements to retain here, which actually unlock the ability to make generic programs, are the following: <em>modularity</em> to separate modules based on their purpose, in particular <em>theories and views</em> to separate generic and specific modules (the generic should be able to exist without the specific), <em>parameterisation</em> to allow the customisation of generic modules to fit the needs of specific ones, and <em>module modification</em> to allow the generic-to-specific adaptation.
-In brief, we can mention three main properties of Generic Programming when we take a top-down perspective:
+In brief, we can mention <strong>three main properties of Generic Programming</strong> when we take a top-down perspective:
 </p>
 <ul>
 <li>develop the modules <em>used</em> independently from the modules <em>users</em>,</li>
