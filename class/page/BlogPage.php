@@ -52,9 +52,21 @@ class BlogPage extends InternalPage {
 				return "<div id='blog'>$content</div>";
 			}
 		} else {
-			$content = '<p>For the moment, this blog is mainly a place where I centralize questions of interest to me. Some might have proved answers, others not, some might be already published, others not. I will see later if some structure would be helpful, but for now each blog entry is expected to focus on a single question and to link to other entries focusing on related questions, a bit like Wikipedia but with question-driven links.</p>
+			$content = '
+			<p>
+			I program in Java since 2009, and as a generalist I like to develop libraries which can be reused in many places, as my <a href="https://github.com/matthieu-vergne?tab=repositories">GitHub repositories</a> may show.
+			Since October 2014, I use all my experience to help improving the architecture of <a href="https://github.com/jMetal/jMetal">jMetal</a>, a participation that lead some people to suggest me to write a book, which I found to be a good idea for better sharing.
+			Consequently, I am writing a series of posts about <a href="entry:10">Advanced Generic Programming in Java</a>, an activity well suited for library developers but which is different from programming with Java generics.
+			These posts are still drafts, but I make them available for interested people to check them out and suggest improvements or additions, so feel free to contact me directly if you feel concerned.
+			I try not to restrict to my own perspective, but really to produce a reference on the topic, so feel free to send me some e-mails for any feedback you may have (fix, addition, disagreements, etc.).
+			Maybe a physical book will be produced out of it, it depends on how it turns out and the feedback I will get.
+			</p>
 			
-			<p>Questions of interest:</p>
+			<p>
+			Putting aside this series, this blog is mainly a place where I centralize questions of interest to me.
+			Some might have proved answers, others not, some might be already published, others not.
+			I will see later if some structure would be helpful, but for now each blog entry is expected to focus on a single question and to link to other entries focusing on related questions, a bit like Wikipedia but with question-driven links:
+			</p>
 			<ul>
 			<li><a href="entry:0">Can we use accuracy with unbalanced datasets?</a></li>
 			<li><a href="entry:13">How to formalise generic/specific?</a></li>
