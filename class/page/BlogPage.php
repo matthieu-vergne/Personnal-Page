@@ -54,17 +54,39 @@ class BlogPage extends InternalPage {
 		} else {
 			$content = '
 			<p>
-			I program in Java since 2009, and as a generalist I like to develop libraries which can be reused in many places, as my <a href="https://github.com/matthieu-vergne?tab=repositories">GitHub repositories</a> may show.
-			Since October 2014, I use all my experience to help improving the architecture of <a href="https://github.com/jMetal/jMetal">jMetal</a>, a participation that lead some people to suggest me to write a book, which I found to be a good idea for better sharing.
-			Consequently, I am writing a series of posts about <a href="entry:10">Advanced Generic Programming in Java</a>, an activity well suited for library developers but which is different from programming with Java generics.
-			These posts are still drafts, but I make them available for interested people to check them out and suggest improvements or additions, so feel free to contact me directly if you feel concerned.
-			I try not to restrict to my own perspective, but really to produce a reference on the topic, so feel free to send me some e-mails for any feedback you may have (fix, addition, disagreements, etc.).
+			I like teaching, I like research, and I like Java, so this blog is a bit of all of that.
+			I mainly write technical posts, which might serve as material for research papers or Java projects, in a style which tries to be accessible to most people.
+			I consider clarity and rigour as top priority requirements, so if you feel like something is hard to understand or not well proven/sourced, don\'t hesitate to contact me.
+			</p>
+			
+			<h2>Java</h2>
+			
+			<p>
+			I program in Java since 2009, and as a generalist I like to develop libraries which can be reused in many places.
+			Consequently, I have some interest in general structures and methods, leading me to develop several projects (often small, but not always) that you can find on my <a href="https://github.com/matthieu-vergne?tab=repositories">GitHub account</a>.
+			Now, the best way to make generic stuff is to ensure that it is usable everywhere, which is why I program in Open Source, and more precisely with the CC0 license (as much as possible).
+			Additionally, if I find a project interesting enough, or if I think a lot about some concepts or methods that I use in these projects, I may write posts about them to share the idea in a less technical way than pure code.
+			This is what I will list in the following list:
+			</p>
+			<ul>
+			<li>(coming soon)</li>
+			</ul>
+			
+			<p>
+			Due to my deep interest in genericity, I am also writing a series of posts about <!--a href="entry:10"-->Advanced Generic Programming in Java<!--/a-->, an activity well suited for library developers but which is different from simply programming with Java generics.
+			To some extents, this series started in October 2014, when I started to help improving the architecture of <a href="https://github.com/jMetal/jMetal">jMetal</a>, a project about metaheuristics (aka optimization algorithms, like hill climbing, genetic algorithms, and so on).
+			Because I tend to write a lot of details (and because it is interesting, I guess) I received the suggestion of writing a book about it, which I found to be a good idea for better sharing.
+			I am still participating in this project, but now I think it is time to gather all what I said in a proper compilation that other people can reuse for their own projects.
+			These series is still a set of drafts only, so I don\'t give acces to it now (although hackers may easily find it {^_°}) but I already have some material and I would like to publish some stuff soon.
+			I want to produce a reference on the topic, so feel free to send me an e-mail for any suggestion/feedback that you may have, whether it is about fixes, additions, disagreements, or anything else.
 			Maybe a physical book will be produced out of it, it depends on how it turns out and the feedback I will get.
 			</p>
 			
+			<h2>Research</h2>
+			
 			<p>
-			Putting aside this series, this blog is mainly a place where I centralize questions of interest to me.
-			Some might have proved answers, others not, some might be already published, others not.
+			Beside Java-related stuff, this blog is mainly a place where I centralize questions of interest to me, with a style that I think fits well with research (context-question-method-answer).
+			Some might have proved answers, others not, some might be already published elsewhere (I cite them), others not.
 			I will see later if some structure would be helpful, but for now each blog entry is expected to focus on a single question and to link to other entries focusing on related questions, a bit like Wikipedia but with question-driven links:
 			</p>
 			<ul>
