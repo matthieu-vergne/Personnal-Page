@@ -16,7 +16,7 @@
 	<script language="JavaScript" type="text/javascript" src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 </head>
 <body id="blog">
-<h1>Exceptions: Instantiate at source, throw at use</h1>
+<h1>When to Instantiate/Throw an Exception in Java?</h1>
 
 <p>
 An exception in Java is, as defined by <a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/">Oracle</a>, <q>an event, which occurs during the execution of a program, that disrupts the normal flow of the program's instructions.</q>
@@ -69,7 +69,7 @@ experiment.run();
 </code></pre>
 
 <p>
-This code is significantly simplified for the sake of this post, but the important point here is that, in order to let the builder manage the instantiation of the (algorithm, problem) pairs, we do not add algorithm and problem instances directly but <em>suppliers</em> (through lambda expressions), which are pieces of code providing instances on demand.
+This code is significantly simplified for the sake of this post, but the important point here is that, in order to let the builder manage the instantiation of the (algorithm, problem) pairs, we do not add algorithm and problem instances directly but <em>suppliers</em> (through <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html">lambda expressions</a>), which are pieces of code providing instances on demand.
 Since Java 7, it can be implemented through the functional interface <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Supplier.html"><code>java.util.function.Supplier</code></a>, although it could be done already before through custom interfaces, minus the convenient format of lambda expressions.
 This <code>Supplier</code> interface looks like this:
 </p>
