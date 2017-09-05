@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Exceptions: Instantiate at source, throw at use</h1>
+
+<p>
+An exception in Java is, as defined by <a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/">Oracle</a>, <q>an event, which occurs during the execution of a program, that disrupts the normal flow of the program's instructions.</q>
+As such, exceptions are used to provide relevant information to the developper and recover or crash nicely after an unwanted states has been reached.
+Practically, exceptions are objects which are instantiated, like <code>new NullPointerException()</code>, and <em>thrown</em> when the unexpected event occurs, after which instructions are ignored and the exception-related information propagated, leading usually to some rich display in the console for debugging.
+In this post, we will see that throwing an exception involves two fundamental actions, <em>instantiation</em> and <em>throwing</em>, which both relate to different requirements and, consequently, should not systematically be done together.
+</p>
+
+<h2 id="context">Illustrative Example: Supplier-based Framework</h2>
+
+<p>
+In this post, we will work on an example inspired from the <a href="https://github.com/jMetal/jMetal">jMetal framework</a>, which provides various algorithms to solve various kinds of problems.
+In this framework, built initially in a research environment, one may want to experiment several algorithms on several problems, to compare the algorithms and see which is more efficient in which context.
+Following this idea, programming an experiment may go as follows:
+</p>
+<ol>
+<li>Provide the algorithms and problems to combine</li>
+<li>Run each algorithm on each problem to produce data</li>
+<li>Format the data into exploitable results</li>
+</ol>
+
+<p>
+In this context, a standardised procedure can be implemented to help the experimenter focus on the relevant stuff only.
+In particular, such a framework can provide an experiment builder which takes from the experimenter \(N\) algorithms, \(M\) problems, and combine them automatically into \(N \times M\) pairs to run.
+However, we cannot naively reuse algorithm and problem instances in each pair, like running an algorithm on one problem and then on another, until we have run it on each problem.
+Such a constraint can occur because algorithms should be runnable in parallel, or because algorithms may not have as a requirement to be reusable.
+This means that we need to create several instances of each, like 3 instances of the same algorithm to solve 3 different problems.
+Such an experiment builder might look like this:
+</p>
+<pre><code>
+// Create the experiment builder
+ExperimentBuilder builder = new ExperimentBuilder();
+
+// Tell which problem to solve
+builder.addProblem(() -> new Problem1());
+builder.addProblem(() -> new Problem2());
+builder.addProblem(() -> new Problem3());
+
+// Tell which algorithm to use for that
+builder.addAlgorithm(() -> new Algorithm1());
+builder.addAlgorithm(() -> new Algorithm2());
+builder.addAlgorithm(() -> new Algorithm3());
+
+// Configure various actions to do with the data
+...
+
+// Instantiate the experiment and run it
+Experiment experiment = builder.build();
+experiment.run();
+</code></pre>
+
+<p>
+This code is significantly simplified for the sake of this post, but the important point here is that, in order to let the builder manage the instantiation of the (algorithm, problem) pairs, we do not add algorithm and problem instances directly but <em>suppliers</em> (through lambda expressions), which are pieces of code providing instances on demand.
+Since Java 7, it can be implemented through the functional interface <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Supplier.html"><code>java.util.function.Supplier</code></a>, although it could be done already before through custom interfaces, minus the convenient format of lambda expressions.
+This <code>Supplier</code> interface looks like this:
+</p>
+<pre><code>
+public interface Supplier&lt;T> {
+    T get();
+}
+</code></pre>
+
+<p>
+As such, it is rather simple: it simply allows to access a ressource of a given type.
+In our code, each supplier generates a new instance, leading to provide a supplier for each algorithm and problem (\(N + M\)) in order to let the builder produce all the needed pairs (\(N \times M\)) without reusing the same instances.
+Depending on the implementation of the builder, these instantiations could be done when calling <code>builder.build()</code> or <code>experiment.run()</code>, but for the sake of simplicity, we will say that it is done in the former.
+</p>
+
+<p>
+Then, we take the perspective of the framework, which implements the builder.
+This builder receives suppliers from the experimenter and should use them to generate the (algorithm, problem) pairs, which can be done with the following code:
+</p>
+<pre><code>
+Collection&lt;Supplier&lt;Problem>> problemSuppliers = new LinkedList&lt;>();
+Collection&lt;Supplier&lt;Algorithm>> algorithmSuppliers = new LinkedList&lt;>();
+
+public void addProblem(Supplier&lt;Problem> supplier) {
+	problemSuppliers.add(supplier);
+}
+
+public void addAlgorithm(Supplier&lt;Algorithm> supplier) {
+	algorithmSuppliers.add(supplier);
+}
+
+public Experiment build() {
+	// Create independent (algorithm, problem) pairs
+	Collection&lt;Pair&lt;Algorithm, Problem>> pairs = new LinkedList&lt;>();
+	for(Supplier&lt;Problem> supP : problemSuppliers) {
+		Problem problem = supP.get();
+		for(Supplier&lt;Algorithm> supA : algorithmSuppliers) {
+			Algorithm algorithm = supA.get;
+			pairs.add(new Pair(algorithm, problem));
+		}
+	}
+	
+	// Create the experiment based on them
+	Experiment experiment = ...
+	
+	return experiment;
+}
+</code></pre>
+
+<p>
+The code above is minimal, and the goal now is to identify unwanted cases to manage through exceptions.
+We will look at them separately in the next sections.
+</p>
+
+<h2 id="problem-trivial">Exception 1: A Supplier Should Not <em>Be</em> Null</h2>
+
+<p>
+One potential issue is receiving <code>null</code> suppliers for algorithms or problems.
+This is a usual case, which can be solved by throwing a <code>NullPointerException</code> in the corresponding method.
+In the case of the algorithms, we would replace this:
+</p>
+<pre><code>
+public void addAlgorithm(Supplier&lt;Algorithm> supplier) {
+	algorithmSuppliers.add(supplier);
+}
+</code></pre>
+<p>
+by this:
+</p>
+<pre><code>
+public void addAlgorithm(Supplier&lt;Algorithm> supplier) {
+	if (supplier == null) {
+		throw new NullPointerException("No supplier provided");
+	} else {
+		algorithmSuppliers.add(supplier);
+	}
+}
+</code></pre>
+
+<p>
+Since Java 7, we can also use some helpers to do the same in a shorter way:
+</p>
+<pre><code>
+public void addAlgorithm(Supplier&lt;Algorithm> supplier) {
+	Objects.requireNonNull(supplier, "No supplier provided")
+	algorithmSuppliers.add(supplier);
+}
+</code></pre>
+
+<p>
+In the following, we won't consider using this facility to remain with an explicit exception.
+The important point here, however, is to notice that we instantiate our exception on the fly, and only if it is required.
+We will see later that it is not the only relevant use, though.
+</p>
+
+<h2 id="problem-complex">Exception 2: A Supplier Should Not <em>Return</em> Null</h2>
+
+<p>
+A second unwanted case is when the supplier itself returns <code>null</code>.
+We need a supplier, but when we call it we also need to obtain a proper problem or algorithm instance.
+In the case of a problem, we may argue that such guarantee is not required for some cases, so we will ignore it and focus on the algorithms.
+Indeed, an algorithm must be a runnable thing, and thus cannot be <code>null</code> by definition.
+To check this, we can do it in several manners.
+</p>
+
+<p>
+The first solution is, like the first exception, to check it immediately, like this:
+</p>
+<pre><code>
+public void addAlgorithm(Supplier&lt;Algorithm> supplier) {
+	if (supplier.get() == null) {
+		throw new NullPointerException("The supplier cannot return null");
+	} else {
+		algorithmSuppliers.add(supplier);
+	}
+}
+</code></pre>
+
+<p>
+The problem of this solution is that it is over-constrained.
+Indeed, nothing forbids the experimenter to provide a supplier which takes its instances from another source, not yet initialised at the time we use the builder.
+In this case, the supplier won't be able to provide an instance yet, and thus throw an exception or return <code>null</code>.
+The point is that we impose on the experimenter to guarantee that the suppliers can be used immediately, although we initially need them to be usable only when instantiating the pairs, thus when we build or run the experiment.
+So we need to find a better choice.
+</p>
+
+<p>
+A second choice is, instead of checking the source, checking the usage, which moves us to the <code>build()</code> method.
+We may replace this:
+</p>
+<pre><code>
+public Experiment build() {
+	// Create independent (algorithm, problem) pairs
+	Collection&lt;Pair&lt;Algorithm, Problem>> pairs = new LinkedList&lt;>();
+	for(Supplier&lt;Problem> supP : problemSuppliers) {
+		Problem problem = supP.get();
+		for(Supplier&lt;Algorithm> supA : algorithmSuppliers) {
+			Algorithm algorithm = supA.get;
+			pairs.add(new Pair(algorithm, problem));
+		}
+	}
+	
+	// Create the experiment based on them
+	Experiment experiment = ...
+	
+	return experiment;
+}
+</code></pre>
+<p>
+by this:
+</p>
+<pre><code>
+public Experiment build() {
+	// Create independent (algorithm, problem) pairs
+	Collection&lt;Pair&lt;Algorithm, Problem>> pairs = new LinkedList&lt;>();
+	for(Supplier&lt;Problem> supP : problemSuppliers) {
+		Problem problem = supP.get();
+		for(Supplier&lt;Algorithm> supA : algorithmSuppliers) {
+			Algorithm algorithm = supA.get;
+			if (algorithm == null) {
+				throw new NullPointerException("The supplier cannot return null");
+			} else {
+				pairs.add(new Pair(algorithm, problem));
+			}
+		}
+	}
+	
+	// Create the experiment based on them
+	Experiment experiment = ...
+	
+	return experiment;
+}
+</code></pre>
+
+<p>
+Now, we really check it at the right time, but several criticisms can be made.
+We may criticise the elegance of this code, which becomes heavier, especially if we have to do it with problems too, but this check will anyway have to be done, so it is not relevant.
+A practical criticism is a matter of responsibility: this is normally the method <code>addAlgorithm()</code> which should ensure that we obtain a valid supplier, but here we delegate this responsibility to <code>build()</code>, which is not recommended.
+It might seem useless here, because we only move a piece of code, but this choice means that, if we need to use these suppliers in other places of the builder, we need to repeat the same check there, and thus to write redundant code.
+It would be preferable to have it in one place, and the most relevant place to factor it is where we receive it.
+Second, the help provided by the exception is diminished, but to understand that we need to see what would be the consequence of such an implementation.
+</p>
+
+<h2 id="exception-information">Exception = Message + Stack Trace</h2>
+
+<p>
+An exception is not just a way to interrupt the program cleanly, it is also an important source of information for debugging.
+This information is composed of 2 fundamental pieces.
+The first one is the <em>message</em> of the exception, which tells what went wrong, like "No supplier provided" or "The supplier cannot return null" in the code we wrote previously.
+If we know that something wrong occurs in <code>addAlgorithm()</code>, descriptions like these allow to understand clearly what we did wrong with it, and fix it properly.
+But again, only if we know that it went wrong in this method, which is what provides the second piece of information.
+This one is the <em>stack trace</em>, which tells which method has generated the exception, by being called from which method, which has been called by which method, and so on until the root <code>main()</code> method (or thread).
+</p>
+
+<p>
+If the message can be easily adapted in the code, and thus is mainly a matter of linguistic skill, the stack trace however depends on where the exception has been instantiated.
+In particular, instantiating the exception in <code>addAlgorithm()</code> would have lead to this kind of stack trace:
+</p>
+<pre><code>
+java.lang.NullPointerException: The supplier cannot return null
+	at ExperimentBuilder.addAlgorithm(ExperimentBuilder.java:157)
+	at ExperimentBuilder.main(ExperimentBuilder.java:322)
+</code></pre>
+<p>
+while moving it to <code>build()</code> lead to have something more like this:
+</p>
+<pre><code>
+java.lang.NullPointerException: The supplier cannot return null
+	at ExperimentBuilder.build(ExperimentBuilder.java:183)
+	at ExperimentBuilder.main(ExperimentBuilder.java:322)
+</code></pre>
+
+<p>
+Knowing that a supplier returns <code>null</code> in <code>build()</code> is, however, not as helpful: the issue could come from a faulty supplier in <code>addAlgorithm()</code>, or because we did something wrong with other methods used before <code>build()</code>.
+The faulty one is indeed the call to <code>addAlgorithm()</code>, which received an invalid supplier, and thus the best stack trace is the one leading to this method.
+</p>
+
+<h2 id="solution">Solution: Split Instanciation and Throwing</h2>
+
+<p>
+As opposed to a usual case (if condition, throw new exception), this check on the returned value of the supplier requires us to properly decompose our exception management.
+Indeed, if we remain with the current structure, whether we do it in the right method (<code>addAlgorithm()</code>) but with an over-constrained parameter, whether we move it elsewhere but with a stack trace which does not help to spot the actual source of the mistake and a potential need of redundant code.
+In order to have both advantages, we can adopt an adaptive strategy, where we choose one of the two to have its advantage, and enforce somehow the second through some tricks.
+</p>
+
+<p>
+If we choose to put it in <code>build()</code>, we need to enforce the stack trace to lead to <code>addAlgorithm()</code> in its last line, but we also need to adapt the rest of the stack trace to spot the right call of the method.
+Indeed, an experimenter usually add several algorithms, and thus call several times the method, so we need to find which call is faulty in order to help at best the debugging, which seems clearly cumbersome with the need of manual traces and so on.
+With the addition of potential redundant code, which means that we should try to factor it in a dedicated method to reuse, it seems that such a solution is a no go for managing a single kind of exception.
+</p>
+
+<p>
+Rather, we may choose to instantiate the exception in <code>addAlgorithm()</code> to have the right stack trace from the start, the challenge being to check the returned value and throw the exception in <code>build()</code>.
+Instantiation is straightforward, we just need to have this line somewhere in <code>addAlgorithm()</code>:
+</p>
+<pre><code>
+NullPointerException exception = new NullPointerException("The supplier cannot return null");
+</code></pre>
+<p>
+In order to check and throw in <code>build()</code>, we may need to store this exception in a field of the class and use it in <code>build()</code> at check time.
+However, as we said earlier, <code>addAlgorithm()</code> need to be called several times, and each call needs its own exception to have the right stack trace, which leads precisely to this call.
+Instead of a single field, we may use a <code>Map&lt;Supplier&lt;Algorithm>, NullPointerException></code> to assign to each supplier (and thus each call) its own exception.
+Such a solution works, but we remain with an issue: the check is still done in <code>build()</code>, and thus the potential need to reproduce the check elsewhere through a redundant code occurs again.
+</p>
+
+<p>
+One way to factor it is to create a dedicated method to reuse, which is only partially satisfying because we still need to think about calling this method when we add a piece of code needing it.
+As we said earlier, this is <code>addAlgorithm()</code> which is responsible of obtaining a valid supplier, and as such the best solution is to implement the check in this method, in such a way that the check is actually done wherever it might be useful, automatically.
+Is it only possible? Yes, it is, and here we do it by using a <a href="https://en.wikipedia.org/wiki/Decorator_pattern">decorator</a>, which consists in wrapping the supplier we get into another supplier which does something more than just returning the instance.
+Here is the code:
+</p>
+<pre><code>
+public void addAlgorithm(Supplier&lt;Algorithm> supplier) {
+	NullPointerException exception = new NullPointerException("The supplier cannot return null");
+	Supplier&lt;Algorithm> decoratedSupplier = new Supplier&lt;Algorithm>() {
+		@Override
+		public Algorithm get() {
+			Algorithm algorithm = supplier.get();
+			if (algorithm == null) {
+				throw exception;
+			} else {
+				return algorithm;
+			}
+		}
+	};
+	algorithmSuppliers.add(decoratedSupplier);
+}
+</code></pre>
+
+<p>
+Here, we only create an auto-checking supplier which builds on the supplier provided in argument.
+In other words, we create a supplier which calls the one provided, checks whether or not the value is valid, and returns it or throws an exception depending on the answer.
+This way, every time it is called, it checks by itself its own value and throw our exception if required, or return the instance as usual if all is fine.
+Because we replace the provided supplier by the decorated one, any other piece of code using the supplier will necessarily pass through the auto-check, without even knowing about it.
+An important point, however, is to keep the exception instantiation directly in <code>addAlgorithm()</code>, out of the decorator definition, otherwise it will take the stack trace at the time it will be called, which means the stack trace of the user, like <code>build()</code>, which is not what we want.
+In other words, even now the instanciation of the exception is separated from throwing it.
+</p>
+
+<p>
+With this solution, we preserve all the code into <code>addAlgorithm()</code>, so the responsibility is fully managed by this method, and satisfy both our requirements of having a relevant stack trace and a just-on-time check.
+However, this solution comes with a cost too: instead of instantiating the exception only when it is required, we need to do it in advance.
+Here, the exception is created anyway, as soon as we call <code>addAlgorithm()</code>, and it is done every time we call it, even if the supplier is valid.
+This means that we take additional space in memory to improve debugging, leading this solution to be worth few instances, but costly with a growing amount of calls to manage.
+</p>
+
+<h2 id="principle">Conclusion: The Checker Instantiates, The Receiver Throws</h2>
+
+<p>
+We can conclude from this example that instanciating the exception and throwing it are 2 different responsibilities.
+The instanciation should be done by the method which is in charge of validating the data, independently of when this data will be checked.
+Here, the data we provide is a supplier, and the method which should ensure that it is valid is <code>addAlgorithm()</code>, so we instantiate the exception there.
+This method then should validate the supplier in 2 ways: ensuring that it is not <code>null</code>, and ensuring that the value it returns is not <code>null</code>.
+Whether we use a single exception or two different exceptions is a matter of design choice, but in any case they should all be instantiated by <code>addAlgorithm()</code> to drive the programmer to the actual faulty method.
+</p>
+
+<p>
+Throwing the exception, however, should be done as soon as the data to check is available, and thus by the one receiving it.
+The one receiving the supplier is <code>addAlgorithm()</code>, thus it should be the one throwing an exception if the supplier is <code>null</code>.
+The one receiving the value of the supplier, however, is <code>build()</code>, which requests the instances to create the pairs.
+This is the one which should throw the exception if the supplier returns a <code>null</code> value.
+Here, we were able to factor this code in <code>addAlgorithm()</code>, but whether or not such factoring is always possible is a different topic.
+</p>
+
+<!-- Auto formatting of code tags as Java code
+<script language="Javascript" type="text/javascript">
+	var tags = document.getElementsByTagName('code');
+	for(i = 0 ; i < tags.length ; i++) {
+		tags[i].className = tags[i].className + " prettyprint language-java";
+	}
+</script>
+-->
+
+<!-- TODO Add a paragraph to say how this vision of "instantiate at source, throw at use" applies to the usual case too. -->
+
+<!--
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+</ul>
+-->
+
+</body>
+</html>
