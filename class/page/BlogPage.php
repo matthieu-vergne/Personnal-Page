@@ -66,10 +66,10 @@ class BlogPage extends InternalPage {
 			Consequently, I have some interest in general structures and methods, leading me to develop several projects (often small, but not always) that you can find on my <a href="https://github.com/matthieu-vergne?tab=repositories">GitHub account</a>.
 			Now, the best way to make generic stuff is to ensure that it is usable everywhere, which is why I program in Open Source, and more precisely with the CC0 license (as much as possible).
 			Additionally, if I find a project interesting enough, or if I think a lot about some concepts or methods that I use in these projects, I may write posts about them to share the idea in a less technical way than pure code.
-			This is what I will list in the following list:
+			This is what the following list is about:
 			</p>
 			<ul>
-			<li>(coming soon)</li>
+			<li><a href="entry:18">When to instantiate/throw an exception in Java?</a></li>
 			</ul>
 			
 			<p>
