@@ -31,6 +31,9 @@ class HomePage extends InternalPage {
 		
 		$content .= "<p>You can contact me through my principal e-mail ".Format::toHtmlEmail("matthieu.vergne@gmail.com").". Other e-mails can be used, but they may be obsolete, so pay attention:</p>";
 		$data = array(
+			// NAIST
+			"vergne@is.naist.jp" => true,
+			
 			// FBK
 			"vergne@fbk.eu" => false,
 			
@@ -42,9 +45,6 @@ class HomePage extends InternalPage {
 			
 			// G-INP
 			"matthieu.vergne@grenoble-inp.org" => true,
-			
-			// NAIST
-			"vergne@is.naist.jp" => true,
 		);
 		$list = "";
 		ksort($data, SORT_NATURAL | SORT_FLAG_CASE);
