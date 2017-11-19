@@ -19,7 +19,12 @@
 <h1>Advanced Generic Programming in Java:<br/>Heterogenous Generic Type</h1>
 
 <p>
-Java provides the ability to implement generic methods, like <code>&lt;T> T myMethod(T a, T b) {...}</code>, which allow to specify type constraints within a single method, independently of the others.
+Java is a strongly typed language, and as such it requires some rigour from the programmer to avoid compilation failures.
+Despite type erasure, Java 5 has introduced a nice feature to help manage these types: the generics.
+
+
+
+Java provides the ability to implement generic methods, like <code>&lt;T> T myMethod(T a, T b) {...}</code>, which allows to specify type constraints within a single method, independently of the others.
 We also have generic types, like <code>class MyClass&lt;T> {...}</code>, which allow to specify a type constraint within the whole class (or interface), thus shared among all the methods of the class.
 An heterogenous generic type is something in between, which shares generics between methods in a more dynamic way than a generic type.
 </p>

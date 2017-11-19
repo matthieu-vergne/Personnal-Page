@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Functional Requirements in Java</h1>
+
+<p>
+<!--TODO Introduction -->
+</p>
+
+<h2 id="functional_requirements">Functional Requirements</h2>
+
+<p>
+In any project, software projects included, people need to establish what the developped system should do and how.
+A fundamental part of this work comes from the identification of the needs of the users, their preferences, constraints which may be imposed by the environment in which the system will operate, and more generally any property that must be exhibited by the system in order to solve some problem.
+In the <a href="SWEBOK">Guide to the Software Engineering Body of Knowledge</a>, these properties are called the <em>requirements</em> of the system.
+In a more formal way, the <a href="IEEESoftwareTerminology">IEEE Standards Board</a> has defined these requirements as:
+</p>
+<ol>
+<li>A condition or capacity needed by a user to solve a problem or achieve an objective.</li>
+<li>A condition or capability that must be met or possessed by a system or system component to satisfy a contract, standard, specification, or other formally imposed documents.</li>
+<li>A documented representation of a condition or capability as in (1) or (2).</li>
+</ol>
+
+<p>
+Various types of requirements have been defined to cope with various needs.
+We can for example speak about a <em>product requirement</em>, which expresses a need or constraint on the product to be developed, like <q>The software shall verify that a student meets all pre-requisites before he or she registers for a course</q>.
+A <em>process requirement</em> describes a constraint on the development of the product, like <q>The software shall be developed using Agile methods</q>.
+A <em>quality requirement</em> constrains the solution on performance, reliability, safety, security, maintainability, or other qualitative dimensions.
+A <em>system requirement</em> is a requirement for the whole system (software + hardware + people + information + etc) while a <em>software requirement</em> focuses on the software part, as derived from the system requirements.
+Types of requirement can overlap, like a quality requirement being about the system as a whole (i.e. also a system requirement) or only about the software part (i.e. also a software requirement).
+Many other types have been used or defined, but in this post, we will focus on <em>functional requirements</em>, and how they can be implemented in Java.
+</p>
+
+<p>
+A functional requirement expresses a <em>function</em> that the product is to execute, like formatting some text, or modulating a signal.
+Functional requirements is one of the most common type of requirements in software projects, because any software is developped to do something, and thus to execute some functions.
+It is no random choice to use the term function or method in most programming languages: this is a core notion which represents a sequence of steps to be executed by the machine, normally to produce some usable outcomes.
+In this post, we will thus use <strong>Java methods to represent functional requirements</strong>, but in order to do it correctly, we have to understand how functional requirements relate to each other.
+<!--Not abstraction, but independent modules. Yet, abstraction is also relevant to cover.-->
+</p>
+
+<h2 id="functional_relationships">Functional Relationships</h2>
+
+<p>
+<!--TODO-->
+</p>
+
+<h3 id="functional_abstraction">Functional Abstraction</h3>
+<!--TODO Revise-->
+
+<p>
+As mentionned before, some requirements are derived from others.
+A system requirement describes constraints applied to the system as a whole, for example <q>The cooking machine shall be able to display a recipe to the user</q>, while a software requirement is derived from it to focus on the software part, for example <q>The cooking machine shall retrieve recipes from the Internet</q>.
+From this example, we can see that the software requirement focuses on a specific part of the system, here the source of recipes, or said another way that the system requirement is an <a href="https://en.wikipedia.org/wiki/Abstraction">abstraction</a> of the software requirement.
+For the system requirement being an abstraction of the software requirement means that informations specific to the software is ignored at the system level as a whole, for the simple reason that it might be not applicable to other parts of the display (e.g. the source of recipes does not impact the choice of the physical screen to use) or even wrong (e.g. the display should not be configurable in a remote way for security purpose).
+What is important to add is that this notion of abstraction applies also for requirements of the same type: detailed software requirements can be inferred from software requirements of higher levels.
+With our example, retrieving recipes from the Internet implies to (i) connect to the Internet, (ii) search on known websites, and (iii) store the relevant recipes on the cooking machine, which makes three software requirements of lower level of abstraction.
+</p>
+
+<p>
+This notion of level of abstraction as a scope of available information is important, because this is what allows us to map it to a hierarchy of Java classes.
+Indeed, a Java interface only provides the information that some methods, having some purposes, should be implemented, then an abstract class provides more information regarding how to implement some of these methods while keeping (or adding) other methods unimplemented, and its children classes provide the remaining information needed to fully implement all the methods.
+Such an equivalence allows to model each functional requirement as a Java method, for example <q>The cooking machine shall retrieve recipes from the Internet</q> can be translated into the Java code:
+</p>
+<pre><code>
+Collection&lt;Recipe> retrieveRecipesFromInternet()
+</code></pre>
+
+<p>
+Additionally, the three functional requirements derived from the high level functional requirement correspond to Java methods used in the implementation of the high level method:
+</p>
+<pre><code>
+Collection&lt;Recipe> retrieveRecipesFromInternet() {
+	// Connect to the Internet
+	WebSearcher searcher = connectToInternet();
+	
+	// Search on known websites
+	Collection&lt;Recipe> recipes = new LinkedList<>();
+	recipes.addAll(searcher.retrieveRecipesFrom("pro-recipe.com"));
+	recipes.addAll(searcher.retrieveRecipesFrom("cook-me-something.net"));
+	
+	// Store the relevant recipes on the cooking machine
+	return recipes;
+}
+</code></pre>
+
+<p>
+These lower level methods are themselves implemented by deriving lower level requirements, a process which continues until the level of abstraction is low enough to be directly translated into terminal code instead of further methods to be implemented.
+Once the mapping between functional requirements and Java methods is clarified, the remaining question is the one of the design: how to organise these methods into Java code, and in particular how to use interfaces, abstract classes, and other Java components to organise and implement these methods in efficient ways?
+</p>
+
+<h3 id="functional_dependence">Functional Dependence</h3>
+
+<p>
+<!--TODO Speak about how functional dependence leads to functional priorities: the dependee can be designed without thinking about the dependent, while the dependent cannot be designed before the dependee is designed. Each module leads to a class: the first to be implemented should be the one of the dependee, and the second the one of the dependent.-->
+</p>
+
+<p>
+<!--TODO Speak about interdependence as a specific case of dependence, which leads to make a single module, and thus a single class.-->
+</p>
+
+<h3 id="functional_dependence">Functional Independence</h3>
+
+<p>
+<!--TODO Speak about functional independence (find a better term): two modules can be designed in such a way that, instead of building on each other, they define each their own interface to interact with them. It is then the job of an intermediary to make the link between the interfaces to establish a data flow. -->
+</p>
+
+<h2 id="context">Example: Functional Requirements for Cooking Machine</h2>
+
+<p>
+Let's consider a simple case where we want to manage a flow of data.
+More precisely, we have some suppliers of this data, like textual data produced by listening on a command line or reading a backup file.
+We also have consumers for this data, like a graphical interface which displays the textual information, a rich text formatter, and so on.
+The data being common, any combination can be made, which means that for \(n\) suppliers and \(m\) consumers, \(n \times m\) combinations can be implemented.
+In order to manage each case, whether we implement a class for each combination, which is rather expensive, whether we make a single generic class able to manage all of them, a choice which seems more interesting and that we will take.
+</p>
+
+<p>
+What we want is to play the intermediary between a supplier and a consumer, without any particular preprocessing.
+The idea is that our class will be set to obtain the data from a supplier, retrieve it, and transfer it to a consumer.
+The supplier and the consumer are not known in advance, and they might implement different APIs, so we don't know either which method to call to read/write the data.
+Because we don't know which methods to call, we need to make our own API and let the programmer map it to the supplier and consumer.
+The only thing we know is the process: we need to retrieve it from the supplier, and then to transfer it to the consumer.
+Such constraints comes from the application of the <a href="https://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility principle</a>: we focus on one thing, and we do it well.
+</p>
+
+<h2 id="alternative_1">Alternative 1: Abstract Methods</h2>
+
+<p>
+In order to let programmers do the mapping, we need them to implement two methods: the one retrieving data from the supplier, and the one providing it to the consumer.
+Because we need to use them, we will define them in our class but let the implementation for the other programmers.
+For the method implementing the process, no parameter nor returned value is required, we only need to call the two previous methods in the righ order.
+We can use the <code>run()</code> method of the <code>Runnable</code> interface to implement this process in a standard way.
+Because of the <code>run()</code> method which is implemented, we cannot make an interface (it is not totally true since Java 8, we come back on this case in <a href="#alternative_4">another alternative</a>).
+Because we also need two methods to be implemented by other programmers, we cannot make a concrete class either.
+Thus we need to implement an abstract class, which may look like this:
+</p>
+<pre><code>
+public abstract class AbstractIntermediary implements Runnable {
+
+	public abstract String getData();
+
+	public abstract void processData(String data);
+
+	@Override
+	public void run() {
+		String data = getData();
+		processData(data);
+	}
+}
+</code></pre>
+
+<p>
+The method <code>getData()</code> is the API we provide to retrieve the textual data from the supplier, and <code>processData(String data)</code> is the API for providing the data to the consumer.
+They are abstract for the programmer to adapt them to the APIs of the supplier and provider.
+The remaining <code>run()</code> method executes the transfer, by first reading the data from the supplier before to transfer it to the consumer.
+We can make something more advanced, with the ability to change the supplier or the consumer on the fly, make it thread-safe, and so on, but we will remain simple to focus on the purpose of this post.
+</p>
+
+<p>
+In order to use this class, one needs either to implement a dedicated class or to make an anonymous class on the fly.
+To keep it simple, we use a <code><a href="https://docs.oracle.com/javase/8/docs/api/java/util/Queue.html">Queue</a></code> for the supplier, and the console for the consumer.
+We can retrieve the data of the <code>Queue</code> by calling its <code>remove()</code> method, while displaying it on the console can be done through <code>System.out.println(x)</code>.
+By filling the queue and calling <code>run()</code>, the screen displays what has been stored in the queue:
+</p>
+<pre><code>
+Queue&lt;String> queue = new LinkedList&lt;>();
+AbstractIntermediary intermediary = new AbstractIntermediary() {
+
+	@Override
+	public String getData() {
+		return queue.remove();
+	}
+
+	@Override
+	public void processData(String data) {
+		System.out.println(data);
+	}
+};
+
+queue.add("Some text");
+intermediary.run(); // Display "Some text" on the console
+</code></pre>
+
+<h2 id="alternative_2">Alternative 2: Concrete Operators with Dedicated Interfaces</h2>
+
+<p>
+Although the abstract class remains simple, it does not totally solve the problem of redundancy of the code: we don't need to implement a concrete class for each combination as long as we implement the corresponding anonymous class.
+Indeed, each time we face a given combination, whether we implement <em>both</em> the abstract methods from scratch, whether we make a dedicated class to reuse.
+In other words, as long as we use a combination few times, it saves some effort, but if we need to use it in many places, it will be more interesting to have a dedicated class, which reduces the advantage of the abstract class.
+Said another way, it only factors 1 method over 3 (the <code>run()</code> method), and the two others must be reimplemented together every time we need the abstract class, thus remaining with at most \(n \times m\) different implementations.
+To solve this issue, we need to decouple the two abstract methods, such that they can be implemented separately and reused in each related combination, reducing to at most \(n+m\) implementations.
+</p>
+
+<p>
+We do so by making dedicated interfaces for each method.
+In Java 8, we may call them <em>functional interface</em>, a concept introduced with <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html">lambda expressions</a>, but we will ignore this aspect since this technique could already be used before Java 8.
+This is also an example of application of the <a href="https://en.wikipedia.org/wiki/Interface_segregation_principle">interface segregation principle</a>, for thoses famimliar with good practices.
+Now that the two have their own interface, it means that they can be instantiated, and thus we can replace abstract methods by instances.
+We may ask these instances as parameters of our <code>run()</code> method, but it would change the signature of the method and the semantic of the class: we want an instance of our class to constantly manage the same supplier with the same consumer, not specify them at each call.
+Thus, instead of changing <code>run()</code>, we create them as fields of the class to be instantiated in the constructor.
+All what remains is to adapt the process to use instances instead of methods:
+</p>
+<pre><code>
+public class ConcreteIntermediary implements Runnable {
+
+	public static interface DataProvider {
+		public String getData();
+	}
+
+	public static interface DataProcessor {
+		public void processData(String data);
+	}
+
+	private final DataProvider provider;
+	private final DataProcessor processor;
+
+	public ConcreteIntermediary(DataProvider provider, DataProcessor processor) {
+		this.provider = provider;
+		this.processor = processor;
+	}
+
+	@Override
+	public void run() {
+		String data = provider.getData();
+		processor.processData(data);
+	}
+}
+</code></pre>
+
+<p>
+The first thing we can observe is the increased verbosity of the class with each abstract method replaced by a field, which leads to add the definition of the type of the field (i.e. the interfaces) and its instantiation (i.e. the constructor).
+Despite the increased verbosity in the class, it does not mean that we save some verbosity from its usage:
+</p>
+<pre><code>
+Queue&lt;String> supplier = new LinkedList&lt;>();
+DataProvider provider = new DataProvider() {
+
+	@Override
+	public String getData() {
+		return supplier.remove();
+	}
+};
+DataProcessor processor = new DataProcessor() {
+
+	@Override
+	public void processData(String data) {
+		System.out.println(data);
+	}
+};
+ConcreteIntermediary intermediary = new ConcreteIntermediary(provider, processor);
+
+supplier.add("Some text");
+intermediary.run(); // Display "Some text" on the console
+</code></pre>
+
+<p>
+This is really similar to using the abstract class, excepted that we separate it in 3 parts: the instance of the provider, the instance of the processor, and the instance of our intermediary class.
+These three parts show that we have decoupled the two abstract methods from the each other and from the intermediary class, such that we can now have a dedicated class for the provider alone and reuse it in combinations with other processors.
+the same can be said for the processor being used with other providers.
+</p>
+
+<h2 id="alternative_3">Alternative 3: Lambda Expressions</h2>
+
+<p>
+As we saw, using a concrete class with dedicated interfaces allows to decouple the methods to implement, but with an increase cost in verbosity.
+However, since Java 8 and the introduction of <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html">lambda expressions</a>, one can now write the dedicated interfaces in a reduced manner:
+</p>
+<pre><code>
+Queue&lt;String> supplier = new LinkedList&lt;>();
+DataProvider provider = () -> supplier.remove();
+DataProcessor processor = (data) -> System.out.println(data);
+LambdaIntermediary intermediary = new LambdaIntermediary(provider, processor);
+
+supplier.add("Some text");
+intermediary.run(); // Display "Some text" on the console
+</code></pre>
+
+<p>
+We can see a significant simplification of the code.
+In this particular case, we can also go a bit further: the methods of our interfaces are similar enough with the methods they call to say something like "just use it like this other method".
+For instance, we can say that the method <code>DataProvider.getData()</code> can be used exactly in the same way than <code>Queue&lt;String>.remove()</code>, because they both take no parameter and return a <code>String</code> value.
+Java 8 allows to do so by using <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html">method references</a>, which allow us to reduce our code to this minimal piece:
+<!--TODO-->
+</p>
+<pre><code>
+Queue&lt;String> supplier = new LinkedList&lt;>();
+LambdaIntermediary intermediary = new LambdaIntermediary(supplier::remove, System.out::println);
+
+supplier.add("Some text");
+intermediary.run(); // Display "Some text" on the console
+</code></pre>
+
+<p>
+With the user's code reduced to the bare minimum, it is also useful to notice that Java 8 comes with many interfaces to deal with common cases.
+In particular, our <code>DataProvider</code> is equivalent to a <code><a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Supplier.html">Supplier&lt;String></a></code>, while our <code>DataProcessor</code> is equivalernt to a <code><a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Consumer.html">Consumer&lt;String></a></code>.
+In other words, instead of defining our own interfaces, we can directly use the standard ones provided with the JDK, which allows us to reduce also our intermediary class:
+</p>
+<pre><code>
+public class LambdaIntermediary implements Runnable {
+
+	private final Supplier&lt;String> supplier;
+	private final Consumer&lt;String> consumer;
+
+	public LambdaIntermediary(Supplier&lt;String> supplier, Consumer&lt;String> consumer) {
+		this.supplier = supplier;
+		this.consumer = consumer;
+	}
+
+	@Override
+	public void run() {
+		String data = supplier.get();
+		consumer.accept(data);
+	}
+}
+</code></pre>
+
+<p>
+Consequently, Java 8 makes a lot more appealing the decoupling of methods into separate functional interfaces.
+</p>
+
+
+<h2 id="alternative_4">Alternative 4: Default Methods Since Java 8</h2>
+
+<p>
+A last alternative that we can look out is the use of <a href="https://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html">default methods</a>, which can be considered to some extents as the opposite of the abstract methods.
+Indeed, if the abstract methods allow to specify non implemented methods into a class (enforcing the class to be abstract), default methods allow to specify implemented methods in interfaces.
+With this perspective, we can think again to the <a href="#alternative_1">first design</a>, and instead of creating a class that we make abstract for the sake of two methods, we create an interface in which the only implemented method is defined as a default:
+</p>
+<pre><code>
+public interface InterfaceIntermediary extends Runnable {
+
+	public String getData();
+
+	public void processData(String data);
+
+	@Override
+	default void run() {
+		String data = getData();
+		processData(data);
+	}
+}
+</code></pre>
+
+<p>
+We retrieve the shape of the abstract method, but this time it is the implemented method which uses a specific qualifier.
+Because we are virtually equivalent to the abstract class, its usage is equivalent:
+</p>
+<pre><code>
+Queue&lt;String> supplier = new LinkedList&lt;>();
+InterfaceIntermediary intermediary = new InterfaceIntermediary() {
+
+	@Override
+	public String getData() {
+		return supplier.remove();
+	}
+
+	@Override
+	public void processData(String data) {
+		System.out.println(data);
+	}
+};
+
+supplier.add("Some text");
+intermediary.run(); // Display "Some text" on the console
+</code></pre>
+
+<h2 id="usage">When to Use Each Alternative?</h2>
+
+<p>
+As we saw, despite we considered the same requirements, we could implement 4 different designs: an abstract class, an interface with default methods, a concrete class with dedicated interfaces, and the same with standard interfaces instead of custom ones.
+The first question to come in mind is then, usually: which one is the best?
+As always, the answer remains the same: it depends on the situation you are facing.
+None of the presented designs is fundamentally better than the others.
+</p>
+
+<p>
+First, we can make two categories: the abstract classes (abstract class and interface) and the concrete ones with dedicated interfaces (custom or standard).
+As we saw already, the dedicated interfaces are nice for decoupling the different components, such that we can implement them once and reuse them as needed.
+These designs are the best to keep a code simple, especially with lambda expressions, despite the many combinations we may do.
+In other words, if you tend to use a piece of code with several others, think about making it a dedicated interface.
+At the opposite, if you strive with performance, prefer to use abstract classes: each object comes with its overhead, so splitting in several instances multiply this overhead correspondingly.
+If you happen to manage many instances at once, you may feel a significant improvement by combining the most frequent ones into more atomic abstract classes instead.
+I made my little benchmark with the different designs presented on my laptop and, although the values themselves are not informative, the ratio between them is interesting: abstract classes need only 0.42ns to be instantiated, while concrete classes and their parameters require at least 3ns.
+<!--TODO Size benchmark -->
+</p>
+
+<p>
+Once the two main categories are differentiated, we can dig in the differences between the variants of the same category.
+Regarding abstract classes, choosing between a proper abstract class and an interface with default method is first of all a matter of design: if your design requires to introduce fields to store the state of the instance, you won't be able to use an interface with default methods.
+Interfaces only accept default methods and static elements, which means that you can only implement (non static) methods which build on the other methods you define.
+Our intermediary class do exactly that: it defines two abstract methods and only organise their calls, thus it can be designed as an interface with a default method, otherwise it would be <s>impossible</s> a bit complex to implement.
+But what if there is not state to save, such that both designs are possible?
+Then it is a matter of design choice, and here is the hint: default methods aim to <q>add new functionality to the interfaces of your libraries and ensure binary compatibility with code written for older versions of those interfaces</q>.
+In other words, it is for already existing interfaces that you want to enrich with secondary features, which means features that can build on what is already defined in the interface.
+If you create a new interface, you may not use default methods immediately but first focus on the core methods you need to implement and, if some of them <em>must</em> be implemented at this level, transform it into an abstract class.
+In our case, the <code>run()</code> method is the core of the class, and thus using a default method is more a hacky design than a sound one.
+<!--TODO Time benchmark gives no difference, but what about size benchmark? -->
+</p>
+
+<p>
+If we focus on the variants within concrete classes, we need to choose between using standard and custom interfaces.
+It might seem obvious that using standard interfaces is the best: not only it reduces the code of the class but... you know... it is a standard, not some creepy custom interface that only the designer understand how to use.
+Well, sorry but the "not reinventing the wheel" excuse should not be abused.
+The choice should be based on whether or not the standard interface provides a sound API: if <code>supplier.get()</code> does not make much sense, you may prefer to use the more explicit <code>documentFactory.createX12345Form()</code>.
+Don't forget the domain you are working in: the closer you are to your domain, the easier it is to make the code understandable and maintainable.
+Of course, it is not an excuse to use my-super-hyper-never-equaled-better-than-any interface: if you have colleagues, ask them which one they fill more confortable to work with.
+A last question is, after deciding which dedicated interfaces to use, how to instantiate them, because making dedicated interfaces often leads to have functional interfaces representable as lambda expressions.
+Benchmarking might be the best decider here: on my laptop, the best instantiation time (3ns) is achieved when parameters are instantiated through lambda expressions, like <code>(data) -> System.out.println(data)</code>.
+If we use the full implementation, so the whole description with <code>new</code>, the time is doubled, or tripled if we use method references like <code>System.out::println</code>.
+<!--TODO Size benchmark -->
+</p>
+
+<p>
+In summary:
+</p>
+<ol>
+<li>Can you define all the core methods without needing to implement any? Use an interface. You may add default methods later for secondary features you think to be relevant.</li>
+<li>If no, do you need to manage so much instances at once that you may blow up your memory? Use abstract classes for the most common cases.</li>
+<li>If no, do you have many combinations of domain-specific concepts to manage? Use dedicated interfaces which represent these concepts.</li>
+<li>If no, do you have many combinations of rather simple concepts to manage? Give a look to the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html">standard functional interfaces</a>, you may find what you need instead of reinventing the wheel.</li>
+<li>If no, do you think that you could increase the scope of your class later? Then think it again and restart from 1.</li>
+<li>If no, then just pick the one you (and your team) fill most confortable with. I personnally prefer the latter.</li>
+</ol>
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<!--
+<h2 id="links">Related Posts</h2>
+
+TODO
+-->
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="IEEESoftwareTerminology">
+	IEEE Standards Board.
+	<cite>IEEE Standard Glossary of Software Engineering Terminology</cite>,
+	New York, N.Y: Institute of Electrical and Electronics Engineers,
+	<time datetime="1990">1990</time>.
+	ISBN: 978-1-55937-067-7
+</li>
+<li id="SWEBOK">
+	Bourque, Pierre, and R. E Fairley, eds.
+	<cite>Guide to the Software Engineering Body of Knowledge</cite>,
+	IEEE Computer Society,
+	<time datetime="2014">2014</time>.
+	URL: <a href="http://www.computer.org/portal/web/swebok/swebokv3">http://www.computer.org/portal/web/swebok/swebokv3</a>
+</li>
+</ul>
+
+</body>
+</html>

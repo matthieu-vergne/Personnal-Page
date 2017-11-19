@@ -109,11 +109,18 @@ class BlogPage extends InternalPage {
 	
 	private function getCurrentEntryFile() {
 		$url = Url::getCurrentUrl();
-		$entry = $url->hasQueryVar('entry') ? $url->getQueryVar('entry') : null;
-		if ($entry === null) {
+		$entryID = $url->hasQueryVar('entry') ? $url->getQueryVar('entry') : null;
+		if ($entryID === null) {
 			return null;
 		} else {
-			return "blog/$entry.html";
+			$entries = glob("blog/$entryID-*.html");
+			if (count($entries) == 0) {
+				throw new Exception("No entry found for ID $entryID");
+			} else if (count($entries) > 1) {
+				throw new Exception("More than one entry found for ID $entryID: ".print_r($entries, true));
+			} else {
+				return $entries[0];
+			}
 		}
 	}
 }
