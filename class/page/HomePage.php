@@ -36,7 +36,7 @@ class HomePage extends InternalPage {
 			"mvergne@sii.fr" => true,
 			
 			// NAIST
-			"vergne@is.naist.jp" => true,
+			"vergne@is.naist.jp" => false,
 			
 			// FBK
 			"vergne@fbk.eu" => false,
