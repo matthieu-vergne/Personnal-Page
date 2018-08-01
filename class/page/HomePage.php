@@ -64,7 +64,7 @@ class HomePage extends InternalPage {
 		
 		$content .= "<h1>Short Bio</h1>";
 		$content .= "<div class='quotes'>";
-		$content .= "<blockquote>Know yourself.</blockquote> <span class='source'><a href='https://en.wikipedia.org/wiki/Know_thyself'>Delphic maxim</a></span>";
+		$content .= "<blockquote>Know thyself.</blockquote> <span class='source'><a href='https://en.wikipedia.org/wiki/Know_thyself'>Delphic maxim</a></span>";
 		$content .= "<blockquote>If you want something done right, do it yourself.</blockquote> <span class='source'><a href='https://en.wikipedia.org/wiki/Charles-Guillaume_%C3%89tienne'>Charles-Guillaume Étienne</a></span>";
 		$content .= "<blockquote>What you do not wish done to you, do not do to others.</blockquote> <span class='source'><a href='https://en.wiktionary.org/wiki/silver_rule'>Silver Rule</a></span>";
 		$content .= "</div>";
