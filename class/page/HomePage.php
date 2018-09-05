@@ -32,6 +32,9 @@ class HomePage extends InternalPage {
 		
 		$content .= "<p>You can contact me through my principal e-mail ".Format::toHtmlEmail("matthieu.vergne@gmail.com").". Other e-mails can be used, but they may be obsolete, so pay attention:</p>";
 		$data = array(
+			// Meritis
+			"matthieu.vergne@meritis.fr" => true,
+			
 			// SII
 			"mvergne@sophia.sii.fr" => true,
 			"mvergne@sii.fr" => true,
