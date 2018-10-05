@@ -30,7 +30,6 @@ class HomePage extends InternalPage {
 			$content .= "<b>$type:</b> $value<br/>";
 		}
 		
-		$content .= "<p>You can contact me through my principal e-mail ".Format::toHtmlEmail("matthieu.vergne@gmail.com").". Other e-mails can be used, but they may be obsolete, so pay attention:</p>";
 		$data = array(
 			// Meritis
 			"matthieu.vergne@meritis.fr" => true,
@@ -54,16 +53,26 @@ class HomePage extends InternalPage {
 			// G-INP
 			"matthieu.vergne@grenoble-inp.org" => true,
 		);
-		$list = "";
+		$listValid = "";
+		$listObsolete = "";
 		ksort($data, SORT_NATURAL | SORT_FLAG_CASE);
 		foreach($data as $email => $isValid) {
 			if ($isValid) {
-				$list .= "<li>$email</li>";
+				$list = & $listValid;
 			} else {
-				$list .= "<li style='color: gray'>$email (obsolete)</li>";
+				$list = & $listObsolete;
 			}
+			$list .= "<li>$email</li>";
 		}
-		$content .= "<ul id='otherMails'>$list</ul>";
+		$buttonClass = "toggleButton";
+		$buttonFunction = "toggle(\"obsoleteMails\", \"obsoleteMailsOn\", \"obsoleteMailsOff\")";
+		$content .= "<p>You can contact me through my principal e-mail ".Format::toHtmlEmail("matthieu.vergne@gmail.com").". Other e-mails which are currently valid:</p>";
+		$content .= "<ul id='otherMails'>$listValid</ul>";
+		$content .= "<p>If you know me through another e-mail address, it is probably obsolete.</p>";
+		$content .= "<div class='$buttonClass' onclick='$buttonFunction' id='obsoleteMailsOn'>Show obsolete e-mails</div>";
+		$content .= "<div class='$buttonClass' onclick='$buttonFunction' id='obsoleteMailsOff' style='display: none'>Hide obsolete e-mails</div>";
+		$content .= "<br/>";
+		$content .= "<ul id='obsoleteMails' style='display: none'>$listObsolete</ul>";
 		
 		$content .= "<h1>Short Bio</h1>";
 		$content .= "<div class='quotes'>";

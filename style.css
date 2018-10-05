@@ -96,6 +96,15 @@ dl.center dd {
 	padding: 0;
 }
 
+div.toggleButton {
+	display: inline-block;
+	padding: 0.5em;
+	background-color: #07F;
+	color: #FFF;
+	border: 1px solid blue;
+	clear: both;
+}
+
 /* For mobile phones: */
 @media only screen and (max-width: 500px) {
 body {
