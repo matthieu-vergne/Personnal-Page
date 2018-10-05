@@ -36,8 +36,8 @@ class HomePage extends InternalPage {
 			"matthieu.vergne@meritis.fr" => true,
 			
 			// SII
-			"mvergne@sophia.sii.fr" => true,
-			"mvergne@sii.fr" => true,
+			"mvergne@sophia.sii.fr" => false,
+			"mvergne@sii.fr" => false,
 			
 			// NAIST
 			"vergne@is.naist.jp" => false,
