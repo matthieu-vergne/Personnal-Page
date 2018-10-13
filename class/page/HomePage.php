@@ -31,6 +31,9 @@ class HomePage extends InternalPage {
 		}
 		
 		$data = array(
+			// Orange
+			"matthieu.vergne@orange.com" => true,
+			
 			// Meritis
 			"matthieu.vergne@meritis.fr" => true,
 			
