@@ -75,6 +75,8 @@ class BlogPage extends InternalPage {
 			</p>
 			<ul>
 			<li><a href="entry:18">When to instantiate/throw an exception in Java?</a></li>
+			<li><a href="entry:7">Heterogeneous generic type</a></li>
+			<li><a href="entry:11">Java without abstract classes</a></li>
 			</ul>
 			
 			<p>
@@ -96,6 +98,8 @@ class BlogPage extends InternalPage {
 			</p>
 			<ul>
 			<li><a href="entry:0">Can we use accuracy with unbalanced datasets?</a></li>
+			<li><a href="entry:1">Can we use accuracy for several classes?</a></li>
+			<li><a href="entry:2">How to solve an exponential equation (\(y=e^{ax+b}+c\))?</a></li>
 			<li><a href="entry:13">How to formalise generic/specific?</a></li>
 			</ul>';
 			$content = $this->expandEntryLinks($content);

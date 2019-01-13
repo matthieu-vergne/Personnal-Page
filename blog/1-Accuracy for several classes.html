@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Can We Use Accuracy For Several Classes?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>We start from the <a href="https://en.wikipedia.org/wiki/Confusion_matrix">confusion matrix</a> in binary classification:</p>
+<center>
+<table>
+	<tr>
+		<td style="border-style: none;" colspan=2 rowspan=2></td>
+		<td colspan=2>Actual</td>
+	</tr>
+	<tr>
+		<td>Positive<br/>\(p = tp + fn\)</td>
+		<td>Negative<br/>\(n = fp + tn\)</td>
+	</tr>
+	<tr>
+		<td rowspan=2>Predicted</td>
+		<td>Positive<br/>\(p' = tp + fp\)</td>
+		<td style="background-color: LightGreen;">\(tp\)</td>
+		<td style="background-color: LightCoral;">\(fp\)</td>
+	</tr>
+	<tr>
+		<td>Negative<br/>\(n' = fn + tn\)</td>
+		<td style="background-color: LightCoral;">\(fn\)</td>
+		<td style="background-color: LightGreen;">\(tn\)</td>
+	</tr>
+</table>
+</center>
+
+<p>In this situation, accuracy corresponds to the number of correct results divided by the total number of elements in the dataset:</p>
+\[
+ACC = \frac{tp+tn}{p+n}
+\]
+
+<p>In a <a href="entry:0">previous entry</a>, we saw that this formula, also called <q>average accuracy</q>, has some limits which can be fixed by using a more generic one, which we call weighted accuracy:</p>
+\[
+ACC = \alpha \frac{tp}{p} + \left( 1 - \alpha \right) \frac{tn}{n}
+\]
+
+<p>Although the average one corresponds to \(\alpha = \frac{p}{p+n}\), which is influenced by the balance of the dataset, \(\alpha = \frac{1}{2}\) allows to be agnostic to it, and thus more robust. This is what we call <q cite="#BrodersenOngStephanBuhmann2010">balanced accuracy</q> <a href="#BrodersenOngStephanBuhmann2010">(Brodersen et al., 2010)</a>. However, it remains a measure for computing the accuracy of a binary classifier, which means that it is suited for choosing between two exclusive classes, like positive or negative, but not more.</p>
+
+<h2 id="question">Question</h2>
+
+Can we compute the accuracy of a classifier for multiple, exclusive classes?
+
+<h2 id="method">Method</h2>
+
+<p>In order to cope with multiple classes, we first look at binary classification as a particular case, where we have two classes \(C_1\) and \(C_2\). In such a case, the confusion matrix can be refined in this way:</p>
+
+<center>
+<table>
+	<tr>
+		<td style="border-style: none;" colspan=2 rowspan=2></td>
+		<td colspan=2>Actual</td>
+	</tr>
+	<tr>
+		<td>Class \(C_1\)<br/>\(n_1 = n_{1,1} + n_{1,2}\)</td>
+		<td>Class \(C_2\)<br/>\(n_2 = n_{2,1} + n_{2,2}\)</td>
+	</tr>
+	<tr>
+		<td rowspan=2>Predicted</td>
+		<td>Class \(C_1\)<br/>\(n'_1 = n_{1,1} + n_{2,1}\)</td>
+		<td style="background-color: LightGreen;">\(n_{1,1}\)</td>
+		<td style="background-color: LightCoral;">\(n_{2,1}\)</td>
+	</tr>
+	<tr>
+		<td>Class \(C_2\)<br/>\(n'_2 = n_{1,2} + n_{2,2}\)</td>
+		<td style="background-color: LightCoral;">\(n_{1,2}\)</td>
+		<td style="background-color: LightGreen;">\(n_{2,2}\)</td>
+	</tr>
+</table>
+</center>
+
+<p>And the accuracy can be reformulated correspondingly:</p>
+\[
+ACC = \alpha \frac{n_{1,1}}{n_1} + \left( 1 - \alpha \right) \frac{n_{2,2}}{n_2}
+\]
+
+<h2 id="answer">Answer</h2>
+
+&lt;Answer to the question.&gt;
+
+<h2 id="links">Related Questions</h2>
+
+&lt;Links to other questions.&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="BrodersenOngStephanBuhmann2010">Brodersen, Kay Henning, Cheng Soon Ong, Klaas Enno Stephan, and Joachim M. Buhmann. <cite>The Balanced Accuracy and Its Posterior Distribution</cite>, 3121–24. IEEE, <time datetime="2010">2010</time>. doi:<a href="https://dx.doi.org/10.1109/ICPR.2010.764">10.1109/ICPR.2010.764</a></li>
+</ul>
+
+</body>
+</html>

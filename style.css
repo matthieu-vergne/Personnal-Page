@@ -17,6 +17,11 @@ div {
 	padding: 0;
 }
 
+pre {
+	margin: 0;
+	padding: 0;
+}
+
 /*
 Blog pages are produced in separate files which apply the blog ID to the body,
 not an article, so we apply these rules to the ID itself for the style to be
@@ -330,6 +335,13 @@ article div#lastUpdateTime {
 #blog p {
 	text-align: justify;
 }
+
+/*
+#blog pre code {
+	display: block;
+	padding: 0 3em;
+}
+*/
 
 #teaching tr:hover td {
 	background-color: #AFF;

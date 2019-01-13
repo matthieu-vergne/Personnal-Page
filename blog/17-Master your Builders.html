@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Master your Builders!</h1>
+
+<p>
+In Object Oriented Programming, the programmer tries to use concepts close to the domain in which the software will be used in order to facilitate the implementation and evolution of the program.
+Each concept may contain various pieces of information, like knowing the brand of a `Car`, its color, the various options it may have, etc.
+Depending on the design chosen, the programmer might choose to create dedicated child classes or add parameters to its contructor.
+In both cases, what is important to highlight is that the programmer should know about all the relevant information to choose which object to instantiate and how.
+With the growing amount of information and the complexity of its processing, such a creation can become a challenge.
+Builders are tools which aim at supporting such a creation process: they offer a standardised, step-by-step procedure to help the programmer instantiate complex objects.
+</p>
+
+<h2 id="concept">What is a Builder?</h2>
+
+<p>
+<!-- Goal of a builder -->
+A <a href="https://en.wikipedia.org/wiki/Builder_pattern">builder</a> aims at offering a simplified creation procedure.
+It can provide a set of simple methods to store the information required for the instantiation, thus improving the clarity of the code and allowing immutable objects to be constructed more dynamically.
+It can factor common sequences into single methods, thus allowing to reduce the procedure to high level steps.
+It can take in charge the choice between various implementations based on the parameters provided through a unified and standardized procedure.
+</p>
+
+<p>
+<!-- Context of use -->
+Despite its apparent power, a builder is not a silver bullet: it should evolve with the class(es) to instantiate, and thus imposes an extra work for maintenance.
+Its worth comes from its ability to simplify the creation procedure, especially by providing a simple way to choose among many variants of the object to instantiate.
+We will see in this post how a builder can be implemented and the various supporting features it can provide.
+</p>
+
+<h2 id="implementation">How to Implement a Builder?</h2>
+
+<p>
+<!-- TODO Summary -->
+</p>
+
+<h3 id="implementation-basics">The Basics</h2>
+
+<p>
+<!-- TODO Common structure
+- Initialisation (new builder instance or factory method in the class to build)
+- terminate with build() or equivalent (instantiate, generate, etc.)
+-->
+</p>
+
+<p>
+<!-- TODO Intermediary methods
+- split constructor parameters into dedicated methods
+- setter despite immutable object
+- sequence factoring
+-->
+</p>
+
+<p>
+<!-- TODO Limits
+The initial goal of the builder pattern is to split the single-step instantiation of a constructor into several steps, but 	has limited control: dependencies between calls must be satisfied manually.
+Calls may be uselessly repeated and the order can be messed up if the programmer does not pay attention.
+All these points must be checked manually by adding the code in the builder, and thus are controlled at runtime only and impose extra code.
+We can use a different design to do all these controls at compile time, which additionally becomes really helpful when programming with an IDE or do code generation.
+-->
+</p>
+
+<h3 id="implementation-advanced">More Advanced Controls</h2>
+
+<p>
+<!-- TODO Split steps into dedicated classes -->
+</p>
+
+<p>
+<!-- TODO Repeatability
+- repeatable step: return this.
+- non repeatable step: return instance of the next class.
+
+When a step is repeatable, whether there is a variant of the method which passes to the next automatically, whether there is an additional method which only passes to the next, like then(). I recommend the latter to clearly decouple the responsibilities, although from a coding perspective the variant can be done easily by calling the repeatable method and returning the next instance instead of the returned value (i.e. this).
+-->
+</p>
+
+<p>
+<!-- TODO Optionality
+- mandatory: have only the methods relevant for this step
+- optional: add a method which explicitly ignores the step, like ignoreXxx()
+-->
+</p>
+
+<p>
+<!-- TODO Advantages & inconvenients
+Advantages:
+- does not compile if call a non repeatable step several times (update rather than override through recall)
+- does not compile if call a step at the wrong time (standard order rather than free order)
+- does not compile incoherent calls (satisfies dependencies on previous calls)
+- IDE suggests less methods at once (only the relevant methods of a single step)
+- each class focuses on a single step, so is simpler to implement and can provide a thorough support without being scared of providing many methods
+- each class can be implemented in a standardised way:
+	- a constructor which takes a partial object
+	- methods which fill the partial object and return the next step instantiated with the partial object
+	- if optional step, an additional method which directly returns the next step, like thenConfiguringX() (a generic then() is not recommended, see later why)
+	- the partial object can be the final instance (mutable) or an heterogeneous container to apply at the end (immutable).
+	- if a particular operation is decided through a sequence of steps, the initial partial object (parent) remains unchanged during the sequence, an additional partial object (child) is used for the sequence, at the end of the sequence the parent object is filled based on the child object and the child object is forgotten.
+
+Inconvenients:
+- several classes need to be implemented instead of one, thus increasing the complexity of the "builder" itself.
+-->
+</p>
+
+<p>
+<!-- TODO Summary
+If the builder is simple, the problem is first in using the builder: prefer to use a factory method and reserve builders for more complex instances. If the builder is complex, then it is not worth making several classes if there is mainly independent steps. If there is only independent steps, then recalling the same method or changing the order is not a problem, thus it is not worth it. The worth comes with the need to ensure the coherence of the calls. Another way to deal with such a complexity is to split the building process, to make it more progressive, which is not a bad idea either. If it is not possible (i.e. constrained context) or if such a split would be even more complex, then it can be worth to implement such a structure.
+
+
+TODO <a href="https://en.wikipedia.org/wiki/Creational_pattern">Creational patterns</a> group different kinds of creations, look for other kinds of groups to see which ones we could cite
+-->
+</p>
+
+<h3 id="implementation-evolution">Prepare for Evolution</h2>
+
+<p>
+<!-- TODO Add a step:
+- mandatory: compilation fails and it's OK, because we want people to add it, repeatable or not.
+- optional: compilation fails ans it's not OK for people ignoring it, because they will need to change their code to explicitly ignore what they did not need, and thus change their code to do exactly the same thing. Instead, you should add the method which passes to the new optional step, maintain (and deprecate) the method which passes to the old next step by indicating that it should call the other and explicitly ignore the new one. Whether or not the step is repeatable is irrelevant, because only the ignoring case, which is common, is impacted.
+-->
+</p>
+
+<p>
+<!-- TODO Remove a step:
+- mandatory: compilation fails and it's OK because you don't want it to be here anymore, repeatable or not
+- optional: compilation fails and it's not OK for people already ignoring it, so instead you should remove all the methods but the ignoring one (the ones using it fails and it's OK), deprecate the ignoring method by telling that it should be removed, maintain (but deprecate) in the previous class the method which leads to the obsolete next step and add another method which leads to the step after that, which means that it should have another name. The best is to not use a common name, but a name specific to the next step, like thenConfiguringX() instead of a generic then(), so we can easily manage this situation. Whether or not the step is repeatable is irrelevant, because only the ignoring case, which is common, is impacted.
+-->
+</p>
+
+<p>
+<!-- TODO Change a step:
+- from mandatory to optional: a method to ignore it has been added, does not fail and it's OK, because people only needed it before.
+- from optional to mandatory: the ignoring method has been removed, fails for those ignoring it and it's OK, because they must now use it.
+- from non repeatable to repeatable: TODO
+- from repeatable to non repeatable: TODO
+-->
+</p>
+
+<h2 id="requirements">Requirements and Recommendations</h2>
+
+<p>
+<!-- TODO Requirements -->
+</p>
+
+<p>
+<!-- TODO Recommendations -->
+</p>
+
+<h2 id="comparisons">Related Structures</h2>
+
+<p>
+<!-- TODO Summary -->
+</p>
+
+<h3 id="comparisons-factory">Factory</h2>
+
+<p>
+<!-- TODO
+<a href="https://en.wikipedia.org/wiki/Factory_method_pattern">factory method</a>
+<a href="https://en.wikipedia.org/wiki/Factory_(object-oriented_programming)">factory</a>
+-->
+</p>
+
+<h3 id="comparisons-pipeline">Pipeline</h2>
+
+<p>
+<!-- TODO
+A builder is highly similar to a [pipeline](https://en.wikipedia.org/wiki/Pipeline_(software)). The main difference is that a pipeline operate successive *transformations*, while a builder operates successive *aggregations*. We enter a pipeline with some data, each step refines it, and we exit the pipeline with a different data. We enter a builder with nothing, each step acquires new data, and we exit the builder with a whole instance.
+
+Make a picture to illsutrate both cases.
+-->
+</p>
+
+<!--****************************************************************************************-->
+To produce a result through a method, 3 questions need to be answered:
+- WHAT to process: what to provide as arguments of a method
+- HOW to process: the code of the method
+- WHEN to process: where to call the method
+
+One may think about what to receive (the result), but it is decided based on what to process and how to process it.
+
+Each question can be answered by two authorities:
+- the current programmer
+- another programmer (e.g. the maintainer of a library)
+
+These authorities are exclusive: whether you have control on it, whether you don't. Or to be softer, whether you choose to do it yourself, whether you delegate it to someone else.
+
+Depending on the goal we want to achieve
+
++----+---+----+-----------------------------------------+-----------------------------------------------+
+|WHAT|HOW|WHEN|Create...                                |Use...                                         |Context
++----+---+----+-----------------------------------------+-----------------------------------------------+
+|    |   |    |Nothing                                  |Another's program                              |Use application
++----+---+----+-----------------------------------------+-----------------------------------------------+
+|    |   | X  |                                         |                                               |
++----+---+----+-----------------------------------------+-----------------------------------------------+
+|    | X |    |Callback, utilitary method               |Template method pattern                        |Fill (i.e. extends to complete) template method pattern
++----+---+----+-----------------------------------------+-----------------------------------------------+
+|    | X | X  |Controlled builder, pipeline             |                                               |<- Create controlled builder
++----+---+----+-----------------------------------------+-----------------------------------------------+
+| X  |   |    |                                         |Controlled builder, pipeline                   |<- Use controlled builder
++----+---+----+-----------------------------------------+-----------------------------------------------+
+| X  |   | X  |Template method pattern                  |Callback, utilitary method                     |Create template method pattern
++----+---+----+-----------------------------------------+-----------------------------------------------+
+| X  | X |    |                                         |                                               |
++----+---+----+-----------------------------------------+-----------------------------------------------+
+| X  | X | X  |Everything                               |Nothing                                        |
++----+---+----+-----------------------------------------+-----------------------------------------------+
+<!--****************************************************************************************-->
+Sequential builder:
+- one class for each property
+- set each property in designed order
+- enforce to provide all properties
+- forbid redefinition
+- more suited for fixed, small number of properties
+
+Parallel builder:
+- one class for all properties
+- set any property in any order
+- can use default values for missing properties
+- allow redefinition
+- more suited for variable number of properties
+<!--****************************************************************************************-->
+<h3 id="factory">Just want an instance? Use a factory.</h3>
+
+<p>
+Assuming that we are creating a graphical interface, we may use a factory to instantiate a button.
+For this purpose, the simplest way is to use a simple factory through a <a href="https://en.wikipedia.org/wiki/Factory_method_pattern">factory method</a>:
+<p>
+<code>Button createButton()</code>
+
+<p>
+If some customisation is required, parameters may be added, for example to tell what the button should do when we click on it:
+</p>
+<code>Button createButton(Action action)</code>
+
+<p>
+Such a method may be implemented directly in the class, by factoring all the steps required to instantiate the button.
+It might also be implemented in a separate factory class, which centralises these methods for reuse.
+It might also come from an abstract class or interface, with several implementations available.
+In this latter case, we might have an implementation returning a <code>OldFashionedButton</code> for old, grey-ish components, and another implementation returning a <code>GlowingButton</code> for a graphical interface using specific light effects.
+In any case, the instance returned will be considered as a <code>Button</code> instance by the caller, meaning that we abstract from the concrete implementation.
+</p>
+
+<p>
+There is several advantages to a factory method, the most obvious one being the simplification of the code: the code factored into the method can be named simply to tell what is created, making the code calling it particularly straightforward.
+It also makes the code easy to reuse elsewhere and, because it is centralised in one place, it reduces redundancy when fixing or improving the code.
+It also supports further abstraction: a high level abstract class (or interface with default methods since Java 8) can implement a high level algorithm without caring about what the underlying implementation is.
+Any required instantiation can be requested through the factory methods implemented by child classes.
+A factory method can also hide a more complex management, like a pool of reusable instances, the <a href="https://en.wikipedia.org/wiki/Singleton_pattern">singleton</a> being a particular case of a pool with a unique object.
+</p>
+
+<p>
+Of course, factories come with their drawbacks, making them unsuited for some situations.
+If factories are suited for abstracted levels by hiding the details, they naturally become too limited in lower levels of abstractions, where the details should be managed.
+In particular, many factory methods or parameters may be required to cope with all the possibilities, which makes a factory hard to implement and use.
+<!--TODO add some more-->
+</p>
+
+<h3 id="builder">Want to set up a process? Use a builder.</h3>
+
+<p>
+A <a href="https://en.wikipedia.org/wiki/Builder_pattern">builder</a> is an object which stores data or execute processes to prepare the instantiation of another object.
+Typically, one will first instantiate a builder, set the relevant properties, and finally create the instance.
+If we take back the example of our graphical interface, it might look like this:
+</p>
+<pre><code>
+ButtonBarBuilder builder = new ButtonBarBuilder();
+builder.addButton(new SaveButton());
+builder.addButton(new SaveAndCloseButton());
+builder.addButton(new CloseWithoutSavingButton());
+builder.alignButtonsHorizontally();
+ButtonBar bar = builder.build();
+</code></pre>
+
+<p>
+We can recognise several advantages to a builder, starting from the simplification of the code: the builder provides a systematic way to construct the instance by hiding the details of how the data is used underneath (e.g. as a parameter for the constructor or for another method called after instantiation).
+This systematicity makes the code easy to reuse elsewhere and, if the way the data is used changes, only this builder must be updated.
+By introducing an intermediary between the caller and the class to be instantiated, it also helps in abstracting the code: the caller only has to provide the data and obtain the corresponding instance.
+The builder is also a great place to implement preprocessing tasks which are common for the instances to build, allowing the caller to focus on requesting the preprocessing without managing it.
+</p>
+
+<p></p>
+However, the rich set of methods a builder provides means that the caller must be able to manage such a level of details.
+
+
+Limitations:
+
+    Requires creating a separate ConcreteBuilder for each different type of Product.
+    Requires the builder classes to be mutable.
+<!--****************************************************************************************-->
+<h1>Between Factory and Builder<!--TODO Improve title--></h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+To instantiate a class in Java, one usually uses a constructor of the class, choosing the right one depending on the parameters one wants to provide.
+If the object is rather complex, it might require to use a lot of parameters, possibly multiplying the constructors if some are optional or combines with other only in specific ways.
+In other words, complex objects need a complex instantiation phase, which can take several forms depending on how the class has been implemented.
+In such a case, one may use more advanced techniques to simplify the instantiation.
+Generic structures and procedures have been designed to help cope with such situations, in particular what we call <a href="https://en.wikipedia.org/wiki/Creational_pattern">creational patterns</a>, like the <a href="https://en.wikipedia.org/wiki/Factory_(object-oriented_programming)">factory</a>, which allows to create an instance in one call, and the <a href="https://en.wikipedia.org/wiki/Builder_pattern">builder</a>, which allows to establish a systematic process to build an instance.
+In this post, we look at both of them, see how they address different purposes, and <!--TODO-->...
+</p>
+
+<h2 id="factory-builder">Factories and Builders</h2>
+
+<p>
+<!--TODO-->
+</p>
+
+<h3 id="factory-builder-bottom-up">Bottom-up Perspective: Code Factoring</h3>
+
+<p>
+Usually, programmers start by implementing the class they need to instantiate, then improving it and making it grow in complexity.
+Depending on the class, they may consider that it is too much for a single class and split it, or that it is a needed complexity and go ahead.
+In the latter case, the growing complexity might lead to implement several constructors which, passed a (often subjective) threshold, gives the well-known feeling of "I need to simplify that stuff..."
+</p>
+
+<p>
+And here comes the enlightment: because it is so complex, programmers just copy the code over and over again to avoid restarting from scratch, producing a lot of redundancy.
+If this code is redundant, let's factor it into a single method... and the factory method is born.
+Because the complexity comes also because there is variants, several factory methods are produced to cope with the various cases, or at least the most common ones.
+After reduction, programmers may go back to their initial tasks... and make the class grow again, producing even more factory methods.
+</p>
+
+<p>
+But now, another problem is knocking at the door: this is the factory methods which become too complex, whether there is too much of them or they needed to introduce more and more parameters to cope with the small variants.
+Now, it is clear, the complexity is needed, but how to keep it as simple as possible? Here comes the builder.
+With the accumulated experience on the class to instantiate, programmers can design a builder which standardised the required steps to instantiate the object.
+By using it where there is no suited factory method, and within factory methods themselves, the builder is fixed and finalised.
+Now, programmers can code at ease: just use an existing factory method where you can, or use the builder instead.
+</p>
+
+<p>
+Through this process, factories and builders become the heroes fighting against complexity.
+Factory methods help to build instances which are common enough to motivate their own method, while builders help to cope with the rest in a standardised way.
+However, although it is a relevant perspective, it is not the only one.
+</p>
+
+
+<h3 id="factory-builder-top-down">Top-down Perspective: High Level Design</h3>
+
+<p>
+The previous perspective is only half of the whole: given that you have some code to factor, should you replace it by a single call to a factory method, or by a sequence of calls to a builder?
+This perspective can be called <em>bottom-up</em>, because it starts from an existing code (<em>bottom</em>) to factor in order to reach a higher level of abstraction (<em>up</em>).
+The other way around is <em>top-down</em>, which corresponds to high level design when the low level code is not yet available, in which case the question is: given that we have such information, should we require lower level implementations to provide a factory or a builder?
+The advantage of this perspective is that it can be used in early stage, at design time, and thus it does not require to implement concrete code, improve it, figure out that it is more complex than expected, and progressively refine it until we reach a state where we need to implement factories and builders.
+Thus, it is important to be aware of this perspective in order to exploit at best the advantages of factories and builders soon.
+</p>
+
+<p>
+First, because we are at design time, developpers need to figure out the different concepts they need to use and how these concepts should interact.
+After identifying the concepts and their interactions, they need to establish the corresponding classes and assign the responsibilities, including which class should provide/consume which data, which class should provide/use which method, and so on.
+I won't enter in the details of this process, because it is not the purpose of this post (I might write something about it later<!--TODO Relate to series about Generic Programming-->) but the interested reader can search about conceptual modelling and ontologies for further information.
+Once the classes and responsibilities are decided, the developpers can focus on introducing factories and builders to increase the independence between the classes: the classes which must provide various pieces of data to produce an instance of another class may use a builder, while classes which only require an instance may use a factory.
+</p>
+
+<p>
+Let's take the example of a class reading a <a href="https://en.wikipedia.org/wiki/Comma-separated_values">CSV text</a>, with the aim of building a table out of it.
+We want to make a high level reader by abstracting on 2 aspects.
+First, it takes the stream of CSV characters without knowing where it comes from, so it could be an internal string, a file content, or something else.
+Second, it builds a table without knowing which kind, so it could be a textual table for a file, a graphical one for the screen or any other kind of table.
+In other words, this reader focuses on processing the CSV in input to translate it into a sequence of steps to build a table.
+<!--TODO-->
+
+<a href="17-CsvProcessor.java">Java file</a>
+<a href="17-CsvProcessorTest.java">Java test file</a>
+
+To remain at a high level, the <em>window</em> will be implemented as an abstract class, with some abstract methods to be implemented by child classes.
+The independence is chosen to be introduced for both the <em>input</em> and the <em>table</em> construction.
+To operate correctly, the <em>window</em> needs to read the <em>input</em>, then build the <em>table</em>, and display it.
+It can require the <em>input</em> by requesting a factory which provides an <code>InputStream</code> instance, such that child classes can provide the input from a file or other inputs.
+It can build the <em>table</em> by requesting a builder: the <em>window</em> is in charge of the design of the <em>table</em>, and thus is the one to decide how the builder should be used.
+</p>
+
+<p>
+A simple implementation of this class can start from the concept of <em>window</em>, which corresponds to an interface to implement:
+</p>
+<pre><code>
+public interface Window {
+	public void build();
+	public void display();
+}
+</code></pre>
+
+<p>
+The first method builds the content of the <code>Window</code>, and the second one display it on the screen.
+We will focus on the first one for our example and implement the abstract class which display a table:
+</p>
+<pre><code>
+public abstract class CsvProcessor {
+
+	// Factory method for the input stream
+	protected abstract InputStream createInputStream();
+
+	// Builder definition
+	public static interface TableBuilder {
+		public void addColumn(int column, String title);
+
+		public void addCell(int row, int column, String value);
+
+		public void build();
+	}
+
+	// Factory method for the builder
+	protected abstract TableBuilder createTableBuilder();
+
+	public void process() {
+		// Get the input stream to read
+		InputStream inputStream = createInputStream();
+		
+		// Get the builder to use
+		TableBuilder builder = createTableBuilder();
+		
+		// Read stream to feed builder
+		boolean isHeader = true;
+		int row = 0;
+		int column = 0;
+		do {
+			CsvItem item = readNextItem(inputStream);
+			if (item.separator == Separator.COMA) {
+				if (isHeader) {
+					builder.addColumn(column, item.value);
+					column++;
+				} else {
+					builder.addCell(row, column, item.value);
+					column++;
+				}
+			} else if (item.separator == Separator.NEWLINE) {
+				if (isHeader) {
+					builder.addColumn(column, item.value);
+					row = 0;
+					column = 0;
+					isHeader = false;
+				} else {
+					builder.addCell(row, column, item.value);
+					row++;
+					column = 0;
+				}
+			} else {
+				throw new RuntimeException("Unmanaged separator: " + item.separator);
+			}
+		} while (inputStream.available() != 0);
+		inputStream.close();
+		
+		// Build instance
+		builder.build();
+	}
+
+	private CsvItem readNextItem(InputStream inputStream) throws IOException {/* Read stream */}
+
+	private enum Separator {
+		COMA, NEWLINE
+	}
+
+	private class CsvItem {
+		String value;
+		Separator separator;
+	}
+
+}
+</code></pre>
+
+<p>
+</p>
+<pre><code>
+</code></pre>
+
+<p>
+<!--TODO Compare with previous perspective: we focus on conceptual soundness, not implementation complexity-->
+</p>
+
+<h2 id="controlled-builder">Controlled Builder</h2>
+
+<!--TODO Revise all what was written before: don't speak much about factories and builders before and detail the link after-->
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<!--
+<li id="Prindle1948">
+	Prindle, Lester M.
+	<cite>Some Negative Prefixes in English</cite>,
+	The Classical Weekly 41, no. 9 : 130,
+	<time datetime="1948">1948</time>.
+	DOI:<a href="https://dx.doi.org/10.2307/4342404">10.2307/4342404</a>
+</li>
+<li id="Goguen1984">
+	Goguen, Joseph A.
+	<cite>Parameterized Programming</cite>,
+	IEEE Transactions on Software Engineering SE-10, no. 5, 528–43,
+	<time datetime="1984-09">1984-09</time>.
+	DOI: <a href="https://dx.doi.org/10.1109/TSE.1984.5010277">10.1109/TSE.1984.5010277</a>
+</li>
+<li id="MusserStepanov1989">
+	Musser, David R., and Alexander A. Stepanov.
+	<cite>Generic Programming</cite>,
+	Symbolic and Algebraic Computation, edited by P. Gianni, 358:13–25. Berlin, Heidelberg: Springer Berlin Heidelberg,
+	<time datetime="1989">1989</time>.
+	DOI: <a href="https://dx.doi.org/10.1007/3-540-51084-2_2">10.1007/3-540-51084-2_2</a>
+</li>
+<li id="Vergne2017">
+	Vergne, Matthieu.
+	<cite>Artificial Intelligence and Expertise: The Two Faces of the Same Artificial Performance Coin</cite>,
+	Workshops at the Thirty-First AAAI Conference on Artificial Intelligence,
+	<time datetime="2017">2017</time>.
+	URL: <a href="http://www.aaai.org/ocs/index.php/WS/AAAIW17/paper/view/15148">http://www.aaai.org/ocs/index.php/WS/AAAIW17/paper/view/15148</a>
+</li>
+-->
+</ul>
+
+</body>
+</html>
