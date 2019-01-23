@@ -9,9 +9,14 @@ class BlogPage extends InternalPage {
 	}
 	
 	private function expandEntryLinks($content) {
-		$content = preg_replace_callback('#href="entry:([0-9]+)"#', function($matches) {
+		$content = preg_replace_callback('/href="entry:([0-9]+)(?:#([^"]*))?"/', function($matches) {
 			$localUrl = Url::getCurrentUrl();
 			$localUrl->setQueryVar('entry', $matches[1]);
+			if (sizeof($matches) > 2) {
+				$localUrl->set(URL_FRAGMENT, $matches[2]);
+			} else {
+				// No fragment
+			}
 			return 'href="'.$localUrl.'"';
 		}, $content);
 		
