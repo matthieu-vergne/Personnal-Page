@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Limited Static Method</h1>
+
+<h2 id="context">Context</h2>
+
+&lt;TODO: Describe the context which makes the question worth.&gt;
+
+
+<h2 id="question">Problem</h2>
+
+&lt;TODO&gt;
+
+<p>
+	For example, you face this situation when all your parameters do not have <a href="entry:28">the same scope</a>.
+</p>
+<p>
+	It is not about the simple need of adding a new parameter.
+	If the parameter is meaningful and worth to add to all the calls of the method, then just add it.
+	The point is that you want some specific customization here, without having to do it elsewhere.
+</p>
+
+<h2 id="method">Solution</h2>
+
+&lt;TODO&gt;
+
+<p>
+	Adapt a static method <code>MyClass.doStatic()</code> into a non static <code>new MyClass().doRegular()</code> method in order to add parameters without changing the signature of the method:
+</p>
+<ol>
+	<li>Create non static method <code>doRegular()</code> in the class</li>
+	<li>Create a static instance of <code>MyClass</code> (<code>static final MyClass instance = new MyClass()</code>)</li>
+	<li>Fill <code>doRegular()</code>:
+		<ol>
+			<li>Copy the content of <code>doStatic()</code> in <code>doRegular()</code></li>
+			<li>Replace the content of <code>doStatic()</code> by a call to <code>instance.doRegular()</code></li>
+		</ol>
+	</li>
+	<li>Add your new parameters:
+		<ol>
+			<li>Extract the element to customize in <code>doRegular()</code> into a final field of <code>MyClass</code></li>
+			<li>Add a parameter to the constructor of <code>MyClass</code> to fill this field</li>
+			<li>Set the current value on the static instance of <code>MyClass</code></li>
+		</ol>
+	</li>
+	<li>Keep <code>doStatic()</code> as a default behaviour, or replace it iteratively by <code>doRegular()</code>:
+		<ol>
+			<li>Deprecate <code>doStatic()</code></li>
+			<li>Iteratively replace its calls by the corresponding <code>new MyClass(...).doRegular()</code></li>
+			<li>Remove the deprecated <code>doStatic()</code> when you feel confident not to break anything</li>
+		</ol>
+	</li>
+</ol>
+<p>
+	Now you can add more parameters to the constructor of <code>MyClass</code> without changing the signature of the methods.
+	Only the situations needing to change these parameters need their own instance of <code>MyClass</code>.
+</p>
+
+<h2 id="answer">Limitations</h2>
+
+&lt;TODO&gt;
+
+<h2 id="links">Related Questions</h2>
+
+&lt;TODO: Links to other questions.&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="id">Authors. <cite>Title</cite>, publication, <time datetime="date">date</time>. doi:<a href="https://dx.doi.org/xxx">xxx</a></li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Parameter Scoping</h1>
+
+<h2 id="context">Context</h2>
+
+&lt;TODO: Describe the context which makes the question worth.&gt;
+
+<h2 id="question">Problem</h2>
+
+&lt;TODO&gt;
+
+<h2 id="method">Solution</h2>
+
+&lt;TODO&gt;
+
+<h3 id="life-time">Different life time</h3>
+
+<p>
+	Ask yourself: are all these parameters known at the same time?
+</p>
+<p>
+	If it is often the case that some parameters are known before the others, then they have a different scope.
+	For instance, a method <code>order(List&lt;Item&gt; items, PaymentMethod method)</code> may have parameters with different scopes.
+	Usually, you let the customer identify several items to buy, and only at the end you ask for the payment method, when the customer is ready to pay.
+	Considering both of them at the end imposes additional effort to maintain the items until then.
+	It would be more interesting to add the products progressively and to only ask the payment method at the end:
+</p>
+<pre><code>
+	Order order = new Order();
+	...
+	order.add(item);
+	...
+	order.pay(PaymentMethod method);
+</code></pre>
+
+<h3 id="life-span">Different life span</h3>
+
+<p>
+	Ask yourself: do all these parameters change a the same time?
+</p>
+<p>
+	If it is often the case that some parameters are prone to change more often than others, then they have a different scope.
+	For instance, a method <code>log(String methodName, String message)</code> have parameters with different scopes.
+	The name of the method is constant for all the logs in the same method, while the message changes every time in this method.
+	Consequently, it would be interesting to specify the method name once, at the beginning, and only the different messages at each call:
+</p>
+<pre><code>
+	Logger logger = new Logger(methodName);
+	
+	logger.log("Start");
+	...
+	logger.log("Intermediate state");
+	...
+	logger.log("Done");
+</code></pre>
+
+<h2 id="answer">Limitations</h2>
+
+&lt;TODO&gt;
+
+<h2 id="links">Related Questions</h2>
+
+&lt;TODO: Links to other questions.&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="id">Authors. <cite>Title</cite>, publication, <time datetime="date">date</time>. doi:<a href="https://dx.doi.org/xxx">xxx</a></li>
+</ul>
+
+</body>
+</html>

@@ -12,6 +12,10 @@ Ensure that padding and borders shrink content instead of extending size.
 body {
 }
 
+code {
+	color: #00F;
+}
+
 div {
 	margin: 0;
 	padding: 0;
@@ -108,6 +112,10 @@ div.toggleButton {
 	color: #FFF;
 	border: 1px solid blue;
 	clear: both;
+}
+
+table.left-table tbody tr td {
+	text-align: left !important;
 }
 
 /* For mobile phones: */

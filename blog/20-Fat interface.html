@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Flat Interface</h1>
+
+<h2 id="context">Context</h2>
+
+&lt;TODO: Describe the context which makes the question worth.&gt;
+
+<p>
+Running example: <a href="https://www.slf4j.org/apidocs/index.html">SLF4J's <code>Logger</code> interface</a>.
+It has methods for 5 levels:
+</p>
+<ul>
+<li>debug</li>
+<li>error</li>
+<li>info</li>
+<li>trace</li>
+<li>warn</li>
+</ul>
+
+<p>
+However, each level comes with 10 variants:
+</p>
+<table class="left-table">
+	<thead>
+		<tr><th>Variant</th><th>Description</th></tr>
+	</thead>
+	<tbody>
+		<tr><td><code>String msg</code></td><td>Log a message at the specific level.</td></tr>
+		<tr><td><code>String msg, Throwable t</code></td><td>Log an exception (throwable) at the specific level with an accompanying message.</td></tr>
+		<tr><td><code>String format, Object arg</code></td><td>Log a message at the specific level according to the specified format and argument.</td></tr>
+		<tr><td><code>String format, Object arg1, Object arg2</code></td><td>Log a message at the specific level according to the specified format and arguments.</td></tr>
+		<tr><td><code>String format, Object... arguments</code></td><td>Log a message at the specific level according to the specified format and arguments.</td></tr>
+		<tr><td><code>Marker marker, String msg</code></td><td>Log a message with the specific Marker at the specific level.</td></tr>
+		<tr><td><code>Marker marker, String msg, Throwable t</code></td><td>This method is similar to <code>&lt;String, Throwable&gt;</code> method except that the marker data is also taken into consideration.</td></tr>
+		<tr><td><code>Marker marker, String format, Object arg</code></td><td>This method is similar to <code>&lt;String, Object&gt;</code> method except that the marker data is also taken into consideration.</td></tr>
+		<tr><td><code>Marker marker, String format, Object arg1, Object arg2</code></td><td>This method is similar to <code>&lt;String, Object, Object&gt;</code> method except that the marker data is also taken into consideration.</td></tr>
+		<tr><td><code>Marker marker, String format, Object... arguments</code></td><td>This method is similar to <code>&lt;String, Object...&gt;</code> method except that the marker data is also taken into consideration.</td></tr>
+	</tbody>
+</table>
+
+<p>
+Moreover, each level comes also with 2 methods <code>isXxxEnabled</code>:
+</p>
+<table class="left-table">
+	<thead>
+		<tr><th>Variant</th><th>Description</th></tr>
+	</thead>
+	<tbody>
+		<tr><td><code>∅</code></td><td>Is the logger instance enabled for the specific level?</td></tr>
+		<tr><td><code>Marker marker</code></td><td>Similar to <code>&lt;∅&gt;</code> method except that the marker data is also taken into account.</td></tr>
+	</tbody>
+</table>
+
+<p>
+Finally, an additional <code>getName</code> method come to close it up.
+In total, we reach no less than 61 methods to implement.
+</p>
+
+<img src="https://www.slf4j.org/images/logos/slf4j-logo.jpg" alt="SLF4J's logo: SLF4J, Simple Logging Facade for Java"/>
+
+<p>Simple? Did I read correctly?</p>
+
+<h2 id="question">Problem</h2>
+
+<p>
+We call such a huge interface a "fat interface".
+We also speak about <a href="https://en.wikipedia.org/wiki/Interface_bloat">interface bloat</a>.
+Implementing it is a tedious and frustrating job.
+Even more when its only purpose is as simple as logging.
+</p>
+
+<p>
+Let's say for example you need to implement some tests for a method.
+After some challenges, you reach a state where several tests ensures a satisfying coverage of your method.
+But here is the point: your method does some complex stuff, and you would like to log what you are doing to ease the debugging.
+Of course, it is not the method which should decide how to log, especially since this method is part of a bigger whole which would profit of a common logging logics.
+So you go for adding the logger instance as an argument of your method.
+</p>
+
+<p>
+Then come the design question: what should you put in the logger interface?
+You don't need much, but you don't want to do something wrong, since you want to reuse it in your whole app.
+And here come the answer: a well known logging library, promoted by all your friends, provides already all what you need.
+Here comes SLF4J!
+</p>
+
+<p>
+But here is the point: with its 61 methods, you cannot afford to instantiate an anonymous class of <code>Logger</code> in each test.
+Actually, creating a common implementation in your test class is probably a no-go either: you may spend more lines making this implementation than actually testing your single method.
+You may create a generic implementation in a separate file, which does nothing, but... oh gosh! 61 methods!
+Hey! Wait! SLF4J already has a <a href="https://www.slf4j.org/apidocs/index.html"><code>NOPLogger</code></a> which does exactly that!
+That was a cold sweat!
+Unfortunately, the <code>NOPLogger</code> uses a <a alt="TODO: linked with post about singleton anti-pattern">singleton anti-pattern</a>, but let's go with that.
+So we can instantiate the loggers in all our tests with <code>NOPLogger.NOP_LOGGER</code>.
+</p>
+
+<p>
+Nice, your functional tests are now good to go.
+But since you can log relevant information, it would be nice to ensure you actually do so.
+So now is time to add tests about your logging behaviors!
+All you need is to create an instance of <code>NOPLogger</code> and override... Uh!?
+OK, we know there is no <code>public</code> constructor because of the singleton, but we can trick that by creating a class which extends it, since the constructor is <code>protected</code> and the class is not <code>final</code>.
+This way, we can have our own <code>public</code> constructor and create anonymous instances.
+But still, we cannot override the methods: <em>they</em> are all <code>final</code>!
+</p>
+
+<p>
+Sorry bro, now you cannot go on without making your own, full implementation of <code>Logger</code>.
+Although it is not elegant, you can go for a brutal copy-pasting of the <code>NOPLogger</code> in your own code.
+At least, the <a href="https://www.slf4j.org/license.html">SLF4J's license</a> allows you to do so.
+</p>
+
+<h2 id="method">Solution</h2>
+
+<p>
+You may create your own interface, and rely on <a href="https://en.wikipedia.org/wiki/Adapter_pattern">adapters</a> to use SLF4J's implementations.
+That is the way to go if we follow the <a href="https://en.wikipedia.org/wiki/Interface_segregation_principle">interface segregation principle</a>.
+But still, it does not tell you exactly what interfaces you should make.
+You may go the extreme way, and make a dedicated interface for this method with only the meethods you need there.
+But you may need a lot of adapters in order to cover all the cases in your app.
+You may prefer instead to focus on a single interface containing the few methods you will need in all your app.
+Still, you may reach a state where you add progressively more and more methods until it looks like a SLF4J's <code>Logger</code>.
+Where is the right balance? Should it be arbitrary?
+</p>
+
+TODO
+
+Provider:
+interface for basic need
+interface for variant
+factory to instantiate variant from basic implementation (can be static method of variant interface)
+
+User:
+if several variants needed:
+- interface combining all needed variants
+- implementation building on basic implementation + variants implementations obtained from factories
+
+<h2 id="answer">Limitations</h2>
+
+&lt;TODO&gt;
+
+<h2 id="links">Related Questions</h2>
+
+&lt;TODO: Links to other questions.&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="id">Authors. <cite>Title</cite>, publication, <time datetime="date">date</time>. doi:<a href="https://dx.doi.org/xxx">xxx</a></li>
+</ul>
+
+</body>
+</html>

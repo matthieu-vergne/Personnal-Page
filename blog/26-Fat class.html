@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>Flat Class</h1>
+
+<h2 id="context">Context</h2>
+
+&lt;TODO: Describe the context which makes the question worth.&gt;
+
+<h2 id="question">Problem</h2>
+
+&lt;TODO&gt;
+
+<h2 id="method">Solution</h2>
+
+&lt;TODO&gt;
+
+<p>
+	Group some methods of <code>FatClass</code> into a new <code>ExtractClass</code> class:
+</p>
+<ol>
+	<li>Create inner class <code>ExtractClass</code> in <code>FatClass</code></li>
+	<li>Create and instantiate a field <code>final ExtractClass ex</code> in <code>FatClass</code></li>
+	<li>Fill <code>ExtractClass</code>:
+		<ol>
+			<li>Copy method <code>FatClass.x()</code> in <code>ExtractClass</code></li>
+			<li>Replace content of <code>FatClass.x()</code> by call to <code>ex.x()</code></li>
+		</ol>
+	</li>
+	<li>Decouple <code>FatClass</code> and <code>ExtractClass</code>:
+		<ol>
+			<li>Make the <code>ExtractClass</code> static</li>
+			<li>Resolve each dependency error:
+				<ul>
+					<li>If only used by <code>ExtractClass</code>, consider moving it there</li>
+					<li>Otherwise provide <code>FatClass</code> elements to the constructor of <code>ExtractClass</code>:
+						<ul>
+							<li>Provide instances directly if it is effectively final, or through a <code>Supplier</code> if a single instance should be maintained.</li>
+							<li>Provide methods through dedicated interfaces.</li>
+						</ul>
+					</li>
+					<li>The main idea is for <code>ExtractClass</code> to not depend on <code>FatClass</code> at all, so no direct use of <code>FatClass</code> members or methods.</li>
+				</ul>
+			</li>
+			<li>Make public the methods of <code>ExtractClass</code> required by <code>FatClass</code></li>
+			<li>Move <code>ExtractClass</code> into its own file</li>
+		</ol>
+	</li>
+	<li>Keep <code>FatClass</code> as a <a href="https://en.wikipedia.org/wiki/Facade_pattern">façade</a>, or replace it iteratively by <code>ExtractClass</code>:
+		<ol>
+			<li>Deprecate the <code>FatClass</code> elements to remove</li>
+			<li>Iteratively replace them by the corresponding <code>ExtractClass</code> elements</li>
+			<li>Remove the deprecated <code>FatClass</code> elements when you feel confident not to break anything</li>
+		</ol>
+	</li>
+</ol>
+
+<h2 id="answer">Limitations</h2>
+
+&lt;TODO&gt;
+
+<h2 id="links">Related Questions</h2>
+
+&lt;TODO: Links to other questions.&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="id">Authors. <cite>Title</cite>, publication, <time datetime="date">date</time>. doi:<a href="https://dx.doi.org/xxx">xxx</a></li>
+</ul>
+
+</body>
+</html>
