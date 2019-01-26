@@ -21,6 +21,7 @@ class HomePage extends InternalPage {
 			"Nationality" => "French",
 			"LinkedIn" => Format::toHtmlUrl("http://www.linkedin.com/pub/matthieu-vergne/41/832/bb8"),
 			"ResearchGate" => Format::toHtmlUrl("https://www.researchgate.net/profile/Matthieu_Vergne"),
+			"Google Scholar" => Format::toHtmlUrl("https://scholar.google.com/citations?user=qpUf7jQAAAAJ"),
 			"OrcidID" => Format::toHtmlUrl("https://orcid.org/0000-0003-3740-7851"),
 			"GitHub" => Format::toHtmlUrl("https://github.com/matthieu-vergne"),
 			"Google+" => Format::toHtmlUrl("https://www.google.com/+MatthieuVergne"),
