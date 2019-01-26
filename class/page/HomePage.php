@@ -9,6 +9,10 @@ class HomePage extends InternalPage {
 	}
 	
 	public function getContent() {
+		$formatter = new HtmlFormatter();
+		$formatUrl = function($url) use($formatter) { return $formatter->toHtmlUrl($url); };
+		$formatEmail = function($email) use($formatter) { return $formatter->toHtmlEmail($email); };
+	
 		$content = "";
 		
 		$url = Resource::getResource(0)->getFileUrl();
@@ -19,12 +23,12 @@ class HomePage extends InternalPage {
 			"Surname" => "Matthieu",
 			"Family name" => "Vergne",
 			"Nationality" => "French",
-			"LinkedIn" => Format::toHtmlUrl("http://www.linkedin.com/pub/matthieu-vergne/41/832/bb8"),
-			"ResearchGate" => Format::toHtmlUrl("https://www.researchgate.net/profile/Matthieu_Vergne"),
-			"Google Scholar" => Format::toHtmlUrl("https://scholar.google.com/citations?user=qpUf7jQAAAAJ"),
-			"OrcidID" => Format::toHtmlUrl("https://orcid.org/0000-0003-3740-7851"),
-			"GitHub" => Format::toHtmlUrl("https://github.com/matthieu-vergne"),
-			"Google+" => Format::toHtmlUrl("https://www.google.com/+MatthieuVergne"),
+			"LinkedIn" => $formatUrl("http://www.linkedin.com/pub/matthieu-vergne/41/832/bb8"),
+			"ResearchGate" => $formatUrl("https://www.researchgate.net/profile/Matthieu_Vergne"),
+			"Google Scholar" => $formatUrl("https://scholar.google.com/citations?user=qpUf7jQAAAAJ"),
+			"OrcidID" => $formatUrl("https://orcid.org/0000-0003-3740-7851"),
+			"GitHub" => $formatUrl("https://github.com/matthieu-vergne"),
+			"Google+" => $formatUrl("https://www.google.com/+MatthieuVergne"),
 		);
 		
 		foreach($data as $type => $value) {
@@ -70,7 +74,7 @@ class HomePage extends InternalPage {
 		}
 		$buttonClass = "toggleButton";
 		$buttonFunction = "toggle(\"obsoleteMails\", \"obsoleteMailsOn\", \"obsoleteMailsOff\")";
-		$content .= "<p>You can contact me through my principal e-mail ".Format::toHtmlEmail("matthieu.vergne@gmail.com").". Other e-mails which are currently valid:</p>";
+		$content .= "<p>You can contact me through my principal e-mail ".$formatEmail("matthieu.vergne@gmail.com").". Other e-mails which are currently valid:</p>";
 		$content .= "<ul id='otherMails'>$listValid</ul>";
 		$content .= "<p>If you know me through another e-mail address, it is probably obsolete.</p>";
 		$content .= "<div class='$buttonClass' onclick='$buttonFunction' id='obsoleteMailsOn'>Show obsolete e-mails</div>";
