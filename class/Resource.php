@@ -1,14 +1,14 @@
 <?php
 class Resource {
-	public static function getResource($id) {
-		$files = glob('resource/'.$id.'-*');
+	public static function getResource($resourceId) {
+		$files = glob('resource/'.$resourceId.'-*');
 		if (count($files) > 1) {
-			throw new Exception("Several resources have the same ID $id: ".array_reduce($files, function($result, $item) {
+			throw new Exception("Several resources have the same ID $resourceId: ".array_reduce($files, function($result, $item) {
 				$file = basename($item);
 				return $result == null ? $file : $result.', '.$file;
 			}));
 		} else if (count($files) < 1) {
-			throw new Exception("No resource have the ID $id.");
+			throw new Exception("No resource have the ID $resourceId.");
 		} else {
 			return new Resource($files[0]);
 		}
