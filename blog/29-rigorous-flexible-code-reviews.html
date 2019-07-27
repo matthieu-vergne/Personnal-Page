@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>The Win-Win Merge Request:<br/>Reconciling Utilitarism and Perfectionnism</h1>
+
+<p>
+	<!-- TODO: INTRO -->
+</p>
+
+<h2 id="context">Context</h2>
+
+<p>
+	Utilitarists focus on the immediate needs and don't bother with theoretical issues before they come forth.
+	They tend to work fast and achieve their goals, if not more, without much delays.
+	However, their code tends to be fragile and hard to maintain because of the lack of refactoring and partial testing.
+	If you have a close deadline you cannot miss, utilitarists are the way to go.
+</p>
+<p>
+	Perfectionnists tend to spend time on details to cover as many cases as possible.
+	They tend to produce reliable products which cover all the possible cases.
+	However, they are slow and rarely able to even provide an approximation of the time to spend on big tasks.
+	If you have a strong need of reliability, perfectionnists are the way to go.
+</p>
+<p>
+	These two profiles are of course extreme cases.
+	People actually tend to have a mix of both, not only due to their personnality but also to the context.
+	Some people can be globally considered as perfectionnists, while showing some quick works under certain circumstances, and vice-versa.
+	People however usually differ in how they balance both aspects, and it is possible to work in a team with one or more extreme cases.
+</p>
+
+<h2 id="problem">Problem</h2>
+
+<p>
+	The question is simple: how do you make them collaborate on the same code?
+	When an utilitarist works on the code of a perfectionnist, the merge requests are never accepted because considered incomplete or badly designed.
+	When a perfectionnist works on the code of an utilitarist, the opened issues are never resolved because no concrete case has been faced yet.
+</p>
+
+<h2 id="method">Method</h2>
+
+<h3>What should be there?</h3>
+
+<ol>
+	<li>Make it work.</li>
+	<li>Make it right.</li>
+	<li>Make it fast.</li>
+</ol>
+<p>
+	I didn't find any exact reference, but these steps are usually quoted from Kent Beck (I guess <a href="https://en.wikipedia.org/wiki/Kent_Beck">this one</a>).
+</p>
+<p>
+	People usually have different interpretations of these steps.
+	<a href="https://tknilsson.com/2018/05/25/programmer-friday-make-it-work-make-it-right-make-it-fast/">Some people</a> interpret them by first aiming for a working solution, quick and dirty, then making it tested and maintainable, and optionally improving performances if we have the time and resources.
+	<a href="https://henriquebastos.net/en_us/the-make-it-work-make-it-right-make-it-fast-misconception/">Other people</a> rather consider that all three steps should be achieved before to deliver anything at all.
+	One may also extend the interpretation to more than what is explicitly said, like <a href="https://thetombomb.com/2018/05/17/make-it-work-make-it-right-make-it-fast/">improving value</a> rather than speed.
+</p>
+<p>
+	These steps are general guidelines.
+	They can be applied at system level: you first create a POC of your software, then you go for something cleaner with proper design patterns and comprehensive tests, and you tune performance when it is used and actual bottlenecks are faced.
+	Of course, if you wait to have a big software running before to even think about refactoring and testing it properly, you may run into problems with a huge, monolithic piece of code that noone &mdash;not even you&mdash; can make it right.
+	You may instead apply them at the task level: you first create the feature, then make it clean and fast before to merge it in the whole project.
+	Although this would be the ideal case to not loose time, we may miss broader knowledge on how our feature can be used to properly identify the relevant design patterns and performance tradeoffs, leading to <a href="https://en.wikipedia.org/wiki/Program_optimization#When_to_optimize">premature optimization</a>.
+	Like any dichotomy of good practices, the truth often lies somewhere inbetween: both deserve a place in your toolbox and should be used wisely, maybe considering even more levels of granularity between the two extremes.
+</p>
+<p>
+	But the interpretation I want to focus on here is one that allows us to deal with our problem.
+	How can we achieve both perfectionnism and quick work?
+</p>
+
+<h3>Ideal Perspective: Gotta Catch 'Em All!</h3>
+
+<p>
+	Ideally, we would be able to reach the state of a completely finalized code: no bug, water clear code, best performances, and any tradeoff carefully chosen and satisfied.
+	Of course, that is an ideal case, and there is many reasons which makes it unachievable in practice, independently of all the efforts you may spend for that.
+	* How do you know you reached the best performance?
+	* benchmarks allow to compare, not to proove
+</p>
+<p>
+	Software evolves: may bring new tools to do things
+	* new libs
+	* new language tricks
+	* new languages
+</p>
+<p>
+	Hardware evolves: may bring new facilities to do things
+	* new components
+	* new instructions
+	* new architectures
+</p>
+<p>
+	Practices evolve: may bring new ways to do things
+	* new design patterns
+	* new perspectives/paradigms
+</p>
+<p>
+	Needs evolve: may bring new requirements
+	* better understanding of actual needs
+	* changed practices
+	* changed strategies
+</p>
+<p>
+	Briefly, the ideal case is not going to happen.
+	Or if you think you reached it, then you probably overlooked some of the points detailed above.
+	But don't think it makes it useless: although it is not reachable, it also means that there is always room to improve.
+	In other words, you should consider that 
+</p>
+<!-- TODO -->
+
+<h3>Perfectionnist Perspective: No More Visible Improvements.</h3>
+
+<p>
+	
+</p>
+<!-- TODO -->
+
+<h3>Utilitarist Perspective: You Got What You Asked For.</h3>
+
+<!-- TODO -->
+
+<h2 id="solution">Solution</h2>
+
+<table style="margin: auto;">
+	<tr>
+		<th></th>
+		<th>Step</th>
+		<th>Validation</th>
+		<th>Aim for<br>Deadline</th>
+		<th>Aim for<br>Feature</th>
+		<th>Aim for<br>Finalized Code</th>
+	</tr>
+	<tr>
+		<td>1</td>
+		<td>Make it work</td>
+		<td>Tests</td>
+		<td>X</td>
+		<td>X</td>
+		<td>X</td>
+	</tr>
+	<tr>
+		<td>2</td>
+		<td>Make it right</td>
+		<td>Warnings/review</td>
+		<td></td>
+		<td>X</td>
+		<td>X</td>
+	</tr>
+	<tr>
+		<td>3</td>
+		<td>Make it fast</td>
+		<td>Benchmarks</td>
+		<td></td>
+		<td></td>
+		<td>X</td>
+	</tr>
+</table>
+
+<h2 id="links">Related Questions</h2>
+
+&lt;Links to other questions.&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="id">Authors. <cite>Title</cite>, publication, <time datetime="date">date</time>. doi:<a href="https://dx.doi.org/xxx">xxx</a></li>
+</ul>
+
+<a href="https://gist.github.com/OnesimusUnbound/3064220">Other quotes</a>
+
+</body>
+</html>
