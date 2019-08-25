@@ -36,10 +36,15 @@ if ($url->hasQueryVar('redirect')) {
 <html lang="en">
 	<head>
 		<title>Matthieu Vergne's Homepage</title>
+		
 		<meta charset="utf-8">
 		<meta name="description" content="Matthieu's personal page">
 		<meta name="keywords" content="Matthieu Vergne, personal homepage">
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
+		
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+		<link href="style.css" rel="stylesheet" type="text/css" />
+		
 		<script type="text/x-mathjax-config">
 			MathJax.Hub.Config({
 				TeX: {
@@ -49,8 +54,12 @@ if ($url->hasQueryVar('redirect')) {
 			});
 		</script>
 		<script language="JavaScript" type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts.js"></script>
-		<link href="style.css" rel="stylesheet" type="text/css" />
+		
 		<?php
 			if (TEST_MODE_ACTIVATED) {
 				echo '<link href="debug-style.css" rel="stylesheet" type="text/css" />';

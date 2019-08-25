@@ -54,7 +54,7 @@ class BlogPage extends InternalPage {
 				$content = $this->expandEntryLinks($content);
 				$content = $this->expandLocalLinks($content);
 				Website::setTitle(preg_replace("#(.*<h1>)|(</h1>.*)#is", "", $content));
-				return "<div id='blog'>$content</div>";
+				return "<div id='blog' class='language-java'>$content</div>";
 			}
 		} else {
 			$content = '
