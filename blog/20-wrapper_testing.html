@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Proxy, decorator, adapter, façade, ...<br/>How to test a wrapper?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	A <em>wrapper</em> contains another instance, the <em>delegate</em>, to which it transfers any call it receives.
+	The calls of the user to a wrapper are transferred to the delegate, and the answers of the delegate are transferred back by the wrapper to the user.
+	The whole point of a wrapper is, in other words, to play as an intermediary between the user and the delegate.
+</p>
+
+<p>
+	Different types of wrappers can be designed:
+</p>
+<ul>
+	<li>
+		A <em><a href="https://en.wikipedia.org/wiki/Proxy_pattern">proxy</a></em> contains a delegate which implements the <em>same interface</em>, delegate which can be changed on demand.
+		The proxy provides a single instance to access a dynamic instance (which changes over time).
+		It may be used to delay the instanciation of the delegate.
+		<pre><code>
+			interface Foo {
+				void doSomething();
+			}
+		</code></pre>
+		<pre><code>
+			class FooProxy implements Foo {
+				private Foo delegate;
+
+				void setDelegate(Foo newDelegate) {
+					this.delegate = newDelegate;
+				}
+
+				public void doSomething() {
+					delegate.doSomething();
+				}
+			}
+		</code></pre>
+	</li>
+	<li>
+		A <em><a href="https://en.wikipedia.org/wiki/Decorator_pattern">decorator</a></em> provides <em>additional logics</em> to its delegate.
+		It can add pre-processing and post-processing, like checks, logs, etc.
+		<pre><code>
+			interface Foo {
+				void doSomething();
+			}
+		</code></pre>
+		<pre><code>
+			class FooDecorator implements Foo {
+				private final Foo delegate;
+				
+				public FooDecorator(Foo foo) {
+					this.delegate = foo;
+				}
+
+				public void doSomething() {
+					doSomethingBefore();
+					delegate.doSomething();
+					doSomethingAfter();
+				}
+
+				private void doSomethingBefore() {...}
+				
+				private void doSomethingAfter() {...}
+			}
+		</code></pre>
+	</li>
+	<li>
+		An <em><a href="https://en.wikipedia.org/wiki/Adapter_pattern">adapter</a></em> translates a <em>source interface</em> (or class) into a <em>target interface</em>.
+		It allows to use a source instance like a target instance, and it may add some translation logics to adapt the parameters and the returned value.
+		<pre><code>
+			interface Source {
+				long doSomething(char[] sourceArg);
+			}
+		</code></pre>
+		<pre><code>
+			interface Target {
+				int doItAnotherWay(String targetArg);
+			}
+		</code></pre>
+		<pre><code>
+			class SourceTargetAdapter implements Target {
+				private final Source delegate;
+
+				SourceTargetAdapter(Source source) {
+					this.delegate = source;
+				}
+
+				public int doItAnotherWay(String targetArg) {
+					char[] sourceArg = targetArg.toCharArray(); // Param translation
+					long sourceResult = delegate.doSomething(sourceArg);
+					int targetResult = (int) sourceResult;      // Result translation
+					return targetResult;
+				}
+			}
+		</code></pre>
+	</li>
+	<li>
+		A <em><a href="https://en.wikipedia.org/wiki/Facade_pattern">façade</a></em> aims for <em>simplifying interfaces</em>.
+		It may remove parameters because they always get the same value, or remove unused methods, or bring several related interfaces into a single, complete one.
+		<pre><code>
+			interface Foo {
+				void foo1(String arg1, int arg2, boolean arg3);
+				void foo2(char[] arg1, boolean arg2);
+			}
+		</code></pre>
+		<pre><code>
+			interface Bar {
+				void bar();
+			}
+		</code></pre>
+		<pre><code>
+			class FooMethodReductionFacade {
+				private final Foo foo;
+				
+				public FooMethodReductionFacade(Foo foo) {
+					this.foo = foo;
+				}
+
+				public void foo1(String arg1, int arg2, boolean arg3) {
+					foo.foo1(arg1, arg2, arg3);
+				}
+				
+				// No foo2 method because not wanted
+			}
+		</code></pre>
+		<pre><code>
+			class FooParamReductionFacade {
+				private final Foo foo;
+				private final int intArg = 0;
+				private final boolean boolArg = true;
+				
+				public FooParamReductionFacade(Foo foo) {
+					this.foo = foo;
+				}
+
+				public void foo1(String arg) {      // No param 2 &amp; 3
+					foo.foo1(arg, intArg, boolArg); // Use defaults
+				}
+
+				public void foo2(char[] arg) { // No param 2
+					foo.foo2(arg, boolArg);    // Use default
+				}
+			}
+		</code></pre>
+		<pre><code>
+			class FooBarMergingFacade implements Foo, Bar {
+				private final Foo foo;
+				private final Bar bar;
+				
+				public FooBarMergingFacade(Foo foo, Bar bar) {
+					this.foo = foo;
+					this.bar = bar;
+				}
+
+				// Expose Foo method
+				public void foo1(String arg, int arg2, boolean arg3) {
+					foo.foo1(arg, arg2, arg3);
+				}
+
+				// Expose Foo method
+				public void foo2(char[] arg, boolean arg2) {
+					foo.foo2(arg, arg2);
+				}
+
+				// Expose Bar method
+				public void bar() {
+					bar.bar();
+				}
+			}
+		</code></pre>
+	</li>
+</ul>
+
+<p>
+	Although the term of <em>wrapper</em> have been initially used only for the adapter and the decorator patterns, more specific terms exist to do the difference.
+	Their common aspect, i.e. the delegate, becomes the main aspect of the more generic concept of wrapper.
+	Since this aspect applies also to other designs, as shown above, we use the term of wrapper more broadly in this article.
+	The examples above are not the only ones, and a single class can combine several of them depending on the needs.
+	Generally speaking, any class that relies on a delegate to provide the main feature will be considered as a wrapper class in this article.
+</p>
+
+<h2 id="question">Question: how to test it?</h2>
+
+<p>
+	The wrapper, because it relies on its delegate to provide the main feature, should preserve its behaviour.
+	But different delegates my come with different behaviours, so should we test the wrapper with any possible delegate?
+	Such an objective would be unreasonable: there may have to much possibilites to properly test all the relevant behaviours.
+</p>
+
+<p>
+	Some of them implement a single interface, so we may at least test the common behaviours.
+	But since the wrapper itself does not store the logic, it would need to be tested with a specific instance.
+	Such a stratgy would also be unreasonable: we would confirm the wrapper only for a single delegate.
+	Morover, the delegate may require a huge set up effort and, since it may be already tested alone, it seems unreasonable to spend all this effort again to test the wrapper.
+</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>
+	In fact, the solution is rather trivial and systematic.
+	Indeed, the contract of a wrapper is <strong>not</strong> to provide the features of the delegate, but to wrap it.
+	This delegate is the one holding the contract of the feature to implement.
+	The only contract of the wrapper is then to properly play its intermediary role.
+	In other words, it should be tested on its ability to transfer the calls to the delegate, and transfer back the answer of this delegate.
+</p>
+
+<p>Let's take this interface as an example:</p>
+<pre><code>
+	interface Foo {
+		boolean doSomething(String arg1, int arg2);
+	}
+</code></pre>
+
+<p>And this wrapper implementation:</p>
+<pre><code>
+	class FooWrapper {
+		private final Foo delegate;
+		private final int hiddenArg = 0;
+
+		public FooWrapper(Foo foo) {
+			this.delegate = foo;
+		}
+
+		public boolean doSomething(String arg) {
+			return delegate.doSomething(arg, hiddenArg);
+		}
+	}
+</code></pre>
+
+<p>A proper test would check that, for each method:</p>
+<ul>
+<li>the parameters are correctly transferred (including translation &amp; hidden parameters) to the delegate method ;</li>
+<li>the result is correctly transferred (including translation) from the delegate method ;</li>
+<li>if no parameter nor result should be transferred, the delegate method is correctly called.</li>
+</ul>
+<pre><code>
+	public class FooWrapperTest {
+		@Test
+		public void testDoSomethingIsCorrectlyMapped() {
+			// Decide the expected values
+			String expectedShownArg = "test";
+			int expectedHiddenArg = 0;
+			boolean expectedResult = true;
+			
+			// Store the transferred values
+			String[] actualShownArg = {null};
+			Integer[] actualHiddenArg = {null};
+			FooWrapper wrapper = new FooWrapper(new Foo() {
+				public boolean doSomething(String arg1, int arg2) {
+					actualShownArg[0] = arg1;
+					actualHiddenArg[0] = arg2;
+					return expectedResult;
+				}
+			});
+			boolean actualResult = wrapper.doSomething(expectedShownArg);
+			
+			// Check they correspond
+			assertEquals(expectedShownArg, actualShownArg[0]);
+			assertEquals(expectedHiddenArg, actualHiddenArg[0], 0);
+			assertEquals(expectedResult, actualResult);
+		}
+	}
+</code></pre>
+
+<p>
+	The key point is to check that everything is properly transferred.
+	Be careful if you prefer to write the arguments assertions in the delegate method.
+	If it is not called, and you have no returned value to check, you may have a passing test without calling the delegate:
+</p>
+<pre><code>
+	class FooWrapper {
+		private final Foo delegate;
+		private final int hiddenArg = 0;
+
+		public FooWrapper(Foo foo) {
+			this.delegate = foo;
+		}
+
+		public void doSomething(String arg) {
+			<mark>// Forget to call the delegate</mark>
+		}
+	}
+</code></pre>
+<pre><code>
+	public class FooWrapperTest {
+		@Test
+		public void testDoSomethingIsCorrectlyMapped() {
+			String expectedShownArg = "test";
+			int expectedHiddenArg = 0;
+			
+			FooWrapper wrapper = new FooWrapper(new Foo() {
+				public void doSomething(String arg1, int arg2) {
+					<mark>// Never called, so no assertion fail and all is green</mark>
+					assertEquals(expectedShownArg, arg1);
+					assertEquals(expectedHiddenArg, arg2, 0);
+				}
+			});
+			wrapper.doSomething(expectedShownArg);
+		}
+	}
+</code></pre>
+
+<p>Prefer to systematically check the method is called in this case:</p>
+<pre><code>
+	public class FooWrapperTest {
+		@Test
+		public void testDoSomethingIsCorrectlyMapped() {
+			String expectedShownArg = "test";
+			int expectedHiddenArg = 0;
+			
+			<mark>boolean[] isCalled = {false};</mark>
+			FooWrapper wrapper = new FooWrapper(new Foo() {
+				public void doSomething(String arg1, int arg2) {
+					assertEquals(expectedShownArg, arg1);
+					assertEquals(expectedHiddenArg, arg2, 0);
+					
+					<mark>isCalled[0] = true;</mark>
+				}
+			});
+			wrapper.doSomething(expectedShownArg);
+			
+			<mark>assertTrue(isCalled[0]); // Fail here</mark>
+		}
+	}
+</code></pre>
+
+</body>
+</html>
