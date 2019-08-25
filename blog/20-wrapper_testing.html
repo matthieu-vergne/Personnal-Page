@@ -23,7 +23,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
 </head>
 <body id="blog" class="language-java">
-<h1>Proxy, decorator, adapter, façade, ...<br/>How to test a wrapper?</h1>
+<h1>Proxy, Decorator, Adapter, Façade, ...<br/>How to Test a Wrapper?</h1>
 
 <h2 id="context">Context</h2>
 
@@ -203,7 +203,7 @@
 	Generally speaking, any class that relies on a delegate to provide the main feature will be considered as a wrapper class in this article.
 </p>
 
-<h2 id="question">Question: how to test it?</h2>
+<h2 id="question">Question: How to Test it?</h2>
 
 <p>
 	The wrapper, because it relies on its delegate to provide the main feature, should preserve its behaviour.
@@ -218,7 +218,7 @@
 	Morover, the delegate may require a huge set up effort and, since it may be already tested alone, it seems unreasonable to spend all this effort again to test the wrapper.
 </p>
 
-<h2 id="solution">Solution</h2>
+<h2 id="solution">Solution: Focus on Data Transfer</h2>
 
 <p>
 	In fact, the solution is rather trivial and systematic.
