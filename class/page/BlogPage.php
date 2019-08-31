@@ -1,4 +1,5 @@
 <?php
+define('ENTRY_SEP', '/');
 class BlogPage extends InternalPage {
 	public function getId() {
 		return 'blog';
@@ -9,7 +10,26 @@ class BlogPage extends InternalPage {
 	}
 	
 	private function expandEntryLinks($content) {
-		$content = preg_replace_callback('/href="entry:([0-9]+)(?:#([^"]*))?"/', function($matches) {
+		// Relative to absolute entries
+		$currentIDs = $this->getCurrentEntryIDs();
+		if (count($currentIDs) == 0) {
+			$resolver = function($matches) {
+				throw new Exception("Cannot resolve relative entry on single entry: *-".$matches[1]);
+			};
+		} else {
+			array_pop($currentIDs);
+			$resolver = function($matches) use($currentIDs) {
+				$absoluteIDs = implode(ENTRY_SEP, array_merge($currentIDs, array($matches[1])));
+				if (sizeof($matches) > 2) {
+					$absoluteIDs .= $matches[2];
+				}
+				return "href=\"entry:$absoluteIDs\"";
+			};
+		}
+		$content = preg_replace_callback('~href="entry:\\.'.preg_quote(ENTRY_SEP).'(s?[0-9'.preg_quote(ENTRY_SEP).']+)(?:#([^"]*))?"~', $resolver, $content);
+		
+		// Absolute entries to valid links
+		$content = preg_replace_callback('~href="entry:(s?[0-9'.preg_quote(ENTRY_SEP).']+)(?:#([^"]*))?"~', function($matches) {
 			$localUrl = Url::getCurrentUrl();
 			$localUrl->setQueryVar('entry', $matches[1]);
 			if (sizeof($matches) > 2) {
@@ -113,20 +133,40 @@ class BlogPage extends InternalPage {
 		}
 	}
 	
-	private function getCurrentEntryFile() {
+	private function getCurrentEntryIDs() {
 		$url = Url::getCurrentUrl();
 		$entryID = $url->hasQueryVar('entry') ? $url->getQueryVar('entry') : null;
 		if ($entryID === null) {
+			return array();
+		} else {
+			return explode(ENTRY_SEP, $entryID);
+		}
+	}
+	
+	private function getCurrentEntryFile() {
+		$childIDs = $this->getCurrentEntryIDs();
+		if (count($childIDs) == 0) {
 			return null;
 		} else {
-			$entries = glob("blog/$entryID-*.html");
-			if (count($entries) == 0) {
-				throw new Exception("No entry found for ID $entryID");
-			} else if (count($entries) > 1) {
-				throw new Exception("More than one entry found for ID $entryID: ".print_r($entries, true));
-			} else {
-				return $entries[0];
+			$path = "blog";
+			$parentIDs = array();
+			while (count($childIDs) > 0) {
+				$currentID = array_shift($childIDs);
+				$ext = preg_match("/^s/", $currentID) ? "" : ".html";
+				$entries = glob("$path/$currentID-*$ext");
+				if (count($entries) == 1) {
+					$path = $entries[0];
+					array_push($parentIDs, $currentID);
+				} else {
+					$logIDs = implode(ENTRY_SEP, array_merge($parentIDs, array($currentID)));
+					if (count($entries) > 1) {
+						throw new Exception("More than one entry found for ID $logIDs: ".print_r($entries, true));
+					} else {
+						throw new Exception("No entry found for ID $logIDs");
+					}
+				}
 			}
+			return $path;
 		}
 	}
 }
