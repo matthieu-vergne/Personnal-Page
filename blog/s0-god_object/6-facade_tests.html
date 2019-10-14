@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Resolving God Objects:<br/>Façade Tests</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	This article is part of the <a href="entry:./0">God object resolution series</a>.
+	To illustrate it, we use a <a href="entry:./1">running example</a> through the whole series.
+	So far, we dispatched <a href="entry:./2">the logics</a>, <a href="entry:./3">the state</a>, and <a href="entry:./4">the tests</a> of the God object into new features.
+	We also <a href="entry:./5">transformed it into a façade</a> to use it as a feature aggregator.
+	This article is about testing this façade, the right way.
+</p>
+
+<h2 id="problem">Problem</h2>
+
+<p>
+	The God object can now be used as a proper façade... or can we?
+	Actually, we didn't test anything, so we cannot ensure it does it properly.
+</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>
+	A façade is a specific wrapper, and you can find a <a href="entry:20">whole article</a> about how to test them.
+	Here, we will only summarize the idea and give the result.
+</p>
+<p>Each method of the façade should be tested on these criteria:</p>
+<ul>
+	<li>the parameters are correctly transferred to the feature method ;</li>
+	<li>the result is correctly transferred from the feature method ;</li>
+	<li>if no parameter nor result should be transferred, the feature method is correctly called.</li>
+</ul>
+
+<p>If we take the first test, hire an employee, here it is:</p>
+<pre><code>
+	@Test
+	public void testHireEmployeeIsCorrectlyMapped() {
+		// Set the expected parameter &amp; return values
+		Employee expectedEmployee = new TestEmployee();
+		int expectedEmployeeID = 123;
+		
+		// Retrieve the actual parameter &amp; return values
+		Employee[] actualEmployee = {null};
+		Employer employer = new TestEmployer() {
+			@Override
+			public int hireEmployee(Employee employee) {
+				actualEmployee[0] = employee;
+				return expectedEmployeeID;
+			}
+		};
+		EmployeeDetails details = new TestEmployeeDetails();
+		SalarySettings salarySettings = new TestSalarySettings();
+		EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+		int actualEmployeeID = manager.hireEmployee(expectedEmployee);
+		
+		// Test
+		assertEquals(expectedEmployee, actualEmployee[0]);
+		assertEquals(expectedEmployeeID, actualEmployeeID);
+	}
+</code></pre>
+<p>
+	The first section of the test provides the values we will transfer to/from the feature implementation.
+	The second section creates all the required implementations, where each <code>TestXxx</code> is a default implementation of the corresponding class.
+	These default implementations throw a <code>RuntimeException("not implemented")</code>, which can be factored into a <code>NotImplementedException</code> (you can also find existing ones in some libraries, like in the <a href="https://commons.apache.org/proper/commons-lang/javadocs/api-3.9/org/apache/commons/lang3/NotImplementedException.html">Apache Commons</a>).
+	In these implementations, we only override the method that should be called, <code>hireEmployee(employee)</code> here.
+	The last section does the assertions to ensure that the received values are the ones we sent.
+</p>
+<p>
+	In our running example, we mentionned the possibility to adapt an <code>Employee</code> into a <code>Contract</code>.
+	This is an <a href="https://en.wikipedia.org/wiki/Adapter_pattern">adapter</a> aspect, which is another kind of wrapper.
+	The impacted tests should include any adaptation we do to ensure that we do it properly.
+	We didn't do it, though, so we remain on a simple façade testing.
+	These are all the tests we wrote at the end:
+</p>
+<pre><code>
+	public class EmployeeManagerTest {
+		@Test
+		public void testHireEmployeeIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			Employee expectedEmployee = new TestEmployee();
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			Employee[] actualEmployee = {null};
+			Employer employer = new TestEmployer() {
+				@Override
+				public int hireEmployee(Employee employee) {
+					actualEmployee[0] = employee;
+					return expectedEmployeeID;
+				}
+			};
+			EmployeeDetails details = new TestEmployeeDetails();
+			SalarySettings salarySettings = new TestSalarySettings();
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			int actualEmployeeID = manager.hireEmployee(expectedEmployee);
+			
+			// Test
+			assertEquals(expectedEmployee, actualEmployee[0]);
+			assertEquals(expectedEmployeeID, actualEmployeeID);
+		}
+		
+		@Test
+		public void testFireEmployeeIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			Employee expectedEmployee = new TestEmployee();
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer() {
+				@Override
+				public Employee fireEmployee(int employeeID) {
+					actualEmployeeID[0] = employeeID;
+					return expectedEmployee;
+				}
+			};
+			EmployeeDetails details = new TestEmployeeDetails();
+			SalarySettings salarySettings = new TestSalarySettings();
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			Employee actualEmployee = manager.fireEmployee(expectedEmployeeID);
+			
+			// Test
+			assertEquals(expectedEmployee, actualEmployee);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+		
+		@Test
+		public void testSetEmployeeIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			Employee expectedOldEmployee = new TestEmployee();
+			Employee expectedNewEmployee = new TestEmployee();
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			Employee[] actualNewEmployee = {null};
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer();
+			EmployeeDetails details = new TestEmployeeDetails() {
+				@Override
+				public Employee setContract(int employeeID, Employee employee) {
+					actualEmployeeID[0] = employeeID;
+					actualNewEmployee[0] = employee;
+					return expectedOldEmployee;
+				}
+			};
+			SalarySettings salarySettings = new TestSalarySettings();
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			Employee actualOldEmployee = manager.setEmployee(expectedEmployeeID, expectedNewEmployee);
+			
+			// Test
+			assertEquals(expectedNewEmployee, actualNewEmployee[0]);
+			assertEquals(expectedOldEmployee, actualOldEmployee);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+		
+		@Test
+		public void testGetEmployeeIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			Employee expectedEmployee = new TestEmployee();
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer();
+			EmployeeDetails details = new TestEmployeeDetails() {
+				@Override
+				public Employee getContract(int employeeID) {
+					actualEmployeeID[0] = employeeID;
+					return expectedEmployee;
+				}
+			};
+			SalarySettings salarySettings = new TestSalarySettings();
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			Employee actualEmployee = manager.getEmployee(expectedEmployeeID);
+			
+			// Test
+			assertEquals(expectedEmployee, actualEmployee);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+		
+		@Test
+		public void testSetAddressIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			Address expectedNewAddress = new TestAddress();
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			Address[] actualNewAddress = {null};
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer();
+			EmployeeDetails details = new TestEmployeeDetails() {
+				@Override
+				public void setAddress(int employeeID, Address address) {
+					actualEmployeeID[0] = employeeID;
+					actualNewAddress[0] = address;
+				}
+			};
+			SalarySettings salarySettings = new TestSalarySettings();
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			manager.setAddress(expectedEmployeeID, expectedNewAddress);
+			
+			// Test
+			assertEquals(expectedNewAddress, actualNewAddress[0]);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+		
+		@Test
+		public void testGetAddressIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			Address expectedAddress = new TestAddress();
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer();
+			EmployeeDetails details = new TestEmployeeDetails() {
+				@Override
+				public Address getAddress(int employeeID) {
+					actualEmployeeID[0] = employeeID;
+					return expectedAddress;
+				}
+			};
+			SalarySettings salarySettings = new TestSalarySettings();
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			Address actualAddress = manager.getAddress(expectedEmployeeID);
+			
+			// Test
+			assertEquals(expectedAddress, actualAddress);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+		
+		@Test
+		public void testSetPhoneNumberIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			String expectedNewPhone = "0123456789";
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			String[] actualNewPhone = {null};
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer();
+			EmployeeDetails details = new TestEmployeeDetails() {
+				@Override
+				public void setPhoneNumber(int employeeID, String phoneNumber) {
+					actualEmployeeID[0] = employeeID;
+					actualNewPhone[0] = phoneNumber;
+				}
+			};
+			SalarySettings salarySettings = new TestSalarySettings();
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			manager.setPhoneNumber(expectedEmployeeID, expectedNewPhone);
+			
+			// Test
+			assertEquals(expectedNewPhone, actualNewPhone[0]);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+		
+		@Test
+		public void testGetPhoneNumberIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			String expectedPhone = "0123456789";
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer();
+			EmployeeDetails details = new TestEmployeeDetails() {
+				@Override
+				public String getPhoneNumber(int employeeID) {
+					actualEmployeeID[0] = employeeID;
+					return expectedPhone;
+				}
+			};
+			SalarySettings salarySettings = new TestSalarySettings();
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			String actualPhone = manager.getPhoneNumber(expectedEmployeeID);
+			
+			// Test
+			assertEquals(expectedPhone, actualPhone);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+		
+		@Test
+		public void testSetSalaryIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			double expectedNewSalary = 1000;
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			double[] actualNewSalary = {0};
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer();
+			EmployeeDetails details = new TestEmployeeDetails();
+			SalarySettings salarySettings = new TestSalarySettings() {
+				@Override
+				public void setSalary(int employeeID, double salary) {
+					actualEmployeeID[0] = employeeID;
+					actualNewSalary[0] = salary;
+				}
+			};
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			manager.setSalary(expectedEmployeeID, expectedNewSalary);
+			
+			// Test
+			assertEquals(expectedNewSalary, actualNewSalary[0], 0);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+		
+		@Test
+		public void testGetSalaryIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			double expectedSalary = 1000;
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer();
+			EmployeeDetails details = new TestEmployeeDetails();
+			SalarySettings salarySettings = new TestSalarySettings() {
+				@Override
+				public double getSalary(int employeeID) {
+					actualEmployeeID[0] = employeeID;
+					return expectedSalary;
+				}
+			};
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			double actualSalary = manager.getSalary(expectedEmployeeID);
+			
+			// Test
+			assertEquals(expectedSalary, actualSalary, 0);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+		
+		@Test
+		public void testRaiseSalaryIsCorrectlyMapped() {
+			// Set the expected parameter &amp; return values
+			double expectedAmount = 1000;
+			int expectedEmployeeID = 123;
+			
+			// Retrieve the actual parameter &amp; return values
+			double[] actualAmount = {0};
+			int[] actualEmployeeID = {0};
+			Employer employer = new TestEmployer();
+			EmployeeDetails details = new TestEmployeeDetails();
+			SalarySettings salarySettings = new TestSalarySettings() {
+				@Override
+				public void raiseSalary(int employeeID, double amount) {
+					actualEmployeeID[0] = employeeID;
+					actualAmount[0] = amount;
+				}
+			};
+			EmployeeManager manager = new EmployeeManager(employer, details, salarySettings);
+			manager.raiseSalary(expectedEmployeeID, expectedAmount);
+			
+			// Test
+			assertEquals(expectedAmount, actualAmount[0], 0);
+			assertEquals(expectedEmployeeID, actualEmployeeID[0]);
+		}
+	}
+</code></pre>
+<p>
+	At this point, the façade is tested as such.
+	Only the deprecated constructor is not covered, so the coverage is not 100%.
+	However, this is not an issue because it should disappear in the long term, at which time the coverage will be 100%.
+	But before to remove it, we must <a href="entry:./7">refactor the code using it</a>.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Resolving God Objects:<br/>Tests Dispatch</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	This article is part of the <a href="entry:./0">God object resolution series</a>.
+	To illustrate it, we use a <a href="entry:./1">running example</a> through the whole series.
+	So far, we dispatched <a href="entry:./2">the logics</a> and <a href="entry:./3">the state</a> of the God object into new features.
+	This article is about the dispatch of the tests of the God object to the relevant features.
+</p>
+
+<h2 id="problem">Problem</h2>
+
+<p>
+	Each feature is now complete, but is not properly tested.
+	The tests of the God object cover them but, since these features may be directly used elsewhere, it is important to ensure that <em>they</em> are correct, without the God object layer.
+</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>
+	As we did for the code, we can move the test methods iteratively, one after the other.
+	Following what we did for the code, we start with testing the hiring method.
+	Two tests are on this method: retrieving a hired employee, and ensuring hiring generates different IDs.
+	Let's take the latter:
+</p>
+<pre><code>
+	@Test
+	public void testEmployeesHaveDifferentIDs() {
+		EmployeeManager manager = new EmployeeManager();
+		int employeeID1 = manager.hireEmployee(new TestEmployee());
+		int employeeID2 = manager.hireEmployee(new TestEmployee());
+		int employeeID3 = manager.hireEmployee(new TestEmployee());
+		assertNotEquals(employeeID1, employeeID2);
+		assertNotEquals(employeeID1, employeeID3);
+		assertNotEquals(employeeID2, employeeID3);
+	}
+</code></pre>
+<p>
+	This logics is now in the <code>EmployerImpl</code>, so we can replace the God object by this feature:
+</p>
+<pre><code>
+	@Test
+	public void testEmployeesHaveDifferentIDs() {
+		<mark>Employer employer = new EmployerImpl(new HashMap&lt;>())</mark>;
+		int employeeID1 = <mark>employer</mark>.hireEmployee(new TestEmployee());
+		int employeeID2 = <mark>employer</mark>.hireEmployee(new TestEmployee());
+		int employeeID3 = <mark>employer</mark>.hireEmployee(new TestEmployee());
+		assertNotEquals(employeeID1, employeeID2);
+		assertNotEquals(employeeID1, employeeID3);
+		assertNotEquals(employeeID2, employeeID3);
+	}
+</code></pre>
+<p>
+	This test can now be moved to a dedicated <code>EmployerImplTest</code> class, unless you prefer to do move all its tests at once.
+	Notice the additional map we must create to instantiate the <code>employer</code>.
+	Beside this, the test remains unchanged, showing a trivial case.
+	But it is not always the case, as we will see with the other hiring test:
+</p>
+<pre><code>
+	@Test
+	public void testEmployeeCanBeRetrievedAfterHiring() {
+		Employee employee = new TestEmployee();
+		EmployeeManager manager = new EmployeeManager();
+		int employeeID = manager.hireEmployee(employee);
+		assertEquals(employee, manager.getEmployee(employeeID));
+	}
+</code></pre>
+<p>
+	By replacing the God object by the feature, here is what we obtain:
+</p>
+<pre><code>
+	@Test
+	public void testEmployeeCanBeRetrievedAfterHiring() {
+		Employee employee = new TestEmployee();
+		<mark>Map&lt;Integer, Employee> employees = new HashMap&lt;>();</mark>
+		<mark>Employer employer = new EmployerImpl(employees);</mark>
+		int employeeID = <mark>employer</mark>.hireEmployee(employee);
+		assertEquals(employee, <mark>employees.get(employeeID)</mark>);
+	}
+</code></pre>
+<p>
+	Beside the expected replacement, we must interact with the <code>employees</code> map to retrieve the hired employee.
+	Indeed, the <code>employer</code> provides no method to retrieve it.
+	This is not an issue, though, because it provides a test focusing on the hiring method alone.
+</p>
+<p>
+	We can now pass to the next test, which is firing the employee:
+</p>
+<pre><code>
+	@Test
+	public void testEmployeeCannotBeRetrievedAfterFiring() {
+		Employee employee = new TestEmployee();
+		EmployeeManager manager = new EmployeeManager();
+		int employeeID = manager.hireEmployee(employee);
+		manager.fireEmployee(employeeID);
+		assertNull(manager.getEmployee(employeeID));
+	}
+</code></pre>
+<p>
+	After the minimal replacement, here is what we obtain:
+</p>
+<pre><code>
+	@Test
+	public void testEmployeeCannotBeRetrievedAfterFiring() {
+		Employee employee = new TestEmployee();
+		<mark>Map&lt;Integer, Employee> employees = new HashMap&lt;>();</mark>
+		<mark>Employer employer = new EmployerImpl(employees);</mark>
+		int employeeID = <mark>employer</mark>.hireEmployee(employee);
+		<mark>employer</mark>.fireEmployee(employeeID);
+		assertNull(<mark>employees.get(employeeID)</mark>);
+	}
+</code></pre>
+<p>
+	Similarly to the previous test, we had to interact directly with the map to retrieve the employee.
+	However, now that the <code>employees</code> map is used as an external dependency, it is not enough to ensure that hiring and firing work together.
+	Indeed, other features will interact with our dependency, so we need to ensure that we properly use it.
+	In other words, we also need to ensure that when another feature adds an employee, we can properly fire it:
+</p>
+<pre><code>
+	@Test
+	public void testEmployeeCannotBeRetrievedAfterFiring() {
+		Employee employee = new TestEmployee();
+		Map&lt;Integer, Employee> employees = new HashMap&lt;>();
+		Employer employer = new EmployerImpl(employees);
+		<mark>int employeeID = 123;</mark>
+		<mark>employees.put(employeeID, employee);</mark>
+		employer.fireEmployee(employeeID);
+		assertNull(employees.get(employeeID));
+	}
+</code></pre>
+<p>
+	Rather than needing both tests (hire and fill map), we only need to keep the second (fill map).
+	Indeed, a previous test already validates that hiring updates the map, so we can consider that they are equivalent.
+	Said another way, the complete refactoring of the initial test correspond to the last version.
+</p>
+<p>
+	Another aspect highlighted by this test is the evolution of the coverage.
+	If you execute all the tests we have so far, you can see that <code>EmployeeManager.fireEmployee(employeeID)</code> is not covered anymore.
+	In fact, the coverage is decreasing since we started the dispatch of the tests.
+	The reason why we didn't see it is that we removed calls to the <em>hiring method</em> of the God object, which is still in use in many other tests.
+	Thus, we reduced the amount of calls, but as long as we call it at least once it will remain covered.
+	The firing method, however, was called only in its own test, and now that the test have been dispatched, it is not called anymore.
+</p>
+<p>
+	The coverage decrease should occur iteratively, after each dispatched test, until the God object reaches a 0% coverage.
+	Indeed, our current goal is to dispatch all the tests to their relevant features.
+	If you plan to get rid of the God object, then it should be fine, since you will remove the code and the tests altogether.
+	If instead you plan to transform it into a façade, then the next phases will provide you the right tests for that.
+</p>
+<p>
+	Coming back to our test dispatch, we have now refactored all the tests of <code>EmployerImpl</code>.
+	If you didn't do it yet, you can move them to a dedicated <code>EmployerImplTest</code> class.
+	The next test is for the <code>EmployeeManager.setEmployee(employeeID, newDetails)</code>:
+</p>
+<pre><code>
+	@Test
+	public void testEmployeeDetailsCanBeChanged() {
+		EmployeeManager manager = new EmployeeManager();
+		Employee employee = new TestEmployee();
+		int employeeID = manager.hireEmployee(employee);
+		Employee newDetails = new TestEmployee();
+		manager.setEmployee(employeeID, newDetails);
+		assertNotEquals(employee, manager.getEmployee(employeeID));
+		assertEquals(newDetails, manager.getEmployee(employeeID));
+	}
+</code></pre>
+<p>This method has been moved, but several elements have also been renamed, which leads us to a significant refactoring:</p>
+<pre><code>
+	@Test
+	public void testEmployeeDetailsCanBeChanged() {
+		// Setup
+		Map&lt;Integer, Employee> contracts = new HashMap&lt;>();
+		int employeeID = 123;
+		Employee oldContract = new TestEmployee();
+		Employee newContract = new TestEmployee();
+		contracts.put(employeeID, oldContract);
+		
+		// Execute
+		new EmployeeDetailsImpl(contracts).setContract(employeeID, newContract);
+		
+		// Test
+		assertNotEquals(oldContract, contracts.get(employeeID));
+		assertEquals(newContract, contracts.get(employeeID));
+	}
+</code></pre>
+<p>As a summary, we:</p>
+<ul>
+	<li>added the map of employees, renamed as <code>contracts</code> ;</li>
+	<li>replaced the hiring by the filling of the map ;</li>
+	<li>replaced the <code>setEmployee(...)</code> by the renamed <code>setContract(...)</code> ;</li>
+	<li>renamed corespondingly the <code>employee</code> variables by <code>contract</code> variables ;</li>
+	<li>wrote the assertions on the <code>contracts</code> map directly.</li>
+</ul>
+
+<p>
+	Since we didn't create a <code>Contract</code> class, we still use the <code>Employee</code> class for our contracts.
+	It may seem odd, but this is the result of the iterative process: you may do it before to reach this step, or you may leave it for later.
+</p>
+<p>
+	Although we didn't give it a proper highlight so far, you should not only run your tests after dispatching your code or test, but also check your test coverage.
+	As we mentionned, the progressive dispatch of the tests decreases the coverage of the God object, something we also observe here.
+	However, with the deeper refactoring of the test, we also decreased the coverage of <code>EmployeeDetailsImpl</code>.
+	Indeed, the method <code>getContract(employeeID)</code> is not covered anymore.
+	This should be fixed before to go further: since it is not covered, we know that no other test calls it, so we need to add one:
+</p>
+<pre><code>
+	@Test
+	public void testEmployeeDetailsCanBeRetrieved() {
+		// Setup
+		Map&lt;Integer, Employee> contracts = new HashMap&lt;>();
+		int employeeID = 123;
+		Employee expectedContract = new TestEmployee();
+		contracts.put(employeeID, expectedContract);
+
+		// Execute
+		Employee actualContract = new EmployeeDetailsImpl(contracts).getContract(employeeID);
+
+		// Test
+		assertEquals(expectedContract, actualContract);
+	}
+</code></pre>
+<p>
+	With this new test, we resolved our test coverage.
+	We could have done it another way, by using the method in the previous test, like the original version.
+	However, we wouldn't have properly tested the interaction with the map dependency.
+	Rather than consisten behaviours between methods, we seek for consistency through this dependency.
+</p>
+<p>Let's go now to the next test:</p>
+<pre><code>
+	@Test
+	public void testEmployeeAddressCanBeChanged() {
+		EmployeeManager manager = new EmployeeManager();
+		Employee employee = new TestEmployee();
+		int employeeID = manager.hireEmployee(employee);
+
+		Address address1 = new TestAddress();
+		manager.setAddress(employeeID, address1);
+		assertEquals(address1, manager.getAddress(employeeID));
+
+		Address address2 = new TestAddress();
+		manager.setAddress(employeeID, address2);
+		assertNotEquals(address1, manager.getAddress(employeeID));
+		assertEquals(address2, manager.getAddress(employeeID));
+	}
+</code></pre>
+<p>Which we refactor as such:</p>
+<pre><code>
+	@Test
+	public void testEmployeeAddressCanBeChanged() {
+		<mark>EmployeeDetails details = new EmployeeDetailsImpl(new HashMap&lt;>());</mark>
+		<mark>int employeeID = 123;</mark>
+
+		Address address1 = new TestAddress();
+		<mark>details</mark>.setAddress(employeeID, address1);
+		assertEquals(address1, <mark>details</mark>.getAddress(employeeID));
+
+		Address address2 = new TestAddress();
+		<mark>details</mark>.setAddress(employeeID, address2);
+		assertNotEquals(address1, <mark>details</mark>.getAddress(employeeID));
+		assertEquals(address2, <mark>details</mark>.getAddress(employeeID));
+	}
+</code></pre>
+<p>
+	Beside replacing the God object by its dedicated feature, we should notice another important point: the absence of contract.
+	Indeed, the God object allows to generate an <code>employeeID</code> only through its hiring method.
+	We may dig in the code and see that it is not required, but these are implementation details, not something we can guess from the methods of the object.
+	With the dedicated feature, however, the <code>employeeID</code> can be generated by hand, so we don't need to hire (or set a contract).
+	This is possible because this part of the state is externalized: we provide the contracts map to the constructor.
+	This is also for this reason that we could make the assertions directly on that map for the previous tests.
+	At the opposite, the addresses map is managed inside the <code>details</code> instance, forcing us to use its <code>getAddress(employeeID)</code> to do the assertions.
+</p>
+<p>The test about the phone numbers is highly similar:</p>
+<pre><code>
+	@Test
+	public void testEmployeePhoneNumberCanBeChanged() {
+		EmployeeManager manager = new EmployeeManager();
+		Employee employee = new TestEmployee();
+		int employeeID = manager.hireEmployee(employee);
+
+		String phone1 = "123456789";
+		manager.setPhoneNumber(employeeID, phone1);
+		assertEquals(phone1, manager.getPhoneNumber(employeeID));
+
+		String phone2 = "987654321";
+		manager.setPhoneNumber(employeeID, phone2);
+		assertNotEquals(phone1, manager.getPhoneNumber(employeeID));
+		assertEquals(phone2, manager.getPhoneNumber(employeeID));
+	}
+</code></pre>
+<p>Consequently, it goes through the same refactoring:</p>
+<pre><code>
+	@Test
+	public void testEmployeePhoneNumberCanBeChanged() {
+		<mark>EmployeeDetails details = new EmployeeDetailsImpl(new HashMap&lt;>());</mark>
+		<mark>int employeeID = 123;</mark>
+
+		String phone1 = "123456789";
+		<mark>details</mark>.setPhoneNumber(employeeID, phone1);
+		assertEquals(phone1, <mark>details</mark>.getPhoneNumber(employeeID));
+
+		String phone2 = "987654321";
+		<mark>details</mark>.setPhoneNumber(employeeID, phone2);
+		assertNotEquals(phone1, <mark>details</mark>.getPhoneNumber(employeeID));
+		assertEquals(phone2, <mark>details</mark>.getPhoneNumber(employeeID));
+	}
+</code></pre>
+<p>
+	With that, we have refactored all the tests of the <code>EmployeeDetailsImpl</code>.
+	If you didn't do it after each test, you can move them to a dedicated <code>EmployeeDetailsImplTest</code> class.
+</p>
+<p>The last tests are the following:</p>
+<pre><code>
+	@Test
+	public void testEmployeeSalaryCanBeChanged() {
+		EmployeeManager manager = new EmployeeManager();
+		Employee employee = new TestEmployee();
+		int employeeID = manager.hireEmployee(employee);
+
+		double salary1 = 123;
+		manager.setSalary(employeeID, salary1);
+		assertEquals(salary1, manager.getSalary(employeeID), 0);
+
+		double salary2 = 456;
+		manager.setSalary(employeeID, salary2);
+		assertNotEquals(salary1, manager.getSalary(employeeID));
+		assertEquals(salary2, manager.getSalary(employeeID), 0);
+	}
+
+	@Test
+	public void testEmployeeSalaryCanBeRaised() {
+		EmployeeManager manager = new EmployeeManager();
+		Employee employee = new TestEmployee();
+		int employeeID = manager.hireEmployee(employee);
+
+		manager.setSalary(employeeID, 123);
+		manager.raiseSalary(employeeID, 321);
+		assertEquals(444, manager.getSalary(employeeID), 0);
+	}
+</code></pre>
+<p>We refactor them for <code>SalarySettingsImpl</code>:</p>
+<pre><code>
+	@Test
+	public void testEmployeeSalaryCanBeChanged() {
+		<mark>SalarySettings settings = new SalarySettingsImpl();</mark>
+		<mark>int employeeID = 42;</mark>
+
+		double salary1 = 123;
+		<mark>settings</mark>.setSalary(employeeID, salary1);
+		assertEquals(salary1, <mark>settings</mark>.getSalary(employeeID), 0);
+
+		double salary2 = 456;
+		<mark>settings</mark>.setSalary(employeeID, salary2);
+		assertNotEquals(salary1, <mark>settings</mark>.getSalary(employeeID));
+		assertEquals(salary2, <mark>settings</mark>.getSalary(employeeID), 0);
+	}
+
+	@Test
+	public void testEmployeeSalaryCanBeRaised() {
+		<mark>SalarySettings settings = new SalarySettingsImpl();</mark>
+		<mark>int employeeID = 42;</mark>
+
+		<mark>settings</mark>.setSalary(employeeID, 123);
+		<mark>settings</mark>.raiseSalary(employeeID, 321);
+		assertEquals(444, <mark>settings</mark>.getSalary(employeeID), 0);
+	}
+</code></pre>
+<p>
+	And that's it!
+	All the tests are now refactored and should be moved to the test classes of their corresponding features if you (still) didn't do it yet.
+	The God object has no remaining test, and has reached a test coverage of 0%.
+	At the opposite, the features it builds on are fully tested, with a 100% coverage.
+</p>
+<p>
+	Now, you should be aware of what you want to do with your God object.
+	If you want to get rid of it, then you can directly <a href="entry:./7">refactor its uses</a> to replace it with the features.
+	If you want instead to keep it as a façade, then we must now <a href="entry:./5">transform it</a> into one.
+	If you are not sure what to do, check the <a href="entry:./7">final refactoring phase</a> to see if the façade may be useful.
+</p>
+
+</body>
+</html>

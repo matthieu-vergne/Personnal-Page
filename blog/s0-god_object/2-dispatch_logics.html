@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Resolving God Objects:<br/>Logics Dispatch</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	This article is part of the <a href="entry:./0">God object resolution series</a>.
+	To illustrate it, we use a <a href="entry:./1">running example</a> through the whole series.
+	This article is the first step of the resolution.
+</p>
+
+<h2 id="problem">Problem</h2>
+
+<p>
+	In the current state, the God object contains the code of various features.
+	We want instead to have separate features to build on, in other words to extract the code into new features.
+</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>
+	Dispatching the code can take a lot of time, but it can be done iteratively through small steps.
+	The first step is to extract 1 method:
+</p>
+<ol>
+	<li>
+		Identify a method that relate to a specific feature:
+		<pre><code>
+		/** Add a new {@link Employee} and returns its ID. */
+		public int hireEmployee(Employee employee) {
+			int employeeId = ++nextEmployeeId;
+			employees.put(employeeId, employee);
+			return employeeId;
+		}
+		</code></pre>
+	</li>
+	<li>
+		If the feature does not have a class yet, create it.
+		I would also highly recommend to create an interface:
+		<pre><code>
+		interface Employer {}
+		<pre><code>
+		</code></pre>
+		class EmployerImpl implements Employer {}
+		</code></pre>
+		The interface can help for testing.
+		It also allows to apply the <a href="https://en.wikipedia.org/wiki/Dependency_inversion_principle">Dependency inversion principle</a>.
+		It will be particularly useful if you want to transform the God object into a façade.
+		We didn't give much thought for the name of the class because we don't know the implementation details yet.
+		We will come back on that later.
+		For now, this new class should only be used inside the God object, so it is not an issue and we will come back on that later.
+	</li>
+	<li>
+		Copy the method of the God class into the feature interface and class:
+		<pre><code>
+		interface Employer {
+			public int hireEmployee(Employee employee);
+		}
+
+		class EmployerImpl implements Employer {
+			/** Add a new {@link Employee} and returns its ID. */
+			public int hireEmployee(Employee employee) {
+				int employeeId = ++<mark class="error">nextEmployeeId</mark>;
+				<mark class="error">employees</mark>.put(employeeId, employee);
+				return employeeId;
+			}
+		}
+		</code></pre>
+		Notice that the code might not compile.
+		In our example, <code>nextEmployeeId</code> and <code>employees</code> do not exist yet in the <code>Employer</code> class.
+		What you should pay attention to at this stage is the <em>state dependencies</em>, like these two fields.
+		You may copy them too, but you break the integrity of the God object state.
+		For instance, hiring an employee through <code>EmployerImpl</code> fills the <code>EmployerImpl.employees</code> map, but not the <code>EmployeeManager.employees</code> map.
+		Consequently, firing the <code>employee</code> from <code>EmployeeManager</code>, method which has not been extracted yet, won't work properly because it will remove nothing.
+		To fix that, you may copy <em>all</em> the methods which depend on this state at once, but these methods may rely on other pieces of the state, which relate to other methods, which relate to other fields, and so on.
+		Rather, you may use functional interfaces of the <code>java.util.function</code> package, like <code>Supplier</code>, to interact with the God object state:
+		<pre><code>
+		class EmployerImpl implements Employer {
+			private final <mark>Supplier&lt;Integer> newEmployeeID</mark>;
+			private final <mark>Supplier&lt;Map&lt;Integer, Employee>> employeeMap</mark>;
+
+			public EmployerImpl(Supplier&lt;Integer> newEmployeeID, Supplier&lt;Map&lt;Integer, Employee>> employeeMap) {
+				this.newEmployeeID = newEmployeeID;
+				this.employeeMap = employeeMap;
+			}
+
+			/** Add a new {@link Employee} and returns its ID. */
+			public int hireEmployee(Employee employee) {
+				int employeeId = <mark>newEmployeeID.get()</mark>;
+				<mark>employeeMap.get()</mark>.put(employeeId, employee);
+				return employeeId;
+			}
+		}
+		</code></pre>
+	</li>
+	<li>
+		Add a field in the God class for this feature, with the required interactions with the God object state:
+		<pre><code>
+		class EmployeeManager {
+			private int nextEmployeeId = 0;
+			private final Map&lt;Integer, Employee> employees = new HashMap&lt;>();
+			private final Employer employer = new EmployerImpl(<mark>() -> ++nextEmployeeId</mark>, <mark>() -> employees</mark>);
+			...
+		}
+		</code></pre>
+		Notice that the first <code>Supplier</code> is not a mere accessor: it also take in charge the increment required to update the state.
+	</li>
+	<li>
+		Replace the code of the God class method by a direct call to the feature object:
+		<pre><code>
+		class EmployeeManager {
+			...
+			/** Add a new {@link Employee} and returns its ID. */
+			public int hireEmployee(Employee employee) {
+				return employer.hireEmployee(employee);
+			}
+			...
+		}
+		</code></pre>
+	</li>
+</ol>
+
+<p>
+	At this point, you can run the tests of the God class: they should all be green and the coverage should cover both the God class and the feature class.
+	In our case, both <code>EmployeeManager</code> and <code>EmployerImpl</code> have a 100% line coverage.
+	We only extracted a single method, but in a retrocompatible way.
+	Consequently, you can stop there and come back later to continue your refactoring.
+	Understanding that you can do such a small step one at a time is important to not be overwhelmed when dealing with a massive God object.
+	You should always keep in mind that you can go one method at a time without breaking anything.
+</p>
+<p>
+	This process should of course be iterated until all the methods have been extracted.
+	In particular, you should not pass to the next phase before this one is complete.
+	As you saw, the new feature class may build on <code>Supplier</code> instances and other tricks to interact with the state of the God object.
+	In other words, we extracted the logics, but not the state, and the God object won't be completely refactored before the state is also extracted.
+	But before to extract it, we should extract all the methods.
+</p>
+<p>
+	By repeating the previous steps on the firing method, we extract it to the same <code>Employer</code> class.
+	We reuse the <code>employeeMap</code> already available for the state:
+</p>
+<pre><code>
+	class EmployerImpl implements Employer {
+		...
+		/** Fire an {@link Employee} and returns its ID. */
+		public Employee fireEmployee(int employeeID) {
+			return <mark>employeeMap.get()</mark>.remove(employeeID);
+		}
+	}
+</code></pre>
+<pre><code>
+	class EmployeeManager {
+		...
+		/** Fire an {@link Employee} and returns its ID. */
+		public Employee fireEmployee(int employeeID) {
+			return <mark>employer.fireEmployee(employeeID)</mark>;
+		}
+		...
+	}
+</code></pre>
+<p>
+	For the other methods, we will create new features.
+	For instance, the personal details should contain the address and phone number methods:
+</p>
+<pre><code>
+	interface EmployeeDetails { // New feature interface
+		public Address getAddress(int employeeID);
+		public void setAddress(int employeeID, Address address);
+		public String getPhoneNumber(int employeeID);
+		public void setPhoneNumber(int employeeID, String phoneNumber);
+	}
+</code></pre>
+<pre><code>
+	class EmployeeDetailsImpl implements EmployeeDetails { // New feature class
+		private final Supplier&lt;Map&lt;Integer, Address>> addressesMap;
+		private final Supplier&lt;Map&lt;Integer, String>> phonesMap;
+
+		public EmployeeDetailsImpl(Supplier&lt;Map&lt;Integer, Address>> addressesMap, Supplier&lt;Map&lt;Integer, String>> phonesMap) {
+			this.addressesMap = addressesMap;
+			this.phonesMap = phonesMap;
+		}
+
+		/** Return the {@link Address} of the given {@link Employee}. */
+		public Address getAddress(int employeeID) {
+			return addressesMap.get().get(employeeID);
+		}
+
+		/** Change the {@link Address} of the given {@link Employee}. */
+		public void setAddress(int employeeID, Address address) {
+			addressesMap.get().put(employeeID, address);
+		}
+
+		/** Return the phone number of the given {@link Employee}. */
+		public String getPhoneNumber(int employeeID) {
+			return phonesMap.get().get(employeeID);
+		}
+
+		/** Change the phone number of the given {@link Employee}. */
+		public void setPhoneNumber(int employeeID, String phoneNumber) {
+			phonesMap.get().put(employeeID, phoneNumber);
+		}
+	}
+</code></pre>
+<pre><code>
+	class EmployeeManager { // Updated God object
+		...
+		private final Map&lt;Integer, Address> addresses = new HashMap&lt;>();
+		private final Map&lt;Integer, String> phoneNumbers = new HashMap&lt;>();
+		private final EmployeeDetails details = new EmployeeDetailsImpl(() -> addresses, () -> phoneNumbers);
+		...
+		/** Return the {@link Address} of the given {@link Employee}. */
+		public Address getAddress(int employeeID) {
+			return details.getAddress(employeeID);
+		}
+
+		/** Change the {@link Address} of the given {@link Employee}. */
+		public void setAddress(int employeeID, Address address) {
+			details.setAddress(employeeID, address);
+		}
+
+		/** Return the phone number of the given {@link Employee}. */
+		public String getPhoneNumber(int employeeID) {
+			return details.getPhoneNumber(employeeID);
+		}
+
+		/** Change the phone number of the given {@link Employee}. */
+		public void setPhoneNumber(int employeeID, String phoneNumber) {
+			details.setPhoneNumber(employeeID, phoneNumber);
+		}
+	}
+</code></pre>
+<p>
+	At some point, we consider that the <code>setEmployee(employeeID, Employee)</code> is also about the update of the details of the employee.
+	The difference with the address and the phone number is that we update a more complete structure.
+	We can see, with the current implementation, that addresses and phones are not part of the <code>employee</code>, since we store them separately.
+	In other words, the <code>employee</code> probably provides complementary information.
+	Let's say that it contains contractual details, like the content of the contract, the date of signature, etc.
+	With that in mind, we can think that a mere "setEmployee" is not clear enough, and we choose to rename it "setContract".
+	Extracting the <code>setEmployee</code> method thus leads us to this result:
+</p>
+<pre><code>
+	interface EmployeeDetails { // Add the renamed method
+		...
+		public Employee setContract(int employeeID, Employee employee);
+	}
+</code></pre>
+<pre><code>
+	class EmployeeDetailsImpl implements EmployeeDetails { // Add the renamed method and state supplier
+		...
+		private final Supplier&lt;Map&lt;Integer, Employee>> contractsMap;
+
+		public EmployeeDetailsImpl(..., Supplier&lt;Map&lt;Integer, Employee>> contractsMap) {
+			...
+			this.contractsMap = contractsMap;
+		}
+		...
+		/**
+		 * Replace the {@link Employee}'s contractual details and returns the previous
+		 * version.
+		 */
+		public Employee setContract(int employeeID, Employee employee) {
+			return contractsMap.get().put(employeeID, employee);
+		}
+	}
+</code></pre>
+<pre><code>
+	class EmployeeManager { // Add the state accessor and rewrite the method.
+		...
+		private final EmployeeDetails details = new EmployeeDetailsImpl(..., () -> employees);
+		...
+		/** Replace the {@link Employee}'s details and returns the previous version. */
+		public Employee setEmployee(int employeeID, Employee employee) {
+			return details.setContract(employeeID, employee);
+		}
+		...
+	}
+</code></pre>
+<p>
+	Notice that the God object still have the old method name, but the new feature uses the new one.
+	This way, when the God object will be replaced by the feature, we will have a clearer method to use.
+	We may go further with the <code>Employee</code> parameter of this method, where using a <code>Contract</code> class seems more relevant.
+	You may create for example a new <code>Contract</code> interface, and create an <a href="https://en.wikipedia.org/wiki/Adapter_pattern">adapter</a> from <code>Employee</code> to <code>Contract</code>.
+	You should then adapt <code>employee</code> into a <code>contract</code> before to call <code>setContract(contract)</code>.
+	The state accessor should also be adapted, which requires to adapt the <code>contract</code> into an <code>employee</code>.
+	This is out of our scope, so we don't do it here and we don't go further in details, but it is possible.
+</p>
+<p><code>getEmployee</code> can also be extracted in the same way:</p>
+<pre><code>
+	interface EmployeeDetails {
+		...
+		public Employee getContract(int employeeID);
+	}
+</code></pre>
+<pre><code>
+	class EmployeeDetailsImpl implements EmployeeDetails {
+		...
+		/** Return the {@link Employee}'s contractual details. */
+		public Employee getContract(int employeeID) {
+			return contractsMap.get().get(employeeID);
+		}
+	}
+</code></pre>
+<pre><code>
+	class EmployeeManager {
+		...
+		/** Return the {@link Employee}'s details. */
+		public Employee getEmployee(int employeeID) {
+			return details.getContract(employeeID);
+		}
+		...
+	}
+</code></pre>
+<p>
+	Now, the only remaining methods are the ones related to the salary, which we extract in a new feature:
+</p>
+<pre><code>
+	interface SalarySettings {
+		public void setSalary(int employeeID, double salary);
+		public double getSalary(int employeeID);
+		public void raiseSalary(int employeeID, double amount);
+	}
+</code></pre>
+<pre><code>
+	class SalarySettingsImpl implements SalarySettings {
+		private final Supplier&lt;Map&lt;Integer, Double>> salariesMap;
+
+		public SalarySettingsImpl(Supplier&lt;Map&lt;Integer, Double>> salariesMap) {
+			this.salariesMap = salariesMap;
+		}
+
+		/** Change the salary of the given {@link Employee}. */
+		public void setSalary(int employeeID, double salary) {
+			salariesMap.get().put(employeeID, salary);
+		}
+
+		/** Return the salary of the given {@link Employee}. */
+		public double getSalary(int employeeID) {
+			return salariesMap.get().get(employeeID);
+		}
+
+		/** Raise the salary of the given {@link Employee}. */
+		public void raiseSalary(int employeeID, double amount) {
+			Map&lt;Integer, Double> salaries = salariesMap.get();
+			salaries.put(employeeID, salaries.get(employeeID) + amount);
+		}
+	}
+</code></pre>
+<pre><code>
+	class EmployeeManager {
+		...
+		private final Map&lt;Integer, Double> salaries = new HashMap&lt;>();
+		private final SalarySettings salarySettings = new SalarySettingsImpl(() -> salaries);
+		...
+		/** Change the salary of the given {@link Employee}. */
+		public void setSalary(int employeeID, double salary) {
+			salarySettings.setSalary(employeeID, salary);
+		}
+
+		/** Return the salary of the given {@link Employee}. */
+		public double getSalary(int employeeID) {
+			return salarySettings.getSalary(employeeID);
+		}
+
+		/** Raise the salary of the given {@link Employee}. */
+		public void raiseSalary(int employeeID, double amount) {
+			salarySettings.raiseSalary(employeeID, amount);
+		}
+	}
+</code></pre>
+<p>
+	At that point, all the methods have been extracted and the initial state of the God object is not used anymore but to feed them.
+	We can now start to <a href="entry:./3">dispatch this state</a> to the relevant features.
+</p>
+
+</body>
+</html>

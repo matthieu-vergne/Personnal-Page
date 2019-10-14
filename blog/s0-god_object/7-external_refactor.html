@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Resolving God Objects:<br/>Usage Refactoring</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	This article is part of the <a href="entry:./0">God object resolution series</a>.
+	To illustrate it, we use a <a href="entry:./1">running example</a> through the whole series.
+	So far, we dispatched <a href="entry:./2">the logics</a>, <a href="entry:./3">the state</a>, and <a href="entry:./4">the tests</a> of the God object into new features.
+	We also <a href="entry:./5">transformed it into a façade</a> and <a href="entry:./6">tested it</a> to use it as a feature aggregator.
+	This article is about refactoring the code that uses it by using specific features instead when relevant.
+</p>
+
+<h2 id="problem">Problem</h2>
+
+<p>
+	The façade, although reliable, is not always the most relevant class to use.
+	Some pieces of code might focus on specific methods only, which correspond to specific &mdash;if not one&mdash; features only.
+	We must keep the dependencies to the minimum, as stated by the <a href="https://en.wikipedia.org/wiki/Interface_segregation_principle">Interface Segregation principle</a>.
+</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>
+	As long as the old constructor of the God object is used, it remains a God-like object which decides on its own behalf which implementation to use.
+	Several situations can occur, each with its own refactoring.
+</p>
+<p>
+	If you receive the <strong>God object as a parameter</strong> but use only the <strong>methods of a single feature</strong>, then you should instead request the (interface of the) feature itself.
+	In the parent method, which provides the God object, you will need instead to provide the feature.
+	The simplest and most relevant way to do so is to add to the God object a getter on the feature and to use it in the parent method.
+	Indeed, the God object is now a facade which brings several features together, thus it makes sense to access directly these features from the façade.
+	If you cannot change the implementation, an alternative solution is to implement the feature interface by calling the façade methods, like in the next situation.
+</p>
+<p>
+	If you receive the <strong>God object as a parameter</strong> but use only <strong>few methods of several features</strong>, then think about using your own, specific façade.
+	In the parent method, which provides the God object, you will need to implement the client façade by calling the relevant methods of the God object, like the God object calls the dedicated features.
+	You may think that it is odd to have a façade over a façade, and indeed it should be rather exceptional.
+	If you happen to repeat this process several times, you may need to think again about the relevance of the client façade: is it really worth it?
+	If it is, then you may think again about how to split your God object: did you choose the most relevant features?
+</p>
+<p>
+	If you receive the <strong>God object as a parameter</strong> and use <strong>most of its methods</strong>, then the façade makes sense.
+	You may ask yourself whether it is good enough to provide the features separately, which depends on how you use them.
+	If you use the parameter directly without cascading it elsewhere, then the façade has a small added value and you may get rid of it.
+	Otherwise the façade helps you to share the methods in a single parameter.
+</p>
+<p>
+	If you <strong>instantiate the God object</strong> but use only the <strong>methods of a single feature</strong>, then you should instantiate the feature itself directly.
+	You may need to pay attention to its external dependencies, but there is a good chance you already did it for the God object.
+</p>
+<p>
+	If you <strong>instantiate the God object</strong> but use only <strong>few methods of several features</strong>, then try to instantiate the features directly.
+	If you send them together to other methods, a façade makes sense to send them as a single parameter.
+	However, you may prefer to use your own façade to not depend on too much methods (Interface Segregation principle).
+</p>
+<p>
+	If you <strong>instantiate the God object</strong> and use <strong>most of its methods</strong>, then use the façade.
+	If you send them together to other methods, the façade makes sense to send them as a single parameter.
+</p>
+<p>
+	A good practice is to start from the leaves of your code: the methods which use the God object without providing it as a parameter to other methods.
+	Once you have refactored them, then you should go to their parents, refactor them, go a step further, and so on recursively.
+	This way, you allow yourself to focus on your actual needs, and progressively spread it through the whole software.
+</p>
+<p>
+	You may instantiate the façade with only the relevant features for you.
+	For the features you don't need, instantiate them with the "non implemented" classes.
+	They will give you a relevant exception if you use them accidentaly.
+</p>
+<p>
+	At this point, it is only a matter of time before the deprecated constructors are not used anymore.
+	Either you spend time doing this refactoring, or you advertise your changes to the relevant people.
+	Once you confirmed that the deprecated constructors are not needed anymore, remove them.
+	At that time, the God object will be a closed case.
+	Good job!
+</p>
+
+</body>
+</html>

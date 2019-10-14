@@ -331,6 +331,11 @@ article div#lastUpdateTime {
 	text-align: justify;
 }
 
+#blog p.detailsLink {
+	text-align: center;
+	font-weight: bold;
+}
+
 #blog code mark {
 	display: inline-block;
 	color: inherit;

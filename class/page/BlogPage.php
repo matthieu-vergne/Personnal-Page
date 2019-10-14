@@ -96,6 +96,7 @@ class BlogPage extends InternalPage {
 			<ul>
 			<li><a href="entry:18">When to instantiate/throw an exception in Java?</a></li>
 			<li><a href="entry:20">Proxy, decorator, adapter, façade, ... How to test a wrapper?</a></li>
+			<li><a href="entry:s0/0">How to resolve the God object issue?</a></li>
 			</ul>
 			
 			<p>

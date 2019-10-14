@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>How to Resolve the God Object Issue?</h1>
+
+<h2 id="context">Context</h2>
+
+<p><!-- Definition -->
+	Nowadays, it is common knowledge to favor modularity, with small and simple pieces of software combined to build more complex ones.
+	History first came with <em>methods</em>, which are written in some packages and reused elsewhere.
+	With Object-Oriented Programming, we can create classes based on other classes, including classes from other libraries.
+	More recently, this trend has also been enriched with the use of micro-services with distributed deployment.
+	But if this is what we recommend and push for, this is because practice naturally goes differently.
+</p>
+<p>
+	We often build monolithic software, putting everything together and experimenting until it works.
+	Even expert programers, when they lack information, experiment before to care about good designs.
+	Modularity is often of least concern until we face the difficulties of monolithic software.
+	At that time, we can identify objects which provide several, possibly many different and loosely-related features.
+	We call these objects <a href="https://en.wikipedia.org/wiki/God_object">God objects</a>: they are omnipotent creatures that many parts of the software religiously depend on and which brings chaos to the whole if something goes wrong with it.
+</p>
+<p><!-- How it happen -->
+	God objects are not easy to avoid in practice.
+	When creating a POC, the effort is mainly focused on the features, while good design principles, like modularity, is delayed until the POC is accepted.
+	Even in an exploited product, we may prefer to add a small method in an existing piece rather than create a dedicated class "just for that".
+	This behaviour leads to iteratively inflate some classes before to figure out they are just doing too much.
+	For example, a <a href="https://stackoverflow.com/questions/771983/what-is-context-object-design-pattern">context object</a> contains the data of a given scope and is passed to several methods which need this data.
+	It eases the implementation of related methods, and the mistake is to add logics and more data directly into the context object for practical reasons, which increases its scope and progressively transforms it into a God object.
+	Any class can easily be promoted to a God object through iterative increase of its scope.
+</p>
+
+<h2 id="problem">Problems</h2>
+
+<p>God objects foster several issues:</p>
+<ul>
+	<li><em>too much dependencies</em> because of the various data it stores and the various methods it implements.</li>
+	<li><em>unclear scope</em> because it implements loosely-related things which apply to different contexts ;</li>
+	<li><em>heavy to test</em> because it implements many things at once ;</li>
+</ul>
+<p>
+	Let's be honest: God objects are big bosses!
+	Well, they are <em>God</em> level after all, so of course they are not for lvl. 1 players.
+	Refactoring a God object can be a serious trap for 3 reasons:
+</p>
+<ol>
+	<li>First, many pieces depend on it, so you can break many things at once if you don't pay attention, which means <em>any single change</em> is risky.</li>
+	<li>Second, it takes ages to refactor correctly, and becoming impatient means <em>increasing the risk</em> to do something bad at each change.</li>
+	<li>Third, it contains a lot of things, so you will need to do <em>many changes</em> to cut everything properly, which multiplies the risks correspondingly.</li>
+</ol>
+<p>
+	So, why would you take the risk?
+	Well, because this risk actually is mere illusions: it comes only with bad refactoring practices.
+	Remember, we are speaking about <em>refactoring</em>, not <em>fixing</em>.
+	So, how do we trick the maths to make it safe?
+	Let's go for each point again:
+</p>
+<ol>
+	<li>First, no behaviour should change, only the design should evolve, so no single change should break anything at all.</li>
+	<li>Second, nothing forbids you to go iteratively, so stop when you need it and come back later when you have time for it.</li>
+	<li>Third, once you removed all the risks from the previous points, it is still many changes, but many times zero is still zero risk.</li>
+</ol>
+<p>
+	In summary, the secret for refactoring a God object safely is to do <em>iso-functional changes</em>, to do them <em>iteratively</em>, and <em>at your own pace</em>.
+	In other words, what we need is a refactoring procedure that can be stopped at any time, without breaking anything, and continued later.
+	This is what we will present here.
+</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>
+	Removing the God object can be done in several phases, some longer than others.
+	But no stress: each phase is also iterative, so you can go one change at a time.
+	Stopping in the middle of a phase is not an issue, as long as you stop between two atomic changes.
+</p>
+
+<h3>Preliminary Phase: Identify Your Needs</h3>
+
+<p>We first analyse how the God object is used to identify the relevant features in which it should be split.</p>
+<!-- TODO -->
+<p class="detailsLink"><em>Coming soon</em></p>
+
+<h3>First Dispatch: Cut the Logics into New Features</h3>
+
+<p>
+	Once we know what are the relevant features, let's start creating them with the code of the God object.
+	We make the God object build on them to ensure its tests validate the newly created features.
+</p>
+<p class="detailsLink"><a href="entry:./2">Check the details here!</a></p>
+
+<h3>Second Dispatch: Move the State to the New Features</h3>
+
+<p>
+	In the previous step, we only moved the code of the methods to build the logics of the features.
+	The various methods may, however, build on fields required by several features.
+	In this step, we see how to dispatch this data to finalize the features.
+</p>
+<p class="detailsLink"><a href="entry:./3">Check the details here!</a></p>
+
+<h3>Third Dispatch: Move the Tests to the New Features</h3>
+
+<p>
+	Now the God object builds exclusively on other features, making it a mere façade that bring them together.
+	At that point, the tests of the God object are actually tests of these features.
+	So let's move these tests to the features themselves to ensure they stay and evolve together.
+</p>
+<p class="detailsLink"><a href="entry:./4">Check the details here!</a></p>
+
+<h3>First Transformation: Give the Potential of a Façade</h3>
+
+<p>
+	Depending on your needs, you may want to preserve the God object as a mere façade.
+	In this case, let's finalize it to ensure it remains easy to maintain and evolve.
+</p>
+<p class="detailsLink"><a href="entry:./5">Check the details here!</a></p>
+
+<h3>Second Transformation: Test the Façade</h3>
+
+<p>In the following of the previous step, if you want to keep the façade, then you may want to test it properly.</p>
+<p class="detailsLink"><a href="entry:./6">Check the details here!</a></p>
+
+<h3>Last Marathon: Refactor the Users' Code</h3>
+
+<p>
+	That's it!
+	You now have all your new features, ready to serve.
+	You are also ready to remove the God object or to use it as a façade.
+	The next phase consists in going through all the code that uses the God object to replace it correspondingly.
+</p>
+<p class="detailsLink"><a href="entry:./7">Check the details here!</a></p>
+
+</body>
+</html>

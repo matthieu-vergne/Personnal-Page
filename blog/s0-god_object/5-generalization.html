@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Resolving God Objects:<br/>Generalization to a Façade</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	This article is part of the <a href="entry:./0">God object resolution series</a>.
+	To illustrate it, we use a <a href="entry:./1">running example</a> through the whole series.
+	So far, we dispatched <a href="entry:./2">the logics</a>, <a href="entry:./3">the state</a>, and <a href="entry:./4">the tests</a> of the God object into new features.
+	This article is about refactoring the God object into a façade, so we can use it as a feature aggregator.
+	If we want to get rid of the God object, we can skip this phase and directly <a href="entry:./7">refactor its uses</a> to replace it.
+</p>
+
+<h2 id="problem">Problem</h2>
+
+<p>
+	With the previous phases, we completely deprived the God object of the code and tests it has.
+	If we want to keep it as a façade, we first need to make it usable as such.
+</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>
+	We need to generalize it to take any implementation of the features it builds on.
+	Starting from the current code:
+</p>
+<pre><code>
+	class EmployeeManager {
+		private final Map&lt;Integer, Employee> employees = new HashMap&lt;>();
+		private final Employer employer = new EmployerImpl(employees);
+		private final EmployeeDetails details = new EmployeeDetailsImpl(employees);
+		private final SalarySettings salarySettings = new SalarySettingsImpl();
+		...
+	}
+</code></pre>
+<p>
+	We first need to remove all the unnecessary fields, which are there only to instantiate the features.
+	Indeed, we should receive instances of the <code>Employer</code>, <code>EmployeeDetails</code>, and <code>SalarySettings</code> interfaces, whatever their dependencies are.
+	Having an <code>employees</code> field makes sense only because we use the current implementations of these interfaces.
+	To generalize that, we need to explicit the empty constructor:
+</p>
+<pre><code>
+	class EmployeeManager {
+		<mark>// Employees field has become a simple variable in the constructor</mark>
+		private final Employer employer;
+		private final EmployeeDetails details;
+		private final SalarySettings salarySettings;
+
+		public EmployeeManager() {
+			<mark>Map&lt;Integer, Employee> employees = new HashMap&lt;>()</mark>;
+			this.employer = new EmployerImpl(employees);
+			this.details = new EmployeeDetailsImpl(employees);
+			this.salarySettings = new SalarySettingsImpl();
+		}
+		...
+	}
+</code></pre>
+<p>
+	Notice how the constructor allows us to create a simple variable <code>employees</code> to use inside the constructor.
+	The field can be removed, since this instance is only useful for instantiating our features, which is done in this constructor.
+</p>
+<p>The next step is to add a constructor to take other instances of these interfaces:</p>
+<pre><code>
+	public EmployeeManager(Employer employer, EmployeeDetails details, SalarySettings salarySettings) {
+		this.employer = employer;
+		this.details = details;
+		this.salarySettings = salarySettings;
+	}
+</code></pre>
+<p>
+	With this new constructor, any code can instantiate the three interfaces and provide its own implementation.
+	Old code relying on the empty constructor may be refactored to use the new one.
+	Although we will do that in the next phases, we can already help on that matter by deprecating the empty constructor:
+</p>
+<pre><code>
+	@Deprecated
+	public EmployeeManager() {
+</code></pre>
+<p>
+	All the uses of the empty constructor will now generate a warning that helps to spot the codes to refactor.
+	If your code is used in a library, it also allows you to help your users to spot the refactyoring to do before to pass to a version where this constructor disappear.
+	At this point, the God class can be used as a real façade and tested as such.
+	So let's <a href="entry:./6">test it</a>!
+</p>
+
+</body>
+</html>
