@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Resolving God Objects:<br/>Analysis</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	This article is part of the <a href="entry:./0">God object resolution series</a>.
+	To illustrate it, we use a <a href="entry:./1">running example</a> through the whole series.
+	This article is about the analysis of the God object, especially how it is used, to identify the relevant features to extract from it.
+</p>
+
+<h2 id="problem">Problem</h2>
+
+<p>
+	God objects usually are core items in a software, meaning they are used in many places.
+	As such, analysing its use is time consuming and the contexts of usage can vary significantly.
+</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>
+	You know that your class does too much, which is why it is a God object and it must be split.
+	But take some time to think it through.
+	Do you have a <em>clear</em> set of features to extract from it?
+	Are the features you have in mind the <em>most relevant</em> ones?
+	Is it <em>always</em> relevant to split, or is your God object somehow a useful <a href="https://en.wikipedia.org/wiki/Facade_pattern">façade</a>?
+	Like any programing task, the purpose of refactoring is not the beauty of it.
+	It is about a better fulfilment of <em>actual</em> needs: it should help in some way.
+</p>
+<p>
+	The best way to know your needs is to have a good vision of how the God object is used.
+	To do so, you can use your preferred IDE to search the usage of each method of the God object.
+	Tools that list the method calls (and more generally dependencies) are of great help in this situation.
+	I have personally used and helped to fix <a href="https://github.com/gousiosg/java-callgraph">this one</a>, which is extremely minimal but does the job.
+	More advanced solutions, with nice graphical interfaces and plenty of features, can also be used, like <a href="http://stan4j.com/">this one</a>.
+	All you need is a way to identify and access the code that uses the methods of your God object.
+</p>
+<p>
+	Once you have the right tool, open a notepad, take a coffee and get ready: you have to go through each use of each method and figure out how your God object is used.
+	You can organise your analysis into atomic steps, for instance by looking at all the uses of a single method, or the use of the God object in a single package.
+	This way, you can preliminary list all the steps you will need and check them when they are done.
+	You will see your progress, and you can pause your analysis and come back later when you find more time to continue.
+</p>
+<p>Your analysis should spot, for each method that uses the God object:</p>
+<ul>
+	<li>whether the God object is instantiated or received as an argument</li>
+	<li>the list of God object methods directly called</li>
+	<li>the list of other methods to which it provides the God object as an argument</li>
+</ul>
+<p>Based on our <a href="entry:./1">running example</a>, let's assume that we obtain the following graph:</p>
+<figure id="dependency_graph">
+	<figcaption>Dependency graph</figcaption>
+	<svg id="dependency_graph_svg" viewbox="0 0 500 1000" width="500" style="border: 1px solid red;">
+	
+	<foreignObject x="100" y="0" width="100" height="100" class="graph_node" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div>
+			<code>hireEmployee()</code>
+		</div></body>
+	</foreignObject>
+	<foreignObject x="110" y="30" width="100" height="100" class="graph_node" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div>
+			<code>fireEmployee()</code>
+		</div></body>
+	</foreignObject>
+	
+	
+	
+	<foreignObject x="150" y="100" width="100" height="100" class="graph_node" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div>
+			<code>getEmployee()</code>
+		</div></body>
+	</foreignObject>
+	<foreignObject x="160" y="130" width="100" height="100" class="graph_node" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div>
+			<code>setEmployee()</code>
+		</div></body>
+	</foreignObject>
+	<foreignObject x="170" y="200" width="100" height="100" class="graph_node" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div>
+			<code>
+				getAddress()
+				getPhoneNumber()
+			</code>
+		</div></body>
+	</foreignObject>
+	<foreignObject x="180" y="260" width="100" height="100" class="graph_node" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div>
+			<code>
+				setAddress()
+				setPhoneNumber()
+			</code>
+		</div></body>
+	</foreignObject>
+	
+	
+	
+	<foreignObject x="200" y="400" width="100" height="100" class="graph_node" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div>
+			<code>setSalary()</code>
+		</div></body>
+	</foreignObject>
+	<foreignObject x="210" y="430" width="100" height="100" class="graph_node" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div>
+			<code>getSalary()</code>
+		</div></body>
+	</foreignObject>
+	<foreignObject x="220" y="460" width="100" height="100" class="graph_node" requiredExtensions="http://www.w3.org/1999/xhtml">
+		<body xmlns="http://www.w3.org/1999/xhtml"><div>
+			<code>raiseSalary()</code>
+		</div></body>
+	</foreignObject>
+	<!--
+		<g stroke="black" stroke-width="1" stroke-linecap="round" fill="none" text-anchor="middle">
+			<use x="0" y="0" xlink:href="#graph_basics" />
+			
+			<line x1="20" y1="0" x2="20" y2="+5" />
+			<line x1="20" y1="0" x2="20" y2="-180" stroke-dasharray="1,5" />
+			<foreignObject x="5" y="5" width="30" height="25" requiredExtensions="http://www.w3.org/1999/xhtml">
+				<body xmlns="http://www.w3.org/1999/xhtml"><div>
+					1
+				</div></body>
+			</foreignObject>
+			
+			<foreignObject x="-90" y="-100" width="150" height="25" requiredExtensions="http://www.w3.org/1999/xhtml" transform="rotate(-90 -15 -87)">
+				<body xmlns="http://www.w3.org/1999/xhtml"><div>
+					\(specificity(p, S)\)
+				</div></body>
+			</foreignObject>
+			
+			<g stroke-width="5" stroke-dasharray="1,21.35" stroke="red">
+				<line x1="20" y1="-180" x2="380" y2="0" />
+				<line x1="0" y1="0" x2="0" y2="0" />
+			</g>
+		</g>
+	-->
+	</svg>
+	<!--
+	<script type="text/javascript">
+		var svg = document.getElementById('dependency_graph_svg');
+		var nodeList = document.querySelectorAll('[class="graph_node"]');
+		var horizontalPadding = 20; // TODO merge into single padding?
+		var verticalPadding = 20;
+		var i;
+		for (i = 0; i < nodeList.length; i++) {
+			var svgText = nodeList[i];
+			var coords = svgText.getBBox();
+			coords.x -= horizontalPadding;
+			coords.y -= verticalPadding;
+			coords.width += 2*horizontalPadding;
+			coords.height += 2*verticalPadding;
+			var border = '<rect x="'+coords.x+'" y="'+coords.y+'" width="'+coords.width+'" height="'+coords.height+'" style="stroke:black;stroke-width:2px;fill:none;"/>';
+			svg.innerHTML += border;
+		}
+	</script>
+	-->
+</figure>
+<p>
+	Where ...
+</p>
+
+<!--TODO-->
+<p>
+	If you fail to identify the right granularity, then you must be taught about what is a <em>façade</em>.
+	<a href="https://en.wikipedia.org/wiki/Facade_pattern">Wikipedia</a> gives a nice description, but to summarize it helps you to adapt the scope of your features.
+	You can simplify the methods of a feature, even remove some of them, or you can aggregate several features together.
+	In other words, you can take any arbitrary scope and then use façades to adapt it to the specific needs of the users.
+	Yes, you can do what you want, which means that you can even keep your God object as a façade.
+</p>
+<p>
+	But wait!
+	It does not mean that no refactoring is required: a façade mainly delegates the requests to the features.
+	The responsibility of a feature is to provide the logics, while the responsibility of a façade is to simplify their use.
+	You still need to refactor the God object to build on specific features, but don't forget you can then maintain it as a mere façade.
+	Now you have to decide:
+</p>
+<ul>
+	<li>
+		If you want to push for a specific refactoring, then go for it.
+		You will need to create façades when your choices don't fit your users.
+	</li>
+	<li>
+		If you want to minimize the number of façades, then you need to better understand your users perspective.
+		In this case, go to the last phase, which is about refactoring the code using the God object.
+		Go through it to identify the relevant features for your users and adapt your sketch.
+		Once you are confident, then come back here and start the next phase.
+	</li>
+</ul>
+
+</body>
+</html>
