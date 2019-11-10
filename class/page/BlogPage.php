@@ -149,6 +149,7 @@ class BlogPage extends InternalPage {
 				Indeed, the overwhelming majority of what we produce in the A.I. field are artificial experts: highly specialized tools that perform very well in a single task at once.
 				My thinking about genericity in a forma way is detailed in <a href="entry:13">one of my blog entries</a>.
 				But since I am more familiar with genericity in terms of programming, I decided to give some focus on generic programming, as mentionned in the previous sections.
+				The rought idea is to interpret an artificial intelligence as a self-programming program, which applies generic programming techniques on itself to identify and reuse generic behaviours to perform in many fields.
 			</p>
 			<p>
 				Currently, I would design an artificial intelligence, or an artificial general intelligence (AGI) to use the current vocabulary, as the following:
