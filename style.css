@@ -105,6 +105,14 @@ div.toggleButton {
 	clear: both;
 }
 
+quote {
+	font-style: italic;
+}
+
+quote::before, quote::after {
+	content: "\"";
+}
+
 /* For mobile phones: */
 @media only screen and (max-width: 500px) {
 body {
