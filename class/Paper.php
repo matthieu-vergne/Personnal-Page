@@ -183,6 +183,15 @@ class Paper {
 			$paper->setSlidesSource(Resource::getResource(28)->getFileUrl());
 			Paper::$allPapers[] = $paper;
 			
+			$paper = new Paper('re4ai-2020');
+			$paper->setDescription("M. Vergne, « Trustworthy AI: Towards the Golden Age of RE? », article in RE4AI Workshop at the 26th International Conference on Requirements Engineering: Foundation for Software Quality (REFSQ), 2020.");
+			$paper->setURL("http://ceur-ws.org/Vol-2584/RE4AI-paper5.pdf");
+			$paper->setPDF("http://ceur-ws.org/Vol-2584/RE4AI-paper5.pdf");
+			$paper->setPDFSource(Resource::getResource(29)->getFileUrl());
+			$paper->setSlides(Resource::getResource(30)->getFileUrl());
+			$paper->setSlidesSource(Resource::getResource(31)->getFileUrl());
+			Paper::$allPapers[] = $paper;
+			
 			// Check unique IDs
 			$ids = array();
 			foreach(Paper::$allPapers as $paper) {
