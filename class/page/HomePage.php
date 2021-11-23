@@ -28,7 +28,6 @@ class HomePage extends InternalPage {
 			"Google Scholar" => $formatUrl("https://scholar.google.com/citations?user=qpUf7jQAAAAJ"),
 			"OrcidID" => $formatUrl("https://orcid.org/0000-0003-3740-7851"),
 			"GitHub" => $formatUrl("https://github.com/matthieu-vergne"),
-			"Google+" => $formatUrl("https://www.google.com/+MatthieuVergne"),
 		);
 		
 		foreach($data as $type => $value) {
