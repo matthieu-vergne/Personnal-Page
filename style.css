@@ -113,6 +113,20 @@ quote::before, quote::after {
 	content: "\"";
 }
 
+.warning {
+	background-color: #FCC;
+	box-sizing: border-box;
+	border: 1px solid #F00;
+	border-radius: 1em;
+	padding: 0 0.5em;
+}
+
+.warning::before, .warning::after {
+	content: "\0026A0";
+	padding: 0 0.2em;
+	color: #F00;
+}
+
 /* For mobile phones: */
 @media only screen and (max-width: 500px) {
 body {
