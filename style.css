@@ -119,6 +119,7 @@ quote::before, quote::after {
 	border: 1px solid #F00;
 	border-radius: 1em;
 	padding: 0 0.5em;
+	display: inline-block;
 }
 
 .warning::before, .warning::after {
