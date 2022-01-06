@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="blogEdit.js"></script>
+</head>
+<body id="blog" class="language-java">
+<div class="language-bash">
+<h1>How to Clean a Git Branch?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	Software production is rarely fully controled.
+	We usually produce code that we rewrite later, figuring out iteratively what works and what doesn't.
+	As a result, Git commits can be quite messy if we create them chronologically.
+	A single change can be distributed over several commits, and a single commit can contain several changes.
+	At the end, we often reach a state where the commits history doesn't help us understanding what was done.
+</p>
+<p>
+	This issue is very common: it is often the difference between a beginner and an experienced versionning user.
+	Others have shared their own perspectives on this topic:
+</p>
+<ul>
+	<li><a href="https://about.gitlab.com/2018/06/07/keeping-git-commit-history-clean/">https://about.gitlab.com/2018/06/07/keeping-git-commit-history-clean/</a></li>
+	<li><a href="https://medium.com/@catalinaturlea/clean-git-history-a-step-by-step-guide-eefc0ad8696d">https://medium.com/@catalinaturlea/clean-git-history-a-step-by-step-guide-eefc0ad8696d</a></li>
+	<li><a href="https://ensiwiki.ensimag.fr/index.php?title=Maintenir_un_historique_propre_avec_Git">https://ensiwiki.ensimag.fr/index.php?title=Maintenir_un_historique_propre_avec_Git</a> (FR)</li>
+</ul>
+<p>
+	We won't dive deep in the reasons why you may be interested in cleaning your branch.
+	We can summarize with generalities: just choose between investing time doing the right thing now, or save time now at the price of a higher cost later.
+	As a non-professional, think about your learning priorities.
+	As a professional, think about the consequences on:
+</p>
+<ul>
+	<li>yourself: it enforces you to make your own code review, ensuring that what you push is actually what you intend to.</li>
+	<li>the others: it structures your changes and gives an additional information about the intention you had when producing this code, which helps the reviewers, the future colleagues who have to revert your changes (don't take it personally), and so on.</li>
+</ul>
+<p>
+	If you are still here, you think that cleaning your Git branch makes some sense.
+	So let's dig in.
+</p>
+
+<h2 id="question">Question</h2>
+
+<p>
+	A Git branch comes with a history of commits.
+	Moreover, each commit comes with a content (the committed code) and a message (the text of the commit).
+	Cleaning a branch requires to take care of each of these aspects.
+	In other words, we want to know here:
+</p>
+<ul>
+	<li>How to clean a commits history?</li>
+	<li>How to clean a commit content?</li>
+	<li>How to clean a commit message?</li>
+</ul>
+
+<h2 id="method">Method</h2>
+
+<p>
+	All three points are related, in the sense that they all participate in the "story" told by the commits history.
+	We will address each of them separately.
+</p>
+
+<h3 id="method-message">Commit Message</h3>
+
+<p>
+	The commit message is the first thing we see when looking at a commit.
+	However, it is not always fully exploited.
+	This comes with a reason: we do not always provide useful information there.
+	Did you never read commit messages like "Correction", "Fix a problem", "Add a new function", or "Remove old stuff"?
+	Well, surely the commit provides some changes, and add or remove something, hopefully for the best.
+	But we can guess this far already, so what is this commit for?
+</p>
+<p>
+	Even with more specific details, a recurrent issue is that the message focuses too much on what the commit does.
+	Like "Add an uppercase option to the formatting method", or "Create a JSON formatter in the formatter package".
+	But we can guess that much again by looking at the content of the commit.
+	We can see that a parameter named "upperCase" has been added to a function.
+	We can see that a JsonFormatter class has been added with the formatter package.
+	We can see that a piece of code have been removed.
+	But telling what has been done does not tell why we needed that in the first place.
+	It might seem obvious when the change is done, otherwise we wouldn't do it in the first place.
+	But after a few months, or after you have moved to another mission and your successor come back to your change, how does it help?
+</p>
+<p>
+	When you write a commit message, think about a complete stranger who will have to maintain your code.
+	This person needs to know what was the purpose of the change, usually what was going wrong before changing it.
+	For the information to be complete, one needs to know:
+</p>
+<ol>
+	<li>what was missing/wrong/obsolete before the change,</li>
+	<li>what has been done to improve it,</li>
+	<li>what we have reached with that change.</li>
+</ol>
+<p>
+	The point 2 is addressed with the <em>content</em> of the commit, not its message.
+	You can think about it like the difference between the code of a function and a commentary that tells what this function does.
+	Surely, if the function does something, it is first of all based on its code, not based on what the commentary says.
+	While a commentary can be complementary, the code remains the one deciding about what is actually done.
+	Similarly, you may provide additional information in the commit message, but rely first on the commit content to tell what has been done.
+	In other words, make the changes themselves clear enough for a future reader.
+</p>
+<p>
+	The point 1 is the most important to address in the commit message.
+	It motivates the change and help the future reader to evaluate it on the spot.
+	Think about it: if this change was done because of issue A, and a recent update offers a better solution to issue A, it might be relevant to come back to this change.
+	At the opposite, if this change was for issue B, then the new solution should not be applied before we ensure that we do not regress on issue B.
+	Saying that the change was for issue A or issue B changes the interpretation of the changes without having to dig in the code and speculate.
+</p>
+<p>
+	Finally, once we know what needed to be changed (message) and how we changed it (content), then we can assume that the need has been fulfilled.
+	If not, or not entirely, or if particular points of attention need to be highlighted, then the commit message can be enriched to tackle point 3.
+	It will participate in setting up the context for future changes that may do better.
+	Some people might consider that this information should not be in the commit, but in the code.
+	Indeed, documenting the code is important and we read more often the documentation than the commit history.
+	But others will also say that this information is in the ticket associated to the change.
+	All these people, as well as those thinking it has its place in the commit, are right: it depends on the context.
+	At the end, the point is that the information should be easily available from where we look at.
+	Write the information where it is the most relevant, and link to it elsewhere.
+</p>
+<p>
+	As a reminder, a commit message is composed of a title (first line) and optional details (remaining lines).
+	Ensure that the title provides the minimal information to understand the purpose of the commit at a glance.
+	Use the details as you see fit to ensure that a reader can access all the additional information easily.
+</p>
+
+<h3 id="method-content">Commit Content</h3>
+
+<p>
+	The content of the commit tells what has changed.
+	In order to understand that part, you should first understand the purpose of the commit.
+	If you followed until here, this is the responsibility of the commit message.
+	But you can properly redact this message only if the commit content fits the bill.
+</p>
+<p>
+	The main objective when creating a clean commit is atomicity:
+</p>
+<ul>
+	<li>all the changes addressing a purpose should be in the same commit</li>
+	<li>all the changes of a commit should address the same purpose</li>
+</ul>
+<p>
+	Indeed, if you spread the changes among several commits, it becomes harder to understand a commit without knowing the others.
+	Similarly, if you mix several purposes into a single commit, it becomes harder to understand which change relates to which purpose.
+	By making a one-to-one relation between a purpose and a commit, you focus the attention on a single purpose at a time while ensuring it contains all the relevant information.
+	Here are some examples of changes that are prone to relate to the same purpose and be found in the same commit:
+</p>
+<ul>
+	<li>a fix and a (set of) test(s) showing it works</li>
+	<li>a new feature (e.g. a new Java class) with its tests and documentation, and the code integrating this feature in the application</li>
+	<li>the removal of an obsolete feature and the removal/replacement of all its calls in the application</li>
+	<li>the refactoring of a method and all the adapted calls to this method that make the application still works</li>
+	<li>etc.</li>
+</ul>
+<p>
+	You don't need to wait having all the relevant changes before to create a commit.
+	While developing, it is often a good practie to commit your work in progress and push it on some remote to avoid losing it.
+	But once you have finished, you can go through your history of commits to clean it.
+	This is when you have to care about your commits atomicity.
+	And the various ways to achieve that are explained in the next section.
+</p>
+
+<h3 id="method-history">Commits History</h3>
+
+<p>
+	The commits history tells, to some extents, how the changes fit together.
+	You can tell a "nice story" by organising your commits in a way that facilitates the understanding of the evolution you made.
+	Several things can be done for that, and each are detailed in specific articles:
+</p>
+<ul>
+	<li><entry id="23">reorder the commits</entry></li>
+	<li><entry id="22">split a commit into several ones</entry></li>
+	<li><entry id="26">squash several commits into a single one</entry></li>
+	<li><entry id="28">delete a commit</entry></li>
+	<li><entry id="29">fake a commit</entry> (create and revert a commit to add changes without impacting the final result)</li>
+</ul>
+<p>
+	Feel free to combine them as you see fit, depending on your needs.
+	Don't forget however that you are rewriting the history!
+	If it is only your local stuff, that is OK.
+	If you rewrite stuff already shared, be sure to get the go from your colleagues.
+	Once done, you will have to push your changes with <code>git push --force-with-lease</code> (or <code>git push --force</code> if your Git is old).
+	<span class="warning">If you feel unsafe touching the commits history, take the relevant <entry id="24">safety measures</entry> first.</span>
+</p>
+<p>
+	Once you master these operations, you can combine them to do more complex things.
+	Here are some examples:
+</p>
+<ul>
+	<li>To add a change in an existing commit, add your change in a new commit, <entry id="23">move it</entry> close to the other commit and <entry id="26">squash it</entry></li>
+	<li>To merge some commits in the branch you are based on, <entry id="23">move them</entry> at the beginning of your branch before to merge them in fast-forward.</li>
+	<li>
+		If you need a peer review before to merge them, create a branch on the last commit to merge and share it.
+		If some fixes occur during the review, ensures that you create new commits for them.
+		You can then <entry id="29">fake the fixes</entry> at the beginnning of your own branch and <entry id="28">delete the reverts</entry> to reach a compatible state.
+		The commits and their fixes can be cleaned before to be merged, then just reproduce your own commits (not merged) on the updated base branch.</li>
+</ul>
+<p>
+	These procedures can be combined and greatly simplified with <code>git rebase -i</code>.
+	Mastering <a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">rebasing</a> and the <a href="https://git-scm.com/docs/git-rebase">rebase command</a> can save a lot of time to <a href="https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History">rewrite your history</a>.
+	For the ones who still struggle with Git, I strongly recommend to go iteratively.
+	Clarify the first issue you want to tackle and select the procedure to apply.
+	Check that the new state of your branch corresponds to what you expect, then pass to the next issue.
+</p>
+<p>
+	If the branch is so messed up that you don't even know where to start from, prefer to <entry id="27">squash all your commits into a single one</entry>.
+	You lose all the history, but you only have the final state in a single commit.
+	At that point, you can <entry id="22">split the commit</entry> as you see fit and <entry id="23">reorder the extracted commits</entry> to get something easier to understand.
+	A systematic way to go is to:
+</p>
+<ol>
+	<li>split the overall commit into multiple atomic commits</li>
+	<li>move the commits to group the ones that should be kept together</li>
+	<li>squash each group into one commit each</li>
+	<li>order the remaining commits to facilitate the understanding</li>
+</ol>
+<p>
+	You may think that all these commits moving around means a lot of conflicts to resolve.
+	However, if you properly design and organise your code, you can use independent pieces thate won't conflict with each other when moved.
+	If you happen to have a lot of conflcits, you may think again about what you are doing.
+</p>
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	<li>
+		Cleaning a commits history can be done with the most basic Git commands if we accept to forget it (the history, not the changes) and recreate the commits from scratch.
+		Otherwise, various procedures can be used to split/squash the commits, move them, remove the irrelevant changes, etc.
+	</li>
+	<li>
+		Cleaning a commit content consists in using these procedures to ensure that each commit completely represent a single purpose.
+		Once the content of the commit is clean, its purpose should be obvious to the committer.
+	</li>
+	<li>
+		Cleaning a commit message corresponds to stating the purpose behind the content of the commit.
+		Once the purpose is stated, the content shows how it is tackled.
+		The commit message may also provide additional details like identified limits or the partial satisfaction of the purpose.
+		Although this information might not be directly written in the commit message, it should provide the relevant references to retrieve it.
+		A good commit message allows a future reader to understand how this commit relates to his or her own work.
+	</li>
+</p>
+
+<h2 id="links">Related Questions</h2>
+
+&lt;None&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+<li id="gitbookRewrite"><cite>Git Book - Rewriting History</cite>: <a href="https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History">https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History</a></li>
+</ul>
+
+</div>
+</body>
+</html>

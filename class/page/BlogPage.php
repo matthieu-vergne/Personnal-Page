@@ -145,6 +145,18 @@ class BlogPage extends InternalPage {
 				Maybe a physical book will be produced out of it, it depends on how it turns out and the feedback I will get.
 			</p>
 			
+			<h2>Git</h2>
+			
+			<p>
+				I mainly us Git to version my code and <a href="https://github.com/matthieu-vergne?tab=repositories">GitHub</a> to store it remotely.
+				As a perfectionnist, I often spend some time cleaning not only my code, but also my Git commits.
+				It helps reviewing my own code, but it also supports my colleagues in reviewing it.
+				Here are some insights I can share on that matter:
+			</p>
+			<ul>
+				<li><entry id="25" /></li>
+			</ul>
+			
 			<h2>Research</h2>
 			
 			<p>

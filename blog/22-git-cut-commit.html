@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="blogEdit.js"></script>
+</head>
+<body id="blog" class="language-java">
+<div class="language-bash">
+<h1>How to Split a Single Git Commit into Several Commits?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	You have a Git commit which contains several changes.
+	For example, a commit containing the addition of different features, or a feature with additional fixes.
+	You have put them together in one commit and you want to fix that.
+</p>
+
+<h2 id="question">Question</h2>
+
+<p>
+	Splitting in several commits can be done by extracting one change from the commit into another commit, then repeating the process for another change.
+	Consequently, we will focus on the extraction of a single change, leading to the question:
+	How to extract a change from a Git commit into a separate commit?
+</p>
+
+<h2 id="method">Method</h2>
+
+<include src="git-rewrite-warning.html"/>
+<p>
+    Several aspects need to be considered here.
+    We may want to extract a change from the last commit or from an earlier commit.
+    We may want to extract a change that is overlapping with the other changes in the commit or which is completely separate.
+    We may want to extract the change next to the current commit or to a different place in the commits history.
+    We will address all these points and more by starting from the most simple case and growing in complexity progressively.
+</p>
+
+<h3 id="method-redo-last-commit">Just Redo the Last Commit</h2>
+
+<p>
+	Let's be honest: the most generic way to fix a mistake is to restart from scratch.
+	If the last commit you created contains several changes, you can just forget that commit and create several ones instead.
+	You can do so by removing the last commit while preserving the files with <code>git reset HEAD^</code>.
+	The rest is just the common process of creating new commits, as if nothing happened in the first place.
+	You can also create 3, 4, or more commits while you are at it.
+</p>
+<p>
+	Here is a complete example:
+</p>
+<pre><code>
+git reset HEAD^          # Delete the current commit (keep the changes)
+git add &lt;change 1&gt;       # Feed the first commit
+git commit -m 'Change 1' # Commit
+git add &lt;change 2&gt;       # Feed the 2d commit
+git commit -m 'Change 2' # Commit
+</code></pre>
+<p>
+	That is fine for the smallest commits, for which there is little to redo.
+	But when there is a lot in the commit, and you just want to extract a piece out of it, spending time redoing the whole stuff can feel like a waste of time and error prone.
+</p>
+
+<h3 id="method-independent-file-after-last-commit">Extracting an Independent File after the Last Commit</h2>
+
+<p>
+	Actually, you can slightly adapt the previous process to not completely restart from scratch.
+	If you reset with the <code>--soft</code> option, you can forget the commit but keep all its changes in the stage area.
+	Calling <code>git commit</code> would just create the same commit than before.
+	Unstage the files you don't want before to commit and create an additional commit for them next:
+</p>
+<pre><code>
+git reset --soft HEAD^     # Delete the current commit (keep the changes staged)
+git rm --cached &lt;change 2&gt; # Unstage the file to extract (keep the file itself)
+git commit -m 'Change 1'   # Commit
+git add &lt;change 2&gt;         # Feed the 2d commit
+git commit -m 'Change 2'   # Commit
+</code></pre>
+<p>
+	Although it is a natural way to go, you can optimize a bit.
+	Indeed, with this procedure you:
+</p>
+<ol>
+	<li>go back to the staging,</li>
+	<li>fix the staging,</li>
+	<li>commit again.</li>
+</ol>
+<p>
+	You can reduce it to two steps only:
+</p>
+<ol>
+	<li>unstage the file for a new commit,</li>
+	<li>amend the previous commit instead of creating a new one.</li>
+</ol>
+<pre><code>
+git rm --cached &lt;change 2&gt;       # Stage the removal of the file to extract (keep the file itself)
+git commit --amend -m 'Change 1' # Amend the last commit to include this removal
+git add &lt;change 2&gt;               # Feed the new commit with the extracted file
+git commit -m 'Change 2'         # Commit
+</code></pre>
+<p>
+	The command <code>git rm --cached</code>, like the <code>git add</code>, can include several files or be repeated if required.
+</p>
+
+<h3 id="method-independent-chunk-after-last-commit">Extracting an Independent Chunk after the Last Commit</h2>
+
+<p>
+	Here you want to remove one or several changes from a file, but not all the changes.
+	The commands we have seen so far can deal with files, but not a smaller granularity.
+	To go further, you need to use the <a href="https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging">interactive staging</a>.
+</p>
+<p>
+	It can be done in command line with <code>git add -i</code>.
+	However, it can be time consuming with complex commits.
+	I personnally like the feature, but only when done through a graphical interface.
+	It saves a lot of time.
+</p>
+<figure id="img-interactive-staging">
+	<figcaption>Interactive staging with Git Cola</figcaption>
+	<img src="22-interactive-staging.png" style="max-height: 500px" />
+</figure>
+<p>
+	With the command line, you have to remove the last commit with <code>git reset --soft HEAD^</code>.
+	You can then update the stage interactively to remove the chunks you don't want before to commit.
+</p>
+<p>
+	With the graphical interface, you can often enter in an "amend mode".
+	It allows you to edit the last commit without removing it and creating it again.
+	The graphical interface can also let you chose which file to look at and show all the chunks of that file at once.
+	It makes it quick to go to the chunk we want and add or remove it.
+	You can often do it on the selected lines rather than a complete chunk too.
+</p>
+<p>
+	We don't go deeper on the chunk aspect.
+	You can adapt the procedures by selecting chunks with your preferred tool instead of using the <code>git add</code> and <code>git rm</code> commands.
+</p>
+
+<h3 id="method-overlapping-change-after-last-commit">Extracting an Overlapping Change after the Last Commit</h2>
+
+<p>
+	Now we reach the limits of Git in terms of granularity.
+	Git deals with the syntax, but not with the semantic.
+	If several changes occur in the same chunk, Git only sees a single chunk of change.
+	It cannot discern that several things are happening there.
+</p>
+<p>
+	At this point, we need to help Git by editing the file.
+	It can be done manually or with git commands to retrieve a previous state, like <code>git checkout &lt;commit&gt; &lt;file&gt;</code>.
+	Of course, combine them as you see fit depending on your needs.
+	The advantage of editing the file is that we don't have to play with the staging.
+	Since the file is cleaned, just stage it completely, which can be done automatically when commiting with the <code>--all|-a</code> option.
+	For example:
+</p>
+<pre><code>
+&lt;editing&gt;                         # Remove the changes to extract
+git commit --amend -am 'Change 1' # Amend the last commit
+&lt;editing&gt;                         # Redo the extracted changes
+git commit -am 'Change 2'         # Commit
+</code></pre>
+<p>
+	If the removal of the changes can be done quickly, it is often a satisfying procedure.
+	Just remove the stuff, save and commit, then cancel the removal (often CTRL+Z), save and commit, period.
+</p>
+<p>
+	But the removal may take some time and require to change several places at once.
+	In this case, we may prefer to avoid doing a manual pass a second time to cancel all of them.
+	In which case, we can use Git to automatize the cancellation.
+	We do so by creating a commit that contains the extraction and by exploiting <code>git revert</code> to cancel it.
+	However, it creates additional commits that we have then to clean.
+</p>
+<p>
+	Here is the complete procedure:
+</p>
+<pre><code>
+# Preparation phase
+&lt;editing&gt;                                # Remove the change 2 to extract
+MESSAGE_1ONLY='Change 1'                 # Stores the final name of the commit with change 1
+MESSAGE_2ONLY='Change 2'                 # Stores the final name of the commit with change 2
+# Commiting phase
+git commit -am 'Remove change 2'         # Commit the removal
+git revert -n HEAD                       # Revert the removal and stage it (no commit)
+git commit -m "$MESSAGE_2ONLY"           # Commit with your own message
+# Cleaning phase
+COMMIT_1AND2=$(git rev-parse HEAD~2)     # Identify the commit with change 1 &amp; 2
+COMMIT_REMOVE2=$(git rev-parse HEAD~1)   # Identify the commit which removes the change 2
+COMMIT_2ONLY=$(git rev-parse HEAD)       # Identify the commit with change 2 only
+git reset --hard ${COMMIT_REMOVE2}       # Reset to the state with only change 1
+git reset --soft ${COMMIT_1AND2}         # Reset to the first commit, but keeping the state
+git commit --amend -m "${MESSAGE_1ONLY}" # Update this commit with that state
+git cherry-pick ${COMMIT_2ONLY}          # Redo the commit with change 2
+</code></pre>
+<p>
+	Now it becomes ugly, but this is for a good cause.
+	As you can see, there is a preparation phase where we provide all the information, including the change to extract (change 2) by removing it manually.
+	Then, the commiting phase produces all the commits we need.
+	In particular, it produces the commit having only change 2.
+	But for change 1, it keeps the initial commit with change 1 and change 2, and creates an additional commit without change 2.
+	The goal of the cleaning phase that come after is to squash these two commits into one, which contains only change 1.
+	Since changing a commit cannot be done in the middle of a branch, we must recreate all of them, which explains the multiple commands.
+</p>
+<p>
+	Although the procedure is long, it only requires a single manual editing.
+	After setting the variables <code>MESSAGE_1ONLY</code> and <code>MESSAGE_2ONLY</code>, you can copy the remaining commands and execute them all at once.
+</p>
+
+<h3 id="method-change-before-last-commit">Extracting a Change before the Last Commit</h2>
+
+<p>
+	We have seen so far how to extract a change after the last commit.
+	But extracting it after the original commit means the last commit becomes the one extracted.
+	If you need to remove several things, you cannot repeat the procedure.
+	You first need to reorder the commits to bring back the "fat" commit last.
+</p>
+<p>
+	If your change is not overlapping with the rest, it is easy to do so.
+	You can use the right procedure to extract a <a href="#method-independent-file-after-last-commit">file</a> or a <a href="#method-independent-chunk-after-last-commit">chunk</a> after the commit.
+	You can then inverse the two last commits, with no conflict, with these commands:
+</p>
+<pre><code>
+COMMIT_1=$(git rev-parse HEAD~1)        # Identify the commit 1
+COMMIT_2=$(git rev-parse HEAD)          # Identify the commit 2
+git reset --hard ${COMMIT_1}~1          # Reset to the state before commit 1
+git cherry-pick ${COMMIT_2} ${COMMIT_1} # Redo commit 2 then commit 1
+</code></pre>
+<p>
+	However, this procedure works without conflict only if your changes do not overlap.
+	If they overlap, reordering the commits will require to resolve conflicts.
+	You may prefer instead to extract the change directly before the commit.
+	To do so, you need to place yourself before the commit, reproduce the change (manually or with git <code>git checkout</code>), and then create the remaining commit:
+</p>
+<pre><code>
+COMMIT=$(git rev-parse HEAD) # Identify the last commit
+git reset --hard ${COMMIT}~1 # Reset the branch to the previous commit
+&lt;editing&gt;                    # Reproduce change 1
+git add .                    # Stage change 1
+git commit -m "Change 1"     # Create the commit with change 1 only
+git revert -n HEAD           # Revert it without creating a commit
+git cherry-pick -n ${COMMIT} # Reproduce the commit with changes 1 &amp; 2, no commit again
+git commit -m "Change 2"     # Create the resulting commit with change 2 only
+</code></pre>
+<p>
+	There is two things to understand here:
+</p>
+<ol>
+	<li>
+		<strong>Why no conflict occurs when cherry-picking after adding two new commits?</strong><br/>
+		The commit with changes 1 &amp; 2 builds on a specific state (with none of these changes).
+		To cherry-pick it without having conflicts, we must be in the same state.
+		By commiting the change 1 and reverting it, we go back to this state, allowing the cherry-pick.
+	</li>
+	<li>
+		<strong>How reverting the commit with change 1 acts like a revert of change 1 in the commit with both changes?</strong><br/>
+		There is actually no attempt to adapt the revert for the incoming commit.
+		After the commit with change 1, we reach a state with change 1 only.
+		After reverting it and cherry-picking, we reach a state with changes 1 &amp; 2.
+		All we do then, is to ask Git to create a single commit for this new state with 1 &amp; 2.
+		In other words, create a commit to pass from a state with change 1 to a state with changes 1 &amp; 2.
+		The result is, by construction, to produce a commit that contains only change 2.
+	</li>
+</ol>
+
+<h3 id="method-change-in-other-commit">Extracting a Change from Another Commit</h2>
+
+<p>
+	So far, we have focused on extracting a change from the last commit.
+	The advantage of the last commit is that it can be directly edited with <code>git commit --amend</code>.
+	Most of the procedures we have seen previously exploit this command.
+</p>
+<p>
+	At the opposite, changing a commit that is not the last one cannot be done immediately.
+	We first need to start from the right commit with <code>git reset</code>, update as needed, then reproduce the remaining commits with <code>git cherry-pick</code>.
+	The procedure to extract a change before the last commit shows this aspect by working one commit before the last one.
+</p>
+<p>
+	Extracting a change before any other commit is a generalisation of this case.
+	The difference is that we need to reproduce a sequence of remaining commits instead of only one.
+	Here is the procedure:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD)               # Identify the last commit
+COMMIT_SPLIT=&lt;commit SHA-1&gt;                     # Identify the commit to split
+git reset --hard ${COMMIT_SPLIT}~1              # Reset the branch before the commit to split
+&lt;editing&gt;                                       # Reproduce change 1
+git add .                                       # Stage change 1
+git commit -m "Change 1"                        # Create the commit with change 1 only
+git revert -n HEAD                              # Revert it without creating a commit
+git cherry-pick -n ${COMMIT_SPLIT}              # Reproduce the commit with changes 1 &amp; 2, no commit again
+git commit -m "Change 2"                        # Create the resulting commit with change 2 only
+git cherry-pick ${COMMIT_SPLIT}..${COMMIT_LAST} # Reproduce all the remaining commits until the last
+</code></pre>
+<p>
+	This procedure can also be adapted to extract a change <em>after</em> any commit:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD)               # Identify the last commit
+COMMIT_SPLIT=&lt;commit SHA-1&gt;                     # Identify the commit to split
+git reset --hard ${COMMIT_SPLIT}                # Reset the branch to the commit to split
+&lt;editing&gt;                                       # Remove change 2
+git add .                                       # Stage the removal
+git commit --amend -m "Change 1"                # Update the commit, resulting in change 1 only
+git revert -n HEAD                              # Revert it without creating a commit
+git cherry-pick -n ${COMMIT_SPLIT}              # Reproduce the commit with changes 1 &amp; 2, no commit
+git commit -m "Change 2"                        # Create the resulting commit with change 2 only
+git cherry-pick ${COMMIT_SPLIT}..${COMMIT_LAST} # Reproduce all the remaining commits until the last
+</code></pre>
+<p>
+	The difference focuses on the lines 3-6:
+</p>
+<table>
+	<tr>
+		<th>#</th>
+		<th>Extract before</th>
+		<th>Extract after</th>
+	</tr>
+	<tr>
+		<td>3</td>
+		<td>reset <em>before</em> the commit to split</td>
+		<td>reset <em>to</em> the commit to split</td>
+	</tr>
+	<tr>
+		<td>4</td>
+		<td><em>add</em> the change to extract (change 1)</td>
+		<td><em>remove</em> the change to extract (change 2)</td>
+	</tr>
+	<tr>
+		<td>5</td>
+		<td colspan=2>stage the update</td>
+	</tr>
+	<tr>
+		<td>6</td>
+		<td><em>create</em> a new commit from it</td>
+		<td><em>update</em> the existing commit</td>
+	</tr>
+</table>
+
+<h3 id="method-extracting-change-in-history">Extracting a Change Elsewhere in the Commits History</h2>
+
+<p>
+	Actually, there is not much to say at this point.
+	With the previous procedures, you know how to split the commit on the spot.
+	Once you have extracted the change, you need to <entry id="23">move it</entry> in the history.
+</p>
+<p>
+	An alternative is to insert the change directly where needed.
+	For instance, rather than splitting and moving it before, you may directly create a commit with your change earlier in the history.
+	However, to reproduce the next commits after it, you need either to:
+</p>
+<ul>
+	<li>resolve the conflicts for each commit</li>
+	<li>revert the insertion before to reproduce the commits, and then move the revert throughout the commits, resolving the conflicts anyway</li>
+</ul>
+<p>
+	At the end, it is equivalent to extract it on the spot and <entry id="23">move it</entry>.
+</p>
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	To extract a change from a Git commit, various commands can be used depending on the context, among which:
+</p>
+<ul>
+	<li><code>git reset</code> to go back to a specific commit, either by using <code>--hard</code> to forget the changes altogether (and reproduce them later), by using <code>--soft</code> to keep the changes staged and remove the ones we don't want with <code>git rm --cached</code>, or by using none of them to keep the changes but choose which will be staged with <code>git add</code>.</li>
+	<li><code>git cherry-pick</code> to reproduce a commit, preferably from a state equivalent to the state it is picked from to avoid conflicts, possibly with <code>-n</code> to not create the commit immediately.</li>
+	<li><code>git revert</code> to cancel the last commit, possibly with <code>-n</code> to not create the commit immediately, unless we plan to squash it later.</li>
+	<li><code>git commit</code> to finally create the commit with the staged changes, or with <code>--amend</code> to update the last commit instead of creating a new one.</li>
+</ul>
+<p>
+	A particular care should be provided to managing the potential conflicts between changes.
+	Depending on which is preferable, one can either resolve the conflicts or manually add/remove the change.
+</p>
+
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25" /></li>
+</ul>
+<!--TODO Add line numbers-->
+<!--TODO Show how the branch evolves for each procedure-->
+<!--TODO Use "rebase -i"-->
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+
+</div>
+</body>
+</html>

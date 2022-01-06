@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="blogEdit.js"></script>
+</head>
+<body id="blog" class="language-java">
+<div class="language-bash">
+<h1>How to Squash Several Git Commits into a Single One?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	Several of your commits contain changes that you want to keep in a single commit.
+	For example, the addition of a new feature in a commit A and some fixes to this feature in a commit B.
+	You want them to be in a single commit to deliver the new feture already fixed.
+</p>
+<p>
+	Here, we target a fine grained modification of our commits.
+	If you prefer to forget your history and rewrite it completely, prefer <entry id="27">this way</entry>.
+</p>
+
+<h2 id="question">Question</h2>
+
+<p>
+	How to Squash Several Git Commits into a Single One?
+</p>
+
+<h2 id="method">Method</h2>
+
+<include src="git-rewrite-warning.html"/>
+
+<p>
+	All you need is to squash your commits into a single one that you can <entry id="22">split</entry> later if required.
+	Be aware that you will be the sole author of this commit, which might be unwanted.
+	Either provide authors information in the commit details or, after splitting, amend the relevant commits with the right authors.
+</p>
+<p>
+	For squashing your commits, you need first to have them in a sequence.
+	If some commits that you want to squash are mixed with commits you don't want to squash, first <entry id="23">reorder your commits</entry>.
+	The commits to squash can be in any order, so order them as you want as long as they are together.
+</p>
+<p>
+	Once your commits are properly ordered, here is the information you need to prepare:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD) # Identify the last commit
+COMMIT_START=&lt;commit SHA-1&gt;       # Identify the first commit to squash
+COMMIT_STOP=&lt;commit SHA-1&gt;        # Identify the last commit to squash
+MESSAGE="&lt;message&gt;"               # Message of the squashed commit
+</code></pre>
+<p>
+	Once ready, just squash the sequence into a single commit:
+</p>
+<pre><code>
+git reset --hard ${COMMIT_START}~1                   # Place the branch on the commit before the sequence
+git cherry-pick -n ${COMMIT_START}~1..${COMMIT_STOP} # Reproduce the sequence without commiting
+git commit -m "${MESSAGE}"                           # Commit the result with the squash message
+git cherry-pick ${COMMIT_STOP}..${COMMIT_LAST}       # Apply the remaining commits
+</code></pre>
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	To squash a set of Git commits, first ensure <entry id="23">they are ordered</entry> into a sequence.
+	You can then use <code>git reset --hard</code> to restart the branch just before the sequence to squash.
+	The main command to retrieve your commits is <code>git cherry-pick</code>.
+	Use it to retrieve the commits you need to reproduce as is.
+	For the sequence to squash, pick them with the <code>-n</code> option to retrieve only there changes.
+	You can commit all of them at once with <code>git commit</code>.
+</p>
+
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25"/></li>
+	<li><entry id="27"/></li>
+</ul>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+
+</div>
+</body>
+</html>

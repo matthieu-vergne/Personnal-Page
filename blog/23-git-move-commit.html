@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="blogEdit.js"></script>
+</head>
+<body id="blog" class="language-java">
+<div class="language-bash">
+<h1>How to Move a Git Commit in the History?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	You have created a commit at the wrong time in the commits history.
+	For example, you want the commit to be merged, but it is mixed with others that should not be merged yet (or vice versa).
+	Or the commit is independent from other commits, and keeping it there would just make the review more confusing, so you want to place it first/last.
+	Anyway, the order of the commit is not satisfying, so you want it to be elsewhere in the branch.
+</p>
+
+<h2 id="question">Question</h2>
+
+<p>
+	How to move a Git commit in the history?
+</p>
+
+<h2 id="method">Method</h2>
+
+<include src="git-rewrite-warning.html"/>
+<p>
+	Notice that Git does not allow to modify the first commit.
+	It means that you cannot move a commit earlier in the history than the second place.
+	<strong>These procedures will simply, and badly, fail if you try to move your commit first.</strong>
+	Since you are not supposed to do it, just don't do it.
+</p>
+<p>
+	Notice also that moving the commit last means there is no remaining commit.
+	Each procedure comes with a command to retrieve the remaining commits.
+	If you move the commit last, this command will fail but the procedure will terminate properly.
+</p>
+<p>
+	Once the points of caution are clear, reordering commits can be done in several ways.
+	If you need to move only parts of it, <entry id="22">split the commit</entry> first.
+	If you need to move a sequence of commits, either move them one at a time or <entry id="26">squash them</entry> first to move all of them at once.
+	It is possible to move a sequence of commits as is, but the resolution of conflicts remains a potential issue.
+	In this article, we deal with this aspect for each commit separately, but feel free to adapt it to a full sequence.
+	Once you are ready to go, you must identify the commit to move:
+</p>
+<pre><code>
+COMMIT=&lt;commit SHA-1&gt;
+</code></pre>
+<p>
+	The commits are recreated during the operation, thus changing their hash.
+	This variable must be updated after each operation to consider this change.
+	The provided procedures include this update to ease the work, so you only need to define it once.
+</p>
+
+<h3 id="method-before-single">Move a Commit 1 Step Before</h3>
+
+<p>
+	If your commit does not overlap with the one before (no conflict is expected), you can just swap their order:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD)          # Identify the last commit
+git reset --hard ${COMMIT}~2               # Place the branch on the commit before the ones to swap
+git cherry-pick ${COMMIT} ${COMMIT}~1      # Apply the commits in a swapped order
+NEW_HASH=$(git rev-parse HEAD~1)           # Save the new commit hash
+git cherry-pick ${COMMIT}..${COMMIT_LAST}  # Apply the remaining commits
+COMMIT=${NEW_HASH}                         # Update the commit hash for next move
+</code></pre>
+<p>
+	If the commit to move overlaps with the commit to swap, you will have conflicts to resolve.
+	If you are fine resolving the conflicts, then just apply the procedure above.
+	The potential conflicts occur on the first <code>cherry-pick</code>.
+	Otherwise, you may prefer to reproduce the change manually during the <code>&lt;editing&gt;</code> step below:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD)                       # Identify the last commit
+git reset --hard ${COMMIT}~2                            # Place the branch on the commit before the ones to swap
+&lt;editing&gt;                                               # Reproduce the change of the commit to move
+git add .                                               # Stage the change
+git commit -m "$(git log --format=%B -n 1 ${COMMIT})"   # Commit it with the initial commit message
+NEW_HASH=$(git rev-parse HEAD)                          # Save the new commit hash
+git revert -n HEAD                                      # Revert the change without commiting
+git cherry-pick -n ${COMMIT}~1 ${COMMIT}                # Reproduce the 2 original changes without commiting
+git commit -m "$(git log --format=%B -n 1 ${COMMIT}~1)" # Commit the result with the swapped commit message
+git cherry-pick ${COMMIT}..${COMMIT_LAST}               # Apply the remaining commits
+COMMIT=${NEW_HASH}                                      # Update the commit hash for next move
+</code></pre>
+<p>
+	If you don't like to reproduce the change, you can instead <em>remove</em> the change of the <em>swapped commit</em>.
+	For that, just use the reverse procedure below to move the swapped commit after instead of moving the initial commit before.
+</p>
+
+<h3 id="method-before-multiple">Move a Commit Several Steps Before</h3>
+
+<p>
+	One way to move your commit is to repeat the procedures above.
+	Identify your commit, select the right procedure (simple swap vs. manual editing), and repeat.
+	At each step, you need to choose the right procedure depending on your potential conflicts with the next commit to swap with.
+	By sequencing them properly, you should reach the place you want with your commit.
+</p>
+<p>
+	Another way to go is to move the commit directly n steps before.
+	If your commit does not overlap with <em>any</em> of the n commits before it, you can move it directly there:
+</p>
+<pre><code>
+N=&lt;steps&gt;                                       # Identify the number of commits to jump
+COMMIT_LAST=$(git rev-parse HEAD)               # Identify the last commit
+git reset --hard ${COMMIT}~$((N+1))             # Place the branch on the commit before the ones to jump
+git cherry-pick ${COMMIT}                       # Apply the commit to move
+NEW_HASH=$(git rev-parse HEAD)                  # Save the new commit hash
+git cherry-pick ${COMMIT}~$((N+1))..${COMMIT}~1 # Apply the commits to jump
+git cherry-pick ${COMMIT}..${COMMIT_LAST}       # Apply the remaining commits
+COMMIT=${NEW_HASH}                              # Update the commit hash for next move
+</code></pre>
+<p>
+	If the commit to move overlaps with one or several commits, you will have conflicts to resolve.
+	If you are fine resolving the conflicts, then just apply the procedure above.
+	The potential conflicts occur on the first and second <code>cherry-pick</code>.
+</p>
+<p>
+	If you don't want to resolve the conflicts, you may prefer to reproduce the change manually.
+	The point is that you need to reproduce it at least for each commit that conflicts.
+	If you don't want to spend time finding which commits may conflict, you can reproduce the change for each commit.
+	In this case, you can apply this procedure in 4 phases:
+</p>
+<pre><code>
+# Prepare
+N=&lt;steps&gt;                                                      # Identify the number of commits to jump
+COMMIT_LAST=$(git rev-parse HEAD)                              # Identify the last commit
+git reset --hard ${COMMIT}~$((N+1))                            # Place the branch on the commit before the ones to jump
+# Insert the change before the commits
+&lt;editing&gt;                                                      # Reproduce the change of the commit to move
+git add .                                                      # Stage the change
+git commit -m "$(git log --format=%B -n 1 ${COMMIT})"          # Commit it with the initial commit message
+NEW_HASH=$(git rev-parse HEAD)                                 # Save the new commit hash
+I=0                                                            # Identify the target commit (first in list)
+# Propagate the change throughout the commits
+git revert -n HEAD~$((I+1))..HEAD                              # Revert all the changes made so far (no commit)
+git cherry-pick -n ${COMMIT}~$((N+1))..${COMMIT}~$((N-I))      # Reproduce all the original changes until the target commit (no commit)
+&lt;editing&gt;                                                      # Reproduce the change of the commit to move (no commit)
+git add .                                                      # Stage the changes
+git commit -m "$(git log --format=%B -n 1 ${COMMIT}~$((N-I)))" # Commit the result with the target commit message
+((I++))                                                        # Pass to the next target commit
+((I &lt; N)) &amp;&amp; echo Propagate || echo Terminate                  # Tell whether to propagate again or terminate
+# Terminate with the remaining commits
+git cherry-pick ${COMMIT}..${COMMIT_LAST}                      # Apply the remaining commits
+COMMIT=${NEW_HASH}                                             # Update the commit hash for next move
+</code></pre>
+<p>
+	You can optimise this procedure by simplifying the propagation steps.
+	If the target commit has no conflict, or few enough to accept resolving them, you can reproduce it directly:
+</p>
+<pre><code>
+# Propagate the change throughout the commits
+git cherry-pick ${COMMIT}~$((N-I))            # Reproduce the target commit
+((I++))                                       # Pass to the next target commit
+((I &lt; N)) &amp;&amp; echo Propagate || echo Terminate # Tell whether to propagate again or terminate
+</code></pre>
+
+<h3 id="method-after-single">Move a Commit 1 Step After</h3>
+
+<p>
+	If your commit does not overlap with the one after (no conflict is expected), you can just swap their order:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD)                # Identify the last commit
+COMMIT_NEXT=$(git rev-list $COMMIT... | tail -1) # Identify the next commit
+git reset --hard ${COMMIT}~1                     # Place the branch on the commit before the ones to swap
+git cherry-pick ${COMMIT_NEXT} ${COMMIT}         # Apply the commits in a swapped order
+NEW_HASH=$(git rev-parse HEAD)                   # Save the new commit hash
+git cherry-pick ${COMMIT_NEXT}..${COMMIT_LAST}   # Apply the remaining commits
+COMMIT=${NEW_HASH}                               # Update the commit hash for next move
+</code></pre>
+<p>
+	If the commit to move overlaps with the commit to swap, you will have conflicts to resolve.
+	If you are fine resolving the conflicts, then just apply the procedure above.
+	The potential conflicts occur on the first <code>cherry-pick</code>.
+	Otherwise, you may prefer to <em>remove</em> (not reproduce) the change manually during the <code>&lt;editing&gt;</code> step below:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD)                          # Identify the last commit
+COMMIT_NEXT=$(git rev-list $COMMIT... | tail -1)           # Identify the next commit
+git reset --hard ${COMMIT}~1                               # Move before the commits to swap
+git cherry-pick -n ${COMMIT} ${COMMIT_NEXT}                # Reproduce the 2 original changes without commiting
+&lt;editing&gt;                                                  # Remove the change of the commit to move
+git add .                                                  # Stage the change
+git commit -m "$(git log --format=%B -n 1 ${COMMIT_NEXT})" # Commit the result with the swapped commit message
+git revert -n HEAD                                         # Revert the change without commiting
+git cherry-pick -n ${COMMIT} ${COMMIT_NEXT}                # Reproduce the 2 original changes without commiting
+git commit -m "$(git log --format=%B -n 1 ${COMMIT})"      # Commit the result with the extracted commit message
+NEW_HASH=$(git rev-parse HEAD)                             # Remember its new hash
+git cherry-pick ${COMMIT_NEXT}..${COMMIT_LAST}             # Reproduce the remaining commits
+COMMIT=${NEW_HASH}                                         # Update the commit hash for next move
+</code></pre>
+<p>
+	If you don't like to <em>remove</em> the change, you can instead reproduce the change of the <em>swapped commit</em>.
+	For that, just use the reverse procedure above to move the swapped commit before instead of moving the initial commit after.
+</p>
+
+<h3 id="method-after-multiple">Move a Commit Several Steps After</h3>
+
+<p>
+	One way to move your commit is to repeat the procedures above.
+	Identify your commit, select the right procedure (simple swap vs. manual editing), and repeat.
+	At each step, you need to choose the right procedure depending on your potential conflicts with the next commit to swap with.
+	By sequencing them properly, you should reach the place you want with your commit.
+</p>
+<p>
+	Another way to go is to move the commit directly n steps after.
+	If your commit does not overlap with <em>any</em> of the n commits before it, you can move it directly there:
+</p>
+<pre><code>
+N=&lt;steps&gt;                                                      # Identify the number of commits to jump
+COMMIT_LAST=$(git rev-parse HEAD)                              # Identify the last commit
+COMMIT_END=$(git rev-list ${COMMIT}... | tail -${N} | head -1) # Identify the last commit to jump
+git reset --hard ${COMMIT}~1                                   # Place the branch before the commit to move
+git cherry-pick ${COMMIT}..${COMMIT_END}                       # Apply the commits to jump
+git cherry-pick ${COMMIT}                                      # Apply the commit to move
+NEW_HASH=$(git rev-parse HEAD)                                 # Save the new commit hash
+git cherry-pick ${COMMIT_END}..${COMMIT_LAST}                      # Apply the remaining commits
+COMMIT=${NEW_HASH}                                             # Update the commit hash for next move
+</code></pre>
+<p>
+	If the commit to move overlaps with one or several commits, you will have conflicts to resolve.
+	If you are fine resolving the conflicts, then just apply the procedure above.
+	The potential conflicts occur on the first and second <code>cherry-pick</code>.
+</p>
+<p>
+	If you don't want to resolve the conflicts, you may prefer to <em>remove</em> (not reproduce) the change manually.
+	The point is that you need to remove it at least for each commit that conflicts.
+	If you don't want to spend time finding which commits may conflict, you can remove the change for each commit.
+	In this case, you can apply this procedure in 4 phases:
+</p>
+<pre><code>
+# Prepare
+N=&lt;steps&gt;                                                            # Identify the number of commits to jump
+COMMIT_LAST=$(git rev-parse HEAD)                                    # Identify the last commit
+COMMIT_END=$(git rev-list ${COMMIT}... | tail -${N} | head -1)       # Identify the last commit to jump
+git reset --hard ${COMMIT}~1                                         # Place the branch before the commit to move
+I=0                                                                  # Identify the target commit (first in list)
+# Propagate the change removal throughout the other commits
+git cherry-pick -n ${COMMIT}~1..${COMMIT_END}~$((N-I-1))             # Reproduce all the original changes until the target commit (no commit)
+&lt;editing&gt;                                                            # Remove the change of the commit to move (no commit)
+git add .                                                            # Stage the changes
+git commit -m "$(git log --format=%B -n 1 ${COMMIT_END}~$((N-I-1)))" # Commit the result with the target commit message
+git revert -n HEAD~$((I+1))..HEAD                                    # Revert all the changes made so far (no commit)
+((I++))                                                              # Pass to the next target commit
+((I &lt; N)) &amp;&amp; echo Propagate || echo Insert                           # Tell whether to propagate again or insert the change
+# Insert the change after the commits
+git cherry-pick -n ${COMMIT}~1..${COMMIT_END}                        # Reproduce all the original changes
+git add .                                                            # Stage the changes
+git commit -m "$(git log --format=%B -n 1 ${COMMIT})"                # Commit it with the moved commit message
+NEW_HASH=$(git rev-parse HEAD)                                       # Save the new commit hash
+# Terminate with the remaining commits
+git cherry-pick ${COMMIT_END}..${COMMIT_LAST}                        # Apply the remaining commits
+COMMIT=${NEW_HASH}                                                   # Update the commit hash for next move
+</code></pre>
+<p>
+	You can optimise this procedure by simplifying the propagation steps.
+	If the target commit has no conflict, or few enough to accept resolving them, you can reproduce it directly:
+</p>
+<pre><code>
+# Propagate the change removal throughout the other commits
+git cherry-pick ${COMMIT_END}~$((N-I-1))   # Reproduce the target commit
+((I++))                                    # Pass to the next target commit
+((I &lt; N)) &amp;&amp; echo Propagate || echo Insert # Tell whether to propagate again or insert the change
+</code></pre>
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	To move a Git commit in the history, you can use various Git commands:
+</p>
+<ul>
+	<li><code>git reset --hard</code> to "cut" the branch, forgetting the last commits before to reproduce them as wanted</li>
+	<li><code>git cherry-pick</code> to reproduce specific commits, with the <code>-n</code> option to only reproduce their changes without actually committing them</li>
+	<li><code>git revert -n</code> to revert the last changes in preparation of the next commit</li>
+	<li><code>git add .</code> to stage all the current changes, including manual ones if needed</li>
+	<li><code>git commit</code> to actually create the clean commits</li>
+</ul>
+<p>
+	Simples procedures, based on <code>reset</code> and <code>cherry-pick</code>, allow to easily recreate a commits history by picking them in the right order.
+	However, it works well when the commits do not overlap (too much) each other, to reduce the conflicts to the minimum.
+	If conflicts are an issue, it is possible to use the other commands to pick and adapt the changes we need.
+	Depending on whether you move your commit <em>before</em> or <em>after</em>, manual editions will <em>reproduce</em> or <em>remove</em> the change.
+</p>
+<p>
+	You have some flexibility in chosing your edition strategy.
+	Indeed, for a single step, both strategies aim to swap 2 commits, let's say change 1 then change 2.
+	One strategy is to move change 2 <em>before</em>, which means <em>reproducing</em> change 2.
+	The other stragegy is to move change 1 <em>after</em>, which means <em>removing</em> change 1.
+	In other words, you cannot choose only a specific change, but you can reproduce one or remove the other.
+</p>
+<p>
+	However, this flexibility is significantly reduced when moving a commit by several steps.
+	Indeed, if change 1 is the commit to move, change 2 is the sequence of commits after it.
+	Either you reproduce always change 1, or you remove each change provided by each commit of change 2.
+	Of course, the same reasoning applies in the other direction.
+</p>
+<p>
+	In other words, it is often a good thing to focus on the commit to move, and be able to reproduce or remove it as required.
+	Usually, though, we work on the most recent commits, which means moving them before rather than after.
+	Consequently, we need more often to reproduce a change rather than removing it, which is often simpler because more usual.
+</p>
+<p>
+	To summarize, we can move a single commit where we want in the history without having to deal with conflicts nor deeply understand the whole history.
+	As long as we can easily deal with the conflicts or easily reproduce the commit, it is not that complex to reorder the commits.
+	And if you find it difficult, think about <entry id="22">splitting your commits</entry> first to reduce their complexity.
+</p>
+
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25" /></li>
+</ul>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="blogEdit.js"></script>
+</head>
+<body id="blog" class="language-java">
+<div class="language-bash">
+<h1>How to Safely Rewrite Git Commits?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	You want to improve your Git commits history, but you feel unsafe.
+	What may happen if you mess up something?
+	That is a good mindset: improving a Git history is rather simple, but as much as messing it up.
+</p>
+
+<h2 id="question">Question</h2>
+
+<p>
+	How to safely rewrite Git commits?
+</p>
+
+<h2 id="method">Method</h2>
+
+<h3 id="method-delay">Delay the replacement of the original branch</h3>
+
+<p>
+	Various commands offer similar capabilities.
+	There is not a single way to do in Git.
+	If you happen to use commands that touch your original branch, you may prefer to replace them by others and move the branch only at the end (or when necessary).
+</p>
+<p>
+	For example, <code>git reset</code> move your current branch to another commit.
+	You may prefer <code>git checkout</code> to move to this commit while keeping your original branch where it is.
+	Don't forget, however, that commands expecting this move must be changed too.
+	You may use the commit ID instead of the branch that was supposed to point to it.
+	At the end, don't forget to move your branch to the rewritten commits with <code>git reset --hard</code> or <code>git branch --force</code>.
+</p>
+<p>
+	Adapting the Git commands is not an easy task if you don't know them well enough.
+	If you prefer to keep your procedure, prefer to rely on the backup describe below.
+</p>
+
+<h3 id="method-backup">Use a Backup</h3>
+
+<p>
+	Before to rewrite the commits of a branch, checkout and ensure it is in a satisfying state.
+	Then, create your backup variables:
+</p>
+<pre><code>
+BACKUP_BRANCH=$(git rev-parse --abbrev-ref HEAD) # Current branch
+BACKUP_COMMIT=$(git rev-parse ${BACKUP_BRANCH})  # Current commit of the branch
+</code></pre>
+<p>
+	You can also push the branch on a remote to have a remote backup.
+	It will help for the worst, paranoid cases.
+</p>
+<p>
+	If you think that rewriting your history went OK, you can compare your current state with the backup:
+</p>
+<pre><code>
+git diff ${BACKUP_COMMIT}
+</code></pre>
+<p>
+	If you only rewrite the commits, the diff should be empty.
+	Otherwise, you should only see expected changes.
+</p>
+<p>
+	If something goes wrong and you are lost, unable to retrieve a clean state, just reset everything:
+</p>
+<pre><code>
+git rebase --abort                # Stop any running rebase
+git cherry-pick --abort           # Stop any running cherry-pick
+git reset --hard                  # Remove any uncommitted change
+git checkout ${BACKUP_BRANCH}     # Ensure that we are on the right branch
+git reset --hard ${BACKUP_COMMIT} # Ensure that this branch is on its initial commit
+</code></pre>
+<p>
+	If you messed up your local environment, including variables, you can <code>git reset --hard</code> on the remote backup.
+	In the worst case, you can just delete the complete repository (format your computer, etc.), clone again the remote and checkout from the remote branch.
+</p>
+<p>
+	You can now restart from the beginning.
+	Just avoid doing the same mistakes again.
+</p>
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	To safely rewrite a Git history, you can either:
+</p>
+<ul>
+	<li>adapt the commands to apply the rewrite at the end if everything is OK ;</li>
+	<li>maintain a backup, like environment variables pointing to the original branches and commits, to reset to if something goes wrong.</li>
+</ul>
+<p>
+	Adapting the procedure helps when you know enough the commands ot the procedure and their equivalents.
+	If you don't feel safe enough with that, prefer the backup solution.
+	For a greater level of safety, prepare a remote backup that you can checkout/clone again if even your local environment explodes.
+</p>
+
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25"/></li>
+</ul>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+
+</div>
+</body>
+</html>

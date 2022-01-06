@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="blogEdit.js"></script>
+</head>
+<body id="blog" class="language-java">
+<div class="language-bash">
+<h1>How to Fake a Git Commit in an Existing Commits History?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	Your commits history misses some changes.
+	You don't necessarily want to change the final result, but you want to introduce a change that appears nowhere in your history.
+	It might be some lost intermediary changes that you want to recover, or some changes made in another branch that you want to reproduce.
+</p>
+<p>
+	If the changes appears in a commit, you can <entry id="22">split it</entry> instead.
+</p>
+
+<h2 id="question">Question</h2>
+
+<p>
+	How to fake a Git commit in an existing commits history?
+</p>
+
+<h2 id="method">Method</h2>
+
+<include src="git-rewrite-warning.html"/>
+
+<p>
+	Faking a commit means introducing a commit that, at the end, does not change the state of the code.
+	There is only two ways to do so: create an empty commit, or create a commit that we revert.
+	An empty commit provides no change, so it is not what we want.
+	We want here to create a commit with some content that we revert in another commit.
+	Although the combination of both allows to maintain the state of the code, we still create a new commit with some new changes.
+	We can then play with this commit (and its revert) depending on the result to achieve.
+</p>
+
+<h3 id="method-manual">Introduce a Commit Manually</h3>
+
+<p>
+	This is rather simple:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD)              # Identify the last commit
+COMMIT_BASE=&lt;commit SHA-1&gt;                     # Identify the base commit
+MESSAGE_INSERT="&lt;message&gt;"                     # Message of the commit to insert
+git reset --hard ${COMMIT_BASE}                # Place the branch on the base commit
+&lt;editing&gt;                                      # Insert the change
+git add .                                      # Stage the change
+git commit -m "${MESSAGE_INSERT}"              # Commit the change
+git revert --no-edit HEAD                      # Revert the change
+git cherry-pick ${COMMIT_BASE}..${COMMIT_LAST} # Reproduce the remaining commits
+</code></pre>
+<p>
+	At this point, you have inserted one commit with the change you want, and another which reverts it.
+	You can now <entry id="23">move them</entry> where you need and <entry id="26">squash them</entry> with existing commits if required.
+	If you need to preserve the change, just <entry id="28">delete the revert commit</entry>.
+</p>
+
+<h3 id="method-pick">Pick an Existing Commit</h3>
+
+<p>
+	Picking an existing commit requires first to place yourself in a compatible state.
+	Not necessarily the same state, but a state on which you can reproduce the commit with no conflict.
+	You can do so in two ways:
+</p>
+<ul>
+	<li>select a base commit which is compatible</li>
+	<li>fake a compatible state by applying the manual procedure to create a compatible base commit and its revert</li>
+</ul>
+<p>
+	Once you have ensured that you have a compatible base commit, the procedure is highly similar:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD)              # Identify the last commit
+COMMIT_BASE=&lt;commit SHA-1&gt;                     # Identify the base commit
+COMMIT=&lt;commit SHA-1&gt;                          # Identify the commit to insert
+git reset --hard ${COMMIT_BASE}                # Place the branch on the base commit
+git cherry-pick ${COMMIT}                      # Insert the commit
+git revert --no-edit HEAD                      # Revert the change
+git cherry-pick ${COMMIT_BASE}..${COMMIT_LAST} # Reproduce the remaining commits
+</code></pre>
+
+<h3 id="method-pick-sequence">Pick a Sequence of Commits</h3>
+
+<p>
+	It is fundamentally the same thing than picking a single commit.
+	The main difference is that all the sequence must be considered for the compatibility of the base commit and the operations to do.
+	Once you have a commit compatible with the whole sequence:
+</p>
+<pre><code>
+COMMIT_LAST=$(git rev-parse HEAD)                # Identify the last commit
+COMMIT_BASE=&lt;commit SHA-1&gt;                       # Identify the base commit
+COMMIT=&lt;commit SHA-1&gt;                            # Identify the last commit to insert
+LENGTH=&lt;length&gt;                                  # Identify the length of the sequence to insert
+git reset --hard ${COMMIT_BASE}                  # Place the branch on the base commit
+git cherry-pick ${COMMIT}~$((LENGTH))..${COMMIT} # Insert the commits sequence
+git revert --no-edit HEAD~$((LENGTH))..HEAD      # Revert the commits sequence
+git cherry-pick ${COMMIT_BASE}..${COMMIT_LAST}   # Reproduce the remaining commits
+</code></pre>
+<p>
+	At this point, you have each commit of the sequence reproduced, but also a revert for each of them to pay with.
+</p>
+
+<h3 id="method-pick-distributed">Pick Commits from Different Places</h3>
+
+<p>
+	For this last case, there is no dedicated procedure.
+	The important point is to understand that each (sequence of) commit(s) builds on a different state.
+	Just consider one of them and execute the corresponding procedure, then repeat.
+</p>
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	Faking a Git commit is a rather simple process: just start from a base commit with <code>git reset --hard</code>, create your new commit here, revert it with <code>git revert</code>, and reproduce the remaining commits of the branch with <code>git cherry-pick</code>.
+	Although the idea itself is simple, a particular care should be taken when the new commit is taken from elsewhere with <code>git cherry-pick</code>.
+	Indeed, the base commit must provide a state on which we can reproduce the commit with no conflict.
+	Pay even more attention with an increasing number of commits to reproduce.
+</p>
+
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25"/></li>
+</ul>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+
+</div>
+</body>
+</html>
