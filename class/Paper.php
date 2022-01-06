@@ -176,8 +176,8 @@ class Paper {
 			
 			$paper = new Paper('hmcl-2017');
 			$paper->setDescription("M. Vergne, « Artificial Intelligence and Expertise: the Two Faces of the Same Artificial Performance Coin », technical report in Workshops at the Thirty-First AAAI Conference on Artificial Intelligence, 2017.");
-			$paper->setURL("http://www.aaai.org/ocs/index.php/WS/AAAIW17/paper/view/15148");
-			$paper->setPDF("http://www.aaai.org/ocs/index.php/WS/AAAIW17/paper/view/15148/14737");
+			$paper->setURL("http://www.aaai.org/ocs/index.php/WS/AAAIW17/paper/view/15148");// TODO replace ?
+			$paper->setPDF(Resource::getResource(16)->getFileUrl());
 			$paper->setPDFSource(Resource::getResource(27)->getFileUrl());
 			$paper->setSlides(Resource::getResource(17)->getFileUrl());
 			$paper->setSlidesSource(Resource::getResource(28)->getFileUrl());
