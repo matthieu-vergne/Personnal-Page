@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="blogEdit.js"></script>
+</head>
+<body id="blog" class="language-java">
+<div class="language-bash">
+<h1>How to Rebase a Git Branch Iteratively?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	While we work on our own branch, other changes might be merged in the main branch.
+	At some point, we might want to rebase our work on them, at least before to merge.
+	If our branch lives a long time, it is better to do it on a regular basis to avoid having to rebase on a lot of changes at once.
+	However, it sometimes happens that we have to rebase an old branch on many commits, like a forgotten branch that we want to update.
+</p>
+
+<h2 id="question">Question</h2>
+
+<p>
+	The main issue is the heavy effort required to integrate a lot of changes at once.
+	Instead, we would like to integrate a small piece of it, one at a time.
+	It would allow to go one easy step after another, and stop at some point to continue later.
+	In other words : how to rebase a Git branch iteratively?
+</p>
+
+<h2 id="method">Method</h2>
+
+<p>
+	Before to go, identify the branch or commit to rebase on:
+</p>
+<pre><code>
+BASE=&lt;branch or commit&gt;
+</code></pre>
+<p>
+	If it is a remote branch, don't forget to get its last commits with <code>git fetch</code> (not <code>git pull</code>, which is a fetch+merge).
+</p>
+<p>
+	It is possible to rebase your branch on this base one step at a time, in a controled way.
+	To do so, instead of rebasing all at once, we can rebase one commit (or some of them) at a time.
+	We can repeat the operation until we reach the most recent commit.
+	There is, however, two ways to understand an "iterative" rebase:
+</p>
+<ol>
+	<li>iterate your own branch: rebase one commit of your branch on the most recent commit of the base branch</li>
+	<li>iterate the base branch: rebase all your branch on the immediately next commit of the base branch</li>
+</ol>
+<p>
+	The point 1 is <em>not</em> what we will focus on in this article.
+	Indeed, this is the usual way to go and how Git works, so there is plenty of support for that elsewhere if you are interested.
+	By using a classical <a href="https://git-scm.com/docs/git-rebase">rebase</a>, Git helps you to redo each of your commits on the base branch.
+	However, you will remain stuck in the rebase process until all your branch is rebased.
+	Instead, you can create a temporary branch on the base and <a href="https://git-scm.com/docs/git-cherry-pick">cherry-pick</a> your commits one at a time.
+	It allows you to stop and continue later if needed, but you will have to deal with the new commits added to the base branch, enforcing you to redo it.
+	In any case, you rebase on a lot of commits at once, meaning you have to integrate a lot of changes in your branch in a single pass.
+</p>
+<p>
+	Here, we deal with point 2.
+	The difference is that we assume that you master the content of your own branch, but discover progressively the new commits of the base branch.
+	You can <entry id="25">clean your branch</entry> to reduce the conlicts resolution efforts, but then you go for rebasing all of it on a single (or few) new commit(s).
+	If new commits are added to the base branch during the process, it changes nothing to the procedure, just executing more iterations of it.
+	Here is the procedure to repeat until the rebase is complete:
+</p>
+<table>
+	<tr>
+		<th>Step</th>
+		<th>Goal</th>
+		<th>Command</th>
+	</tr>
+	<tr>
+		<td>1</td>
+		<td>Display the remaining commits to rebase on</td>
+		<td><pre><code>git log --oneline HEAD..${BASE}</code></pre></td>
+	</tr>
+	<tr>
+		<td>2</td>
+		<td>Identify the target commit to rebase on</td>
+		<td>
+			<pre><code>
+				COMMIT=$(git log --pretty=format:"%h" HEAD..${BASE} | tail -1) # Retrieves the next commit of the base branch
+				git log --oneline ${COMMIT} | head -1                          # Confirm the target commit
+			</code></pre>
+			<p>
+				We can use a more recent commit from the list provided in the previous step to rebase on several commits at once.
+				The critical point is to target a commit that passes all the tests.
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td>3</td>
+		<td>Analyse the changes brought by the target commit to estimate the potential conflicts and other required actions</td>
+		<td><pre><code>git diff $(git merge-base HEAD ${BASE}) ${COMMIT}</code></pre></td>
+	</tr>
+	<tr>
+		<td>4</td>
+		<td>Rebase your branch on the target commit and resolve potential conflicts</td>
+		<td><pre><code>git rebase ${COMMIT}</code></pre></td>
+	</tr>
+	<tr>
+		<td>5</td>
+		<td>Update submodules if you use them</td>
+		<td><pre><code>git submodule update</code></pre></td>
+	</tr>
+	<tr>
+		<td>6</td>
+		<td>Validate the rebase</td>
+		<td>
+			<pre><code>mvn clean test</code></pre>
+			<p>
+				Adapt this step to your context.
+				If you have automated or manual tests that can be executed, do it.
+				If other tests are adapted to a more recent state and are expected to fail for now, ignore them.
+				If you are on the last iteration and the rebase is complete, all the tests shouold be executed.
+			</p>
+		</td>
+	</tr>
+</table>
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	You can iteratively rebase your own branch on another by using a classical <a href="https://git-scm.com/docs/git-rebase">rebase</a> or <a href="https://git-scm.com/docs/git-cherry-pick">cherry-pick</a>.
+	However, it means rebasing on all the base commits at once.
+	You may prefer instead to rebase on the few next commits of the base branch first, and repeat until your reach the last one.
+	It allows you to look at these new commits one at a time to integrate them in your branch more easily.
+	To reduce the conflicts resolution effort, you may also <entry id="25">clean your branch</entry> before to rebase anything.
+</p>
+
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25"/></li>
+</ul>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+
+</div>
+</body>
+</html>
