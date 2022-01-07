@@ -55,7 +55,7 @@ class HomePage extends InternalPage {
 			"matthieu.vergne@unitn.it" => false,
 			"matthieu.vergne@studenti.unitn.it" => false,
 			"matthieu.vergne@ex-studenti.unitn.it" => false,
-			"matthieu.vergne@alumni.unitn.it" => true,
+			"matthieu.vergne@alumni.unitn.it" => false,
 			
 			// G-INP
 			"matthieu.vergne@grenoble-inp.org" => true,
