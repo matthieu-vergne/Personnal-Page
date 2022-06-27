@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="blogEdit.js"></script>
+</head>
+<body id="blog" class="language-java">
+<div class="language-bash">
+<h1>How to Understand "Optimisation"?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	TODO
+</p>
+
+<h2 id="question">Question</h2>
+
+<p>How to understand "optimisation"?</p>
+
+<h2 id="method">Method</h2>
+
+<p>
+	TODO
+</p>
+
+<h3 id="method-definition">Defining Program Optimisation</h3>
+
+<p>
+	When speaking about vocabulary, the best source remains the dictionary.
+	Merriam-Webster defines <a href="https://www.merriam-webster.com/dictionary/optimization">optimisation</a> as <quote>an act, process, or methodology of making something (such as a design, system, or decision) as fully perfect, functional, or effective as possible</quote>.
+	We can also look at the verb <a href="https://www.merriam-webster.com/dictionary/optimize">optimise</a> which means <quote>to make as perfect, effective, or functional as possible</quote>.
+	This definition is "exhaustive", in the sense that it is not about improving some specific aspects.
+	It is about improving everything that can be improved to a state where it cannot be improved further.
+	For those familiar with the context, optimising means to get as closer as possible to <a href="https://en.wikipedia.org/wiki/Pareto_efficiency">Pareto optimality</a>.
+	We may optimise something in particular, but it only translates an explicit bias favoring this aspect above the others.
+	Said differently, optimising \(x\) can be understood as optimising by giving a higher weight to \(x\).
+</p>
+<p>
+	When considering a program, we know that we can trade memory for speed and vice-versa.
+	For example, we can choose between recomputing a value when needed or storing it in memory for later reuse.
+	One saves memory but requires more computation time, while the other consumes more memory for a higher speed.
+	Consequently, optimising a program means choosing the right trade-offs, especially between minimal memory consumption and highest execution speed.
+	There is of course many more criteria to consider: code simplicity, team conventions, library dependencies, retro-compatibility, instructions safety, etc.
+	At the end, optimising a program means choosing the right trade-off between all these criteria.
+</p>
+<p>
+	One important aspect to highlight is that a trade-off can only be evaluated depending on the context.
+	If we work on a computer on which we can easily increase the memory, consuming more memory might appear as a better way to increase speed than replacing the processor.
+	If we work on a microcontroller with strictly limited memory, increasing its consumption above the limit will just make the program unable to run on the microcontroller, favoring recomputing.
+	As such, optimising a program is not a generic task, it is a context-dependent task that aims to identify the right trade-offs for a given program on a given execution environment.
+</p>
+
+<h3 id="method-evaluation">Evaluating Program Optimisation</h3>
+
+<p>
+	Let's keep it short: it is a hassle!
+</p>
+<p>
+	It is possible to evaluate the consumption of memory, execution speed and other technical parameters.
+	But it often happens that multiple factors must be considered.
+	For instance, the operating system is the one managing the resources.
+	It runs your program, but also many other things that also require memory and processor.
+	Depending on what else is running and its optimisation strategy, you can achieve different performances.
+	You may also have programmatic optimisations, like Java using its <a href="https://www.ibm.com/docs/en/sdk-java-technology/8?topic=reference-jit-compiler">JIT</a> to optimise pieces of code at run time.
+	And these are only some technical criteria, but how do you evaluate things like the code simplicity?
+	At some point, there is some subjectivity involved that require more human concensus than metrics to read.
+</p>
+<p>
+	Briefly, evaluating the impact of some optimisations is usually hard, which is why it is rarely done systematically (if at all).
+	Optimising is good for those ready to dedicate some time to it, usually because they already identified something to improve and want to know what to change for that.
+	Being realistic, optimising a program is a late activity, not something we can do in advance.
+	But does that mean that we cannot improve a code before to have metrics and team debates?
+	No, but to understand that, we have to distinguish two types of optimisations.
+</p>
+
+<h3 id="method-semantic-performance">Semantic vs. Performance</h3>
+
+<p>
+	Here is an example of Java code that passes all the relevant tests:
+</p>
+<pre><code>
+void doSomething() {
+	for (Object object : createList()) {
+		doA(object);
+	}
+	for (Object object : createList()) {
+		doB(object);
+	}
+}
+</code></pre>
+<p>
+	For novice programmers, we usually have two reactions.
+	One is that everything is fine, the tests pass so it does the job.
+	Another is that it can obviously be improved, either by storing the list in a variable to not create it twice, or by reducing the method to a single <code>for</code> loop that calls both <code>doA</code> and <code>doB</code>.
+	For more experienced programmers, there should have a single reaction: it depends.
+	Indeed, in Java we can have side effects that changes the behaviour of the methods.
+	If <code>doA</code> impacts the result of <code>createList</code>, then the second loop won't have the same list, so we cannot factor it.
+	Otherwise, if <code>doA</code> impacts the result of <code>doB</code>, then we cannot move them to the same loop since it replaces a sequence of <code>doA</code> followed by a sequence of <code>doB</code> by an alternating sequence that won't generate the same result.
+</p>
+<p>
+	At this point, we cannot say much about this code, so here is another one:
+</p>
+<pre><code>
+void storeUsersInDatabases() {
+	for (User user : retrieveUsersFromMemory()) {
+		storeUserInDatabase1(user);
+	}
+	for (User user : retrieveUsersFromMemory()) {
+		storeUserInDatabase2(user);
+	}
+}
+</code></pre>
+<p>
+	Now, everyone should agree: it makes no sense to retrieve twice the same list to store it in both databases.
+	Only a single loop is required with both calls.
+	Some perfectionists may say that we could have contexts where we want to guarantee that all the users are stored in the database 1 before to interact (and potentially fail) with database 2.
+	But again, all the relevant tests are there and green, and replacing by a single loop would keep them green.
+	At this point, everyone should favor the replacement.
+</p>
+<p>
+	But wait, this is exactly the same code than before!
+	We renamed some stuff, but this is the same process.
+	Where did all the side effects arguments go?
+</p>
+<p>
+	The difference is in the <em>semantic</em> of the code.
+	The first one gives no contextual information with its generic names.
+	The second provides a specific context to interpret the code.
+	And once we know that the list is retrieved from the memory and the actions are focused on different databases, we don't expect any side effect from the databases to the memory, nor between the databases.
+	Is it still possible?
+	The answer is yes, but that would be considered as a bug or a misconception, in any case something to fix as soon as possible.
+	If <code>storeUserInDatabase1</code> impacts database 2, that would break the <em>semantic</em> of the method, which says that it focuses on database 1.
+</p>
+<p>
+	Once the semantic is clear, it becomes obvious that reducing it to a single loop is better.
+	But did we use any metric to evaluate this optimisation? No.
+	Do we need one? No.
+	Well, we may use one to confirm that we gain some computation speed, but if this method is rarely called and the list is short, we would see no significant improvement.
+	Is it a problem? No because the improvement we seek here is not about performance, which is secondary, but about code simplicity.
+	This is something to be evaluated by human interpretations, not by technical means.
+	We may use some metrics to help identify issues, like the number of lines per method, or the use of too generic names, etc.
+	But at the end, this is a matter of interpretation within the team.
+</p>
+<p>
+	Now, this sounds a bit fishy as an argument.
+	Sure, interpretation is about personnal understanding, so we cannot avoid considering it.
+	But is it really that "random"?
+	Is there no kind of "common sense" to push for?
+	Fortunately, when we speak about programming today, there is!
+	First of all, the most direct common sense is the recurrent practices of the team.
+	Unless you have arguments to change it, a regular practice is part of the common sense to favor.
+	It maintains a coherence in the team, reducing the amount of things to know and the multiplication of interpretations.
+	But you can also look outside the team: good practices (<a href="https://en.wikipedia.org/wiki/SOLID">SOLID</a>, <a href="https://en.wikipedia.org/wiki/KISS_principle">KISS</a>, etc.), <a href="https://en.wikipedia.org/wiki/Software_design_pattern">design patterns</a>, or <a href="https://en.wikipedia.org/wiki/Ontology_(information_science)">ontologies</a> are resources that you can exploit.
+	There is always a subjective part regarding how we apply them in the team, but they can be used as fundamentals for building a team consensus.
+</p>
+<p>
+	But don't forget that optimisation is context-dependent.
+	While the team's practice is usually adapted to the context, it is not the case for the design patterns, good practices, etc.
+	What happens if a change breaks a SOLID principle, or even the semantic of the method, in favor of a better performance?
+	That is precisely the context-dependent question.
+	The team has to go back to the requirements, estimate the importance of each aspect, and set the balance where it seems to be the most relevant.
+	Be aware of what you lose and what you gain, balance them based on the team consensus, and choose your trade-offs.
+</p>
+
+<h3 id="method-phases">Optimisation Phases</h3>
+
+<p>
+	If optimising is about choosing the right trade-off, it is however a hard task.
+	As we saw, there can have plenty of criteria to consider, and all of them are not easy to value.
+	There might have subjective estimations on which we need to reach a consensus.
+	But there is clearly evaluations that we can do sooner than later.
+	Basically, exploit the "sensors" (human or technical) already there, and keep the rest for later.
+</p>
+<p>
+	Human sensors are immediately there for free.
+	Interpreting the semantics of the code is something that anyone can do, and sharing one's own interpretation can be done quickly.
+	Optimising the simplicity of the code is thus a type of optimisation that can be done early, as long as we agree on the intent behind the code.
+	Sharing good practices and other generic knowledge is also part of the programmer's life, so don't be shy to ask and share early.
+	It can enrich the team consensus and answer many questions that could rise during the production of the code.
+</p>
+<p>
+	If previous efforts have already set up some metrics, like evaluating the memory consumption, then use them too.
+	At the opposite, if you don't have yet something to evaluate other aspects, then ask yourself whether it makes sense to spend effort on that.
+	If it is a critical aspect of your program, then consider dedicating some time looking for relevant metrics or methods.
+	Otherwise, wait for more evidence to come.
+</p>
+<p>
+	In summary, we can identify 3 phases to evaluate the optimisation of the code:
+</p>
+<ol>
+	<li>human evaluations, especially regarding the semantic of the code (simplicity, clarity, intents, design, etc.) and team conventions ;</li>
+	<li>available metrics, especially if they can help to decide between contradictory conventions ;</li>
+	<li>missing metrics, if evidences show that you need to spend some time implementing them.</li>
+</ol>
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	Program optimisation is a rather simple concept: it aims to improve every aspect of the program until nothing more can be improved.
+	However, it cannot be achieved without trade-offs, like between memory and execution speed, or between code clarity and performance.
+	Consequently, optimisation is a context-dependent task that requires as much information as possible on the program at hand and its execution environment.
+	To assess the optimisation effects, we can rely on:
+</p>
+<ol>
+	<li>human evaluations, especially regarding the semantic of the code (simplicity, clarity, intents, design, etc.) and team conventions ;</li>
+	<li>available metrics, especially if they can help to decide between contradictory conventions ;</li>
+	<li>missing metrics, if evidences show that you need to spend some time implementing them.</li>
+</ol>
+<p>
+	Although human evaluations come for free in a team of programmers, metrics require to spend time to set up and use them.
+	This result in the optimisation process being a long term activity, where some improvements can be done early, while others need to be delayed.
+	We can thus consider that the optimisation task is about building on the programmers' evaluation, and possibly completing it with metrics when needed.
+</p>
+
+<h2 id="links">Related Questions</h2>
+
+&lt;None&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+&lt;None&gt;
+
+</div>
+</body>
+</html>
