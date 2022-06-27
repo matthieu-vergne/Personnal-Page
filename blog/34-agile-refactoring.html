@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring<br>or How to Change without Breaking</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	<a href="https://en.wikipedia.org/wiki/Code_refactoring">Refactoring</a> is the process of changing the code without changing the behaviour.
+	It is used to improve the code quality on aspects which do not affect the features of the application.
+	Improving the code readability or giving it a simpler structure are some aspects that are generally considered while refactoring code.
+	By remaining isofunctional, the program should still compile and functional tests should still pass once the refactoring is finished.
+</p>
+
+<h2 id="problem">Problem: Refactoring is necessarily costly, but not necessarily valuable</h2>
+
+<p>
+	In articles like the one you are reading, we often use simple examples which focus on the aspects we want to illustrate.
+	Consequently, it is often easy to pass from a "bad" code to a "better" one.
+	However, in real cases, it often requires (a lot) more time and effort.
+	The code is longer, dirtier, we need more time to think about what to do, discuss with the team, etc.
+	Personally, I spend <em>some</em> time implementing something that works, but <em>more</em> time refactoring it.
+	Often because it is only once you have something working that you can really see all the components you need and refactor them in a clear way.
+</p>
+<p>
+	Moreover, refactoring is isofunctional, which means that it adds no feature at all.
+	You spend some time adding no value to the software, but expect to make it easier to increase this value after refactoring to compensate.
+	In other words, it must be considered as an investment: you necessarily lose on the short term while expecting more gains on a longer term.
+	It is often hard to motivate refactoring in a business setting with such a speculative aspect.
+</p>
+
+<h2 id="method">Method</h2>
+
+<p>
+	<a href="https://en.wikipedia.org/wiki/Agile_software_development">Agile practices</a> organize the work in order to quickly deliver the produced software.
+	By improving organizational and coding practices, people should be able to focus on what is the most important at the current time.
+	This focus allow to spend the effort on the most important changes, thus increasing the value of the software as much as possible given the limited resources.
+	By repeating it in small iterations, it ensures that we regularly improve the software.
+</p>
+<p>
+	As such, agility goes way beyond the code itself, but we will focus on how to apply this logics to code refactoring.
+	In other words, we aim at adapting the code while remaining isofunctional at <em>each and every step</em> of the refactoring.
+	It allows you to refactor the code progressively, spending only the time you can spend on this task.
+	You can freely stop refactoring, do something with higher priority, and come back to it when you can.
+	By splitting the refactoring task into arbitrarily small pieces, you can more easily spend time on it despite the other things to do.
+</p>
+
+<h3 id="method-variables">Refactoring variables</h3>
+
+<p>
+	In this section, we will focus on refactoring variables.
+</p>
+<pre><code>
+	TODO
+</code></pre>
+
+<h3 id="method-methods">Refactoring methods</h3>
+
+<p>
+	TODO
+</p>
+<pre><code>
+	TODO
+</code></pre>
+
+<h3 id="method-classes">Refactoring classes</h3>
+
+<p>
+	TODO
+</p>
+<pre><code>
+	TODO
+</code></pre>
+
+<h3 id="method-methods">Refactoring packages</h3>
+
+<p>
+	TODO
+</p>
+<pre><code>
+	TODO
+</code></pre>
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	TODO
+</p>
+https://refactoring.guru/design-patterns/strategy
+
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25"/></li>
+</ul>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+
+</body>
+</html>
