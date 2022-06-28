@@ -235,7 +235,7 @@ Result doesSomething(Param1 param1, Param2 param2, Input input) {
 
 <p>
 	Now that we have decorrelated the choice of the method to call and the actual call, we can reorganize our code to exploit that.
-	First, split the strategies declarations <!-- TODO link to splitting in entry 34 --> and factor them by increasing their scope <!-- TODO link to scope increase in entry 34 --> to the whole method:
+	First, <entry id="34#refactor-variable-split">split the strategies declarations</entry> and factor them by <entry id="34#refactor-variable-scope-increase">increasing their scope</entry> to the whole method:
 	
 </p>
 <pre><code>
@@ -508,8 +508,8 @@ static DoingStrategy thisWay(Param1 param1) {
 </code></pre>
 
 <p>
-	You may also reduce the scope <!-- TODO link to scope reduction in entry 34 --> of the strategy instance in the selection method.
-	You can then inline it <!-- TODO link to variable inlining in entry 34 --> to completely remove it:
+	You may also <entry id="34#refactor-variable-scope-decrease">decrease the scope of the strategy instance</entry> in the selection method.
+	You can then <entry id="34#refactor-variable-join">join</entry> and <entry id="34#refactor-variable-inline">inline it</entry> to completely remove it:
 </p>
 <pre><code>
 static DoingStrategy select(Param1 param1, Param2 param2) {

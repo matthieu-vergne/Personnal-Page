@@ -51,7 +51,7 @@
 	It is often hard to motivate refactoring in a business setting with such a speculative aspect.
 </p>
 
-<h2 id="method">Method</h2>
+<h2 id="refactoring">Refactoring Methods</h2>
 
 <p>
 	<a href="https://en.wikipedia.org/wiki/Agile_software_development">Agile practices</a> organize the work in order to quickly deliver the produced software.
@@ -66,26 +66,187 @@
 	You can freely stop refactoring, do something with higher priority, and come back to it when you can.
 	By splitting the refactoring task into arbitrarily small pieces, you can more easily spend time on it despite the other things to do.
 </p>
+<p class="warning">
+	In this article, we focus on manual procedures to refactor your code.
+	IDEs often support some, if not all, of these procedures.
+	If you use one, I strongly recommend you to check its documentation to see how to do them quickly.
+	IDEs are automated, which means they tend to systematically and correctly execute the changes, thus avoiding errors prone to occur with manual procedures.
+	You can also gain a lot in coding speed, which saves your time for more interesting things to do.
+</p>
 
-<h3 id="method-variables">Refactoring variables</h3>
+<h3 id="refactor-variable">Refactoring variables</h3>
+
+<h4 id="refactor-variable-extract">Extract a variable</h4>
+
+<p>Starting from an instruction which consumes a value:</p>
+<pre><code>
+	System.out.println("foo");
+</code></pre>
+
+<p>Create a variable with the value:</p>
+<pre><code>
+	String myString = "foo";
+	System.out.println("foo");
+</code></pre>
+
+<p>Use the variable instead of the value:</p>
+<pre><code>
+	String myString = "foo";
+	System.out.println(myString);// Replace it everywhere required
+</code></pre>
+
+<p class="warning">
+	If the value is a method call, check whether it has side effects.
+	If it has, extracting several calls into a single variable will change the behaviour of the program.
+</p>
+
+<h4 id="refactor-variable-inline">Inline a variable</h4>
+
+<p>Starting from an instruction which consumes a variable:</p>
+<pre><code>
+	String myString = "foo";
+	System.out.println(myString);
+</code></pre>
+
+<p>Inline the variable by applying directly its value:</p>
+<pre><code>
+	String myString = "foo";
+	System.out.println("foo");// Replace it everywhere required
+</code></pre>
+
+<p>You can move the variable down in the code or remove it if nobody uses it anymore:</p>
+<pre><code>
+	System.out.println("foo");
+</code></pre>
+
+<p class="warning">
+	If the value is a method call, check whether it has side effects.
+	If it has, inlining a single variable into several calls will change the behaviour of the program.
+</p>
+
+<h4 id="refactor-variable-split">Split a variable declaration</h4>
+
+<p>Starting from a single instruction which declares and instantiate your object:</p>
+<pre><code>
+	Object myObject = new Object();
+</code></pre>
+
+<p>Separate the instantiation of the object with a second instruction:</p>
+<pre><code>
+	Object myObject;
+	myObject = new Object();
+</code></pre>
+
+<h4 id="refactor-variable-join">Join a variable declaration</h4>
+
+<p>Starting from an instruction which declare your variable and another which instantiates it:</p>
+<pre><code>
+	Object myObject;
+	myObject = new Object();
+</code></pre>
+
+<p>Join them into a single instruction:</p>
+<pre><code>
+	Object myObject = new Object();
+</code></pre>
+
+<h4 id="refactor-variable-scope-increase">Increase a variable scope</h4>
+
+<p>Starting from a variable declaration:</p>
+<pre><code>
+	if (checkIsOk) {
+		Object myObject;
+		// myObject usable only here
+	}
+</code></pre>
+
+<p>Increase its scope by moving it higher in the blocks:</p>
+<pre><code>
+	Object myObject;
+	if (checkIsOk) {
+		// myObject usable here
+	}
+	// myObject usable also here
+</code></pre>
+
+<p class="warning">
+	You may already have a variable with the same name in the higher scope.
+	Rename one of the variables before to change the scope to avoid conflicts.
+</p>
+
+<h4 id="refactor-variable-scope-decrease">Decrease a variable scope</h4>
+
+<p>Starting from a variable declared out of a block:</p>
+<pre><code>
+	Object myObject;
+	if (checkIsOk) {
+		// myObject usable here
+	}
+	// myObject usable also here
+</code></pre>
+
+<p>Decrease its scope to the block only:</p>
+<pre><code>
+	if (checkIsOk) {
+		Object myObject;
+		// myObject usable only here
+	}
+</code></pre>
+
+<p class="warning">
+	The variable might be used out of the block you target.
+	You need to remove these uses or replace them by other ones.
+	For replacements, you can for example create a separate variable or inline the variable there.
+</p>
+
+<h4 id="refactor-variable-rename">Rename a variable</h4>
+
+<p>Starting from an existing variable:</p>
+<pre><code>
+	String myAwfulName = "foo";
+	System.out.println(myAwfulName);
+</code></pre>
+
+<p>Create a new variable with the name you want:</p>
+<pre><code>
+	String myAwfulName = "foo";
+	String myAwsomeName;
+	System.out.println(myAwfulName);
+</code></pre>
+
+<p>Assign it the current variable:</p>
+<pre><code>
+	String myAwfulName = "foo";
+	String myAwsomeName = myAwfulName;
+	System.out.println(myAwfulName);
+</code></pre>
+
+<p>Replace the old variable by the new variable where it is used:</p>
+<pre><code>
+	String myAwfulName = "foo";
+	String myAwsomeName = myAwfulName;
+	System.out.println(myAwsomeName);// Replace it everywhere required
+</code></pre>
+
+<p>Inline the old variable once it is only used by the new variable:</p>
+<pre><code>
+	String myAwsomeName = "foo";
+	System.out.println(myAwsomeName);
+</code></pre>
+
+<h3 id="refactor-method">Refactoring methods</h3>
 
 <p>
-	In this section, we will focus on refactoring variables.
+	TODO
 </p>
 <pre><code>
 	TODO
 </code></pre>
+<!-- TODO method extraction/inlining -->
+<!-- TODO method scope increase/decrease/move -->
+<!-- TODO method rename -->
 
-<h3 id="method-methods">Refactoring methods</h3>
-
-<p>
-	TODO
-</p>
-<pre><code>
-	TODO
-</code></pre>
-
-<h3 id="method-classes">Refactoring classes</h3>
+<h3 id="refactor-class">Refactoring classes</h3>
 
 <p>
 	TODO
@@ -93,8 +254,11 @@
 <pre><code>
 	TODO
 </code></pre>
+<!-- TODO class extraction/inlining -->
+<!-- TODO class scope increase/decrease/move -->
+<!-- TODO class rename -->
 
-<h3 id="method-methods">Refactoring packages</h3>
+<h3 id="refactor-interface">Refactoring interfaces</h3>
 
 <p>
 	TODO
@@ -102,6 +266,21 @@
 <pre><code>
 	TODO
 </code></pre>
+<!-- TODO interface extraction/inlining -->
+<!-- TODO interface scope increase/decrease/move -->
+<!-- TODO interface rename -->
+
+<h3 id="refactor-package">Refactoring packages</h3>
+
+<p>
+	TODO
+</p>
+<pre><code>
+	TODO
+</code></pre>
+<!-- TODO interface extraction/inlining -->
+<!-- TODO interface scope increase/decrease/move -->
+<!-- TODO interface rename -->
 
 <h2 id="answer">Answer</h2>
 
