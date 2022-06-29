@@ -71,6 +71,12 @@ Result doesSomething(Param1 param1, Param2 param2, Input input) {
 	<li><em>which</em> is the right way to do it (the conditions for each method)</li>
 	<li><em>what</em> to do now (execute the selected method)</li>
 </ol>
+<p>
+	Various responsibilities means various reasons to change it.
+	If you want to add a new strategy, you have to increase the complexity of the method.
+	If you want to use a smarter selection process, you have to increase the complexity of the method.
+	It can become a mess if it is not kept under control.
+</p>
 
 <h2 id="method">Method</h2>
 
@@ -85,7 +91,7 @@ Result doesSomething(Param1 param1, Param2 param2, Input input) {
 
 <p>
 	The first step is to identify the <em>generic</em> and <em>specific</em> parts of the strategies.
-	In other words, you need to identify what must be expected from any strategy, and what is a mere implementation details of some.
+	In other words, you need to identify what <em>must</em> be expected from any strategy, and what are mere implementation details specific to some of them.
 	In this example, <code>param1</code> and <code>param2</code> are used depending on the strategy, which helps us identify them as <em>specific</em> parts.
 	Beside that, <code>input</code> and the returned <code>Result</code> are systematic, which makes them <em>generic</em> parts of the strategies:
 </p>
@@ -101,14 +107,14 @@ Result doesSomething(Param1 param1, Param2 param2, Input input) {
 }
 </code></pre>
 
-<p>
-	<strong>Be careful:</strong> identifying specific and generic parts is not about the <em>syntax</em>, but about the <em>semantics</em>.
+<p class="warning">
+	Identifying specific and generic parts is not about the <em>syntax</em>, but about the <em>semantics</em>.
 	It is not because an argument is used in all the current strategies that it is a generic part.
 	A new strategy may be implemented that would not require it.
 	Similarly, although more subtle, it is not because an argument is not used by all the strategies that it is not a generic part.
-	Think about the "no op" (do nothiing) or "fake" strategies: they usually use nothing we provide and just do something predefined.
+	Think about the "no op" (do nothing) or "fake" strategies: they usually use nothing we provide and just do something predefined.
 	To identify generic and specific parts, you need to think about the meaning of the strategy.
-	A serializing strategy makes no sense if we don't give it something to serialize, which makes it a generic part.
+	A serializing strategy makes no sense if we don't give it something to serialize, which makes it a generic part required by all the serializing strategies.
 </p>
 
 <p>
@@ -127,7 +133,8 @@ Result doesSomething(Param1 param1, Param2 param2, Input input) {
 }
 </code></pre>
 <p>
-	Yeah, I know... Please choose better names than that.
+	It is obvious, but... Please choose better names than that.
+	You may use temporary names at this stage, but don't forget to rename them at the end.
 </p>
 
 <h3 id="method-instantiate">Instantiate the Strategies</h2>
@@ -303,7 +310,7 @@ Result doesSomething(Param1 param1, Param2 param2, Input input) {
 
 <p>
 	As we mentionned at the beginning, choosing one of the strategies is a responsibility on its own.
-	We extract it <!-- TODO link to method extraction in entry 34 --> in a dedicated <code>selectStrategy</code> method to isolate it from the strategy call:
+	We <entry id="34#refactor-method-extract">extract it</entry> in a dedicated <code>selectStrategy</code> method to isolate it from the strategy call:
 </p>
 <pre><code>
 // Create the new method
@@ -475,12 +482,12 @@ interface DoingStrategy {
 <h3 id="method-simplify">Simplify your code</h2>
 
 <p>
-	The split is done: the code has been restructured to have dedicated methods to (i) instanciate each strategy, (ii) choose which one to call, and (iii) call it.
+	The split is done: the code has been restructured to have dedicated methods to (i) instantiate each strategy, (ii) choose which one to call, and (iii) call it.
 	Now all that remains is to simplify the code to remove the unwanted complexity.
 </p>
 
 <p>
-	One of them is the inlining <!-- TODO link to method inlining in entry 34 --> of the three original strategy methods.
+	One of them is the <entry id="34#refactor-method-inline">inlining of the three original strategy methods</entry>.
 	Indeed, rather than having a strategy instance which calls a strategy method, we may as well put everything in the instance itself:
 </p>
 <pre><code>
@@ -542,10 +549,25 @@ Result doesSomething(Param1 param1, Param2 param2, Input input) {
 <h2 id="answer">Summary</h2>
 
 <p>
-	TODO
+	When you have a method that is able to use different strategies to do the same thing, you may profit from applying the Strategy design pattern.
+	To do so:
 </p>
-https://refactoring.guru/design-patterns/strategy
+<ol>
+	<li>create the interface of the strategies focusing on the common parameters and return type (generic parts) ;</li>
+	<li>for each piece of code to extract as a strategy:
+		<ol>
+			<li>instantiate a new strategy close to the code ;</li>
+			<li>reproduce the code within the strategy ;</li>
+			<li>replace the original code by the instance call.</li>
+		</ol>
+	</li>
+	<li>separate the strategy instantiations and calls to factor the calls after the selection process ;</li>
+	<li>extract the selection process in a dedicated method ;</li>
+	<li>extract the strategy implementations into dedicated methods ;</li>
+	<li>simplify the code.</li>
+</ol>
 
+<!--
 <h2 id="links">Related Questions</h2>
 
 <ul>
@@ -557,6 +579,7 @@ https://refactoring.guru/design-patterns/strategy
 <ul>
 <li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
 </ul>
+-->
 
 </body>
 </html>
