@@ -26,6 +26,7 @@
 <h1>Agile Refactoring<br>or How to Change without Breaking</h1>
 
 <!-- TODO Add a table of contents that can be collapsed -->
+<toc root="refactoring" />
 
 <h2 id="context">Context</h2>
 
@@ -90,7 +91,7 @@
 <p>
 	In this article, we focus on manual procedures to refactor your code.
 	IDEs often support some, if not all, of these procedures.
-	If you use an IDE, I strongly recommend you to check its documentation to see how to do them quickly.
+	If you use an IDE, I strongly recommend you to check its documentation (especially its keyboard shortcuts) to see how to do them quickly.
 	IDEs are automated, which means they tend to systematically and correctly execute the changes, thus avoiding errors prone to occur with manual procedures.
 	You can also gain a lot in coding speed, which saves your time for more interesting things to do.
 </p>
@@ -160,7 +161,7 @@
 
 <h4 id="refactor-variable-join">Join a variable declaration</h4>
 
-<p>Starting from an instruction which declare your variable and another which instantiates it:</p>
+<p>Starting from an instruction which declares your variable and another which instantiates it:</p>
 <pre><code>
 	Object myObject;
 	myObject = new Object();
@@ -175,16 +176,16 @@
 
 <p>The scope of a variable starts at its declaration:</p>
 <pre><code>
-	// myObject not usable here
+	// Code A : myObject not usable here
 	Object myObject;
-	// myObject usable here
+	// Code B : myObject usable here
 </code></pre>
 
 <p>You can increase its scope by moving it up in the code:</p>
 <pre><code>
 	Object myObject;
-	// myObject usable here
-	// myObject usable here
+	// Code A : myObject usable here
+	// Code B : myObject usable here
 </code></pre>
 
 <p>By declaring it in a block (method, condition, for loop, etc.), the variable exists within this block:</p>
