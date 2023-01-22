@@ -34,38 +34,41 @@ class HomePage extends InternalPage {
 			$content .= "<b>$type:</b> $value<br/>";
 		}
 		
+		$isEffective = true;
+		$isObsolete = false;
 		$data = array(
 			// Orange
-			"matthieu.vergne@orange.com" => true,
+			"matthieu.vergne@orange.com" => $isObsolete,
+			"matthieu.vergne.ext@orange.com" => $isObsolete,
 			
 			// Meritis
-			"matthieu.vergne@meritis.fr" => true,
+			"matthieu.vergne@meritis.fr" => $isEffective,
 			
 			// SII
-			"mvergne@sophia.sii.fr" => false,
-			"mvergne@sii.fr" => false,
+			"mvergne@sophia.sii.fr" => $isObsolete,
+			"mvergne@sii.fr" => $isObsolete,
 			
 			// NAIST
-			"vergne@is.naist.jp" => false,
+			"vergne@is.naist.jp" => $isObsolete,
 			
 			// FBK
-			"vergne@fbk.eu" => false,
+			"vergne@fbk.eu" => $isObsolete,
 			
 			// UNITN
-			"matthieu.vergne@unitn.it" => false,
-			"matthieu.vergne@studenti.unitn.it" => false,
-			"matthieu.vergne@ex-studenti.unitn.it" => false,
-			"matthieu.vergne@alumni.unitn.it" => false,
+			"matthieu.vergne@unitn.it" => $isObsolete,
+			"matthieu.vergne@studenti.unitn.it" => $isObsolete,
+			"matthieu.vergne@ex-studenti.unitn.it" => $isObsolete,
+			"matthieu.vergne@alumni.unitn.it" => $isObsolete,
 			
 			// G-INP
-			"matthieu.vergne@grenoble-inp.org" => true,
+			"matthieu.vergne@grenoble-inp.org" => $isEffective,
 		);
-		$listValid = "";
+		$listEffective = "";
 		$listObsolete = "";
 		ksort($data, SORT_NATURAL | SORT_FLAG_CASE);
-		foreach($data as $email => $isValid) {
-			if ($isValid) {
-				$list = & $listValid;
+		foreach($data as $email => $isEffective) {
+			if ($isEffective) {
+				$list = & $listEffective;
 			} else {
 				$list = & $listObsolete;
 			}
@@ -74,7 +77,7 @@ class HomePage extends InternalPage {
 		$buttonClass = "toggleButton";
 		$buttonFunction = "toggle(\"obsoleteMails\", \"obsoleteMailsOn\", \"obsoleteMailsOff\")";
 		$content .= "<p>You can contact me through my principal e-mail ".$formatEmail("matthieu.vergne@gmail.com").". Other e-mails which are currently valid:</p>";
-		$content .= "<ul id='otherMails'>$listValid</ul>";
+		$content .= "<ul id='otherMails'>$listEffective</ul>";
 		$content .= "<p>If you know me through another e-mail address, it is probably obsolete.</p>";
 		$content .= "<div class='$buttonClass' onclick='$buttonFunction' id='obsoleteMailsOn'>Show obsolete e-mails</div>";
 		$content .= "<div class='$buttonClass' onclick='$buttonFunction' id='obsoleteMailsOff' style='display: none'>Hide obsolete e-mails</div>";
