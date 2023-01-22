@@ -37,6 +37,9 @@ class HomePage extends InternalPage {
 		$isEffective = true;
 		$isObsolete = false;
 		$data = array(
+			// Amadeus
+			"matthieu.vergne@amadeus.com" => $isEffective,
+			
 			// Orange
 			"matthieu.vergne@orange.com" => $isObsolete,
 			"matthieu.vergne.ext@orange.com" => $isObsolete,
