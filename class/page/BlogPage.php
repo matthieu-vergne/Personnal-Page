@@ -132,6 +132,7 @@ class BlogPage extends InternalPage {
 			<ul>
 				<li><entry id="18" /></li>
 				<li><entry id="20" /></li>
+				<li><entry id="31" /></li>
 				<li><entry id="s0/0" /></li>
 			</ul>
 			
