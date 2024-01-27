@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring in Java:<br/>Refactor a method by extraction</h1>
+
+<h2 id="context">Context</h2>
+
+&lt;Describe the context which makes the question worth.&gt;
+
+<h2 id="question">Question</h2>
+
+&lt;Complete question&gt;
+
+<h2 id="method">Method</h2>
+
+&lt;Describe how I answer the question (references, proofs, etc.).&gt;
+
+Starting from a method X being called and overriden:
+<ol>
+	<li>
+		new method Y extracted from X (X &rarr; Y)
+		<pre><code>
+		interface SizeComputer&lt;T> {
+			public long sizeOf(T data);
+		}
+		</code></pre>
+	</li>
+	<li>deprecate X in favor of Y</li>
+	<li>replace X overrides by Y overrides</li>
+	<li>replace X calls by Y calls</li>
+	<li>remove X</li>
+</ol>
+
+<!-- TODO Extract to separate article -->
+
+Starting from a method X being called and overriden:
+<ol>
+	<li>
+		new method Y calling X (Y &rarr; X)
+		<pre><code>
+		interface SizeComputer&lt;T> {
+			public long sizeOf(T data);
+		}
+		</code></pre>
+	</li>
+	<li>deprecate X in favor of Y</li>
+	<li>replace X calls by Y calls</li>
+	<li>replace X overrides by Y overrides</li>
+	<li>make Y independent of X and remove X</li>
+</ol>
+
+<!-- TODO Extract to separate article -->
+
+<p>
+The key point is to never produce a Y not linked to X, otherwise we produce dead code (Y not called) or lose the overrides (Y called).
+TODO What when we don't see obvious X to Y or Y to X relationship?
+</p>
+
+<h2 id="answer">Answer</h2>
+
+&lt;Answer to the question.&gt;
+
+<h2 id="links">Related Questions</h2>
+
+&lt;Links to other questions.&gt;
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="id">Authors. <cite>Title</cite>, publication, <time datetime="date">date</time>. doi:<a href="https://dx.doi.org/xxx">xxx</a></li>
+</ul>
+
+</body>
+</html>
