@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>When to Factor some Code?</h1>
+
+<p>
+<!-- TODO Lack of factoring -->
+</p>
+<p>
+<!-- TODO Excess of factoring -->
+</p>
+
+<h2>Question</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<pre><code>
+<!-- TODO -->
+</code></pre>
+
+<h2>Reasoning</h2>
+
+<p>
+<!-- TODO -->
+</p>
+
+<h3>Avoid the Trap</h3>
+
+<p>
+It is not because the devil is in the details that we should immediately sacrifice our brain to it, though.
+So let's start with a simple trap:
+</p>
+<pre><code>
+double[] transform(double[] in, double a) {
+	double[] out = new double[2];
+
+	out[0] = in[0] + 0.5 * a;
+	out[1] = in[1] + 0.5 * a;
+
+	return out;
+}
+</code></pre>
+<p>
+Just in case you are looking for the trap, yes the <code>in</code> argument is confirmed to have exactly 2 elements.
+But don't beat yourself up if you thought you had it, we all do mistakes.
+</p>
+<p>
+Do you see some reasons to factor this code?
+If yes, how would you factor it?
+Think about it for a moment before to continue the reading.
+</p>
+<p>
+Do you have your answer?
+There is several ways to deal with such a case, but here is a common one:
+</p>
+<pre><code>
+double[] transform(double[] in, double a) {
+	double[] out = new double[2];
+
+	out[0] = transformOne(in[0], a);
+	out[1] = transformOne(in[1], a);
+
+	return out;
+}
+
+double transformOne(double x, double a) {
+	return x + 0.5 * a;
+}
+</code></pre>
+<p>
+Does your answer look like this?
+If you didn't factor as much, like the product but not the sum, don't beat yourself up, because again we all do mistakes.
+If you factored it to the same extent, welcome in my trap!
+Indeed, this code is buggy, and this factoring just made the bug even harder to fix now.
+What do you mean, you couldn't know? I told you from the start: <em>we all do mistakes!</em>
+Don't expect some random code found on the internet to be correct just because someone wrote it!
+</p>
+<p>
+But really the motivation does not matter.
+It might be a buggy code, like <code>in</code> being a (min, max) pair that we want to increase the range by a given amount <code>a</code> (evenly distributed), but the code actually translates the range instead of increasing it.
+It might be a poorly defined requirement, like <code>in</code> representing the volumes of 2 different liquids, and <code>a</code> the amount of overall liquid to add, but the 50/50 distribution comes from having no requirement and it might become 40/60 when it will be clarified.
+In both cases the factoring just enforces the common code, and fixing the bug or clarifying the requirement would lead to revert the factoring, thus losing time factoring <em>and</em> reverting it.
+</p>
+<p>
+Here is the mistake: to rely solely on the code similarity to infer what should be factored.
+It is good to aim for <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">not repeating yourself</a>, but code similarity is <em>never</em> a decision criteria to tell whether some code should be factored.
+It is a good <em>hint</em> that there might be something to factor, but it never goes beyond that.
+A motivated factoring comes from two pieces of code sharing the same <em>goal</em>, and thus being computed the same way.
+But the goal of the code is not directly expressed in the code itself: it is in the meaning behind it.
+Which gives us the first lesson:
+</p>
+<blockquote><strong><caption>Lesson 1:</caption>
+You can only confirm what should be factored based on the <em>semantics</em> of the code, not its mere <em>syntax</em>.
+</strong></blockquote>
+<p>
+As I mentionned earlier, there is several ways to deal with the case above.
+But the only reliable one here is to stop when we ask for reasons to factor this code.
+There is no way to find one because we miss information to understand the goal of the code.
+</p>
+<p>
+Actually, this lack of information can be identified rather easily.
+Indeed, the idea is to factor both formulae, so if one changes then the other also changes since they are now the same.
+But if we change the first formula, nothing tells us that the second one should change too.
+As we saw, the code similarity alone is not enough to confirm that changing one requires to change the other to make it work.
+More generally, when you see some code similarity and think about factoring two pieces of code, ask yourself:
+</p>
+<blockquote><strong>If we change the first piece of code, do we need to change the second one to make it work?</strong></blockquote>
+<ul>
+	<li>If yes, then the two pieces of code <em>must</em> be factored, so only one change is required when needed.</li>
+	<li>If no, then the two pieces of code <em>must</em> remain separate, so both can evolve separately.</li>
+	<li>Any other answer should be reduced to "I don't know", meaning that more information is required to answer the question.</li>
+</ul>
+<p>
+Of course the code here was purposefully made to focus on the similarity of the syntax.
+But even a professional code can be way worse than that, so focus on the semantics to avoid that trap.
+</p>
+
+<h3>Avoid the Trap - Level 2</h3>
+
+<p>
+Now that the most common trap is gone, let's be even more subtle.
+And what is more subtle than an explicit terminology properly representing our domain?
+So let's name our method and variables to make everything clear:
+</p>
+<pre><code>
+double[] increaseRange(double[] minMax, double increaseRatio) {
+	double[] increasedMinMax = new double[2];
+
+	increasedMinMax[0] = minMax[0] + (minMax[0] - minMax[1]) * increaseRatio;
+	increasedMinMax[1] = minMax[1] + (minMax[1] - minMax[0]) * increaseRatio;
+
+	return increasedMinMax;
+}
+</code></pre>
+<p>
+Like the previous example, here we also want to increase the range of the (min, max) pair.
+The difference is that instead of providing an absolute amount, we provide a relative one through the <code>increaseRatio</code> parameter, like increase it by 20%.
+The computation is correct, so let's see what should be factored and why.
+Again, please try to come up with your own solution.
+</p>
+<p>
+Do you have it?
+Again, we might use several ways, but here is one which is prone to occur:
+</p>
+<pre><code>
+double[] increaseRange(double[] minMax, double increaseRatio) {
+	double[] increasedMinMax = new double[2];
+
+	increasedMinMax[0] = compute(minMax[0], minMax[1], increaseRatio);
+	increasedMinMax[1] = compute(minMax[1], minMax[0], increaseRatio);
+
+	return increasedMinMax;
+}
+
+double compute(double a, double b, double increaseRatio) {
+	return a + (a - b) * increaseRatio;
+}
+</code></pre>
+<p>
+Doesn't this factoring look pretty smart?
+We factor the whole formulae at once, reversing the arguments to cover both the min and max cases.
+If you factored it to the same extent and are proud of thinking about the arguments reversal, welcome in my second trap!
+</p>
+<p>
+Do you remember when we were speaking about goals and meaning?
+Could you describe me the goal or meaning of <code>compute</code>?
+What do <code>a</code> and <code>b</code> represent?
+Can you make any sense of them?
+What about the colleagues who, once you will be gone, will look at that same code they are not familiar with?
+Could you name <code>compute</code> differently to make its purpose clearer?
+</p>
+<p>
+Here is the mistake: to rely solely on the code similarity to infer how it should be factored.
+Does it sound familiar?
+In the previous section, we identified <em>what</em> should be factored based on the code similarity.
+Here, we decide <em>how</em> to factor it based on the code similarity: we just put all the similar stuff together.
+As a big fan of code factoring, I did that a lot of times and... Oh, boy! It was not worth it.
+Again, code similarity is <em>never</em> a decision criteria to tell <em>how</em> some code should be factored.
+It is again a good <em>hint</em>, but that's it.
+Which gives us the second lesson:
+</p>
+<blockquote><strong><caption>Lesson 2:</caption>
+You can only confirm how to factor based on the <em>semantics</em> of the code, not its mere <em>syntax</em>.
+</strong></blockquote>
+<p>
+Like before, this lesson is driven by a core question.
+But although the lesson is almost identical to the previous one, the question to ask is fundamentally different.
+After all, we focus here on the <em>how</em>, not on the <em>what</em>.
+Furthermore, if we are here now, it is because we already asked ourselves the previous question.
+So we already know that if we change one piece of code, we must change the other piece of code for it to work.
+Which means that we already have a potential change in mind.
+The next question is then:
+</p>
+<blockquote><strong>What concept of the domain does this change applies to?</strong></blockquote>
+<p>
+Now it is not a mere "yes/no" answer.
+We touch here to the proper understanding of the code, how it should be <em>conceptually</em> designed.
+Conceptual Design is a whole branch of Information Science, too broad to address it here (and too large for what we actually need here).
+But the key point is that it focuses on representing the concepts of the domain and their relationships.
+More precisely, it is conceptual design with a programming (so at least to some extent a formal) language.
+In this case, we can further concentrate on the ontological aspect, with an <a href="https://en.wikipedia.org/wiki/Ontology_(information_science)">ontology</a> being a set of formalized concepts and relationships shared within a group (e.g. team, company, community of experts).
+</p>
+<p>
+Briefly, if you can put a name on the change you have in mind, and this name comes from the ontology of your domain, then you have identified a piece of code to factor.
+</p>
+
+<h3>Let's Practice</h3>
+
+<p>
+Let's go back to the initial code:
+</p>
+<pre><code>
+double[] increaseRange(double[] minMax, double increaseRatio) {
+	double[] increasedMinMax = new double[2];
+
+	increasedMinMax[0] = minMax[0] + (minMax[0] - minMax[1]) * increaseRatio;
+	increasedMinMax[1] = minMax[1] + (minMax[1] - minMax[0]) * increaseRatio;
+
+	return increasedMinMax;
+}
+</code></pre>
+<p>
+As it explicitly shows, the goal is to increase the range of our (min, max) pair.
+Which begs the question: where is the range we are supposed to increase?
+If it is such a central concept to this method, where does it appear?
+But a range is defined from the difference between the min and max, two elements that we are supposed not only to use, but also to compute.
+Which begs again the question: where are the core concepts of min and max?
+</p>
+<p>
+All these notions of min, max, range, etc. are concepts pertaining to the domain of knowledge that this method builds on.
+You may give a specific name to this domain, like mathematics, statistics, or whatever-this-article-wants-to-speak-about, but the key point is to identify its relevant concepts and relationships.
+By applying them in our code, we build its ontology: the set of formalized concepts and relationships that gives a meaning to our code, a meaning that can be shared with the other people working on it.
+</p>
+<p>
+Once the ontology is identified, we can start looking for its concepts in our code to make them appear.
+Starting with the min and max, they are values taken from the <code>minMax</code> array.
+So let's do our first valid factoring here:
+</p>
+<pre><code>
+double[] increaseRange(double[] minMax, double increaseRatio) {
+	double[] increasedMinMax = new double[2];
+
+	double min = minMax[0];
+	double max = minMax[1];
+	increasedMinMax[0] = min + (min - max) * increaseRatio;
+	increasedMinMax[1] = max + (max - min) * increaseRatio;
+
+	return increasedMinMax;
+}
+</code></pre>
+<p>
+This factoring of the min and max concepts allow us to reduce the array retrievals: instead of retrieving the min (or max) 3 times, we only retrieve it once.
+But pay attention!
+The purpose is not performance: with a quick array retrieval we gain close to nothing by factoring it, as it would be for a long call to some remote storage.
+It is all about the <em>meaning</em> behind the code: the min value is a single value, the same for the 3 times we use it.
+All we need is to instantiate it once for all, which can be done by retrieving it from <code>minMax[0]</code>.
+Once we have it, we can use the same min value everywhere (same for max).
+</p>
+<p>
+What about the range then?
+Same thing: the range should be the same for computing the new min and new max.
+Since it is the difference between the min and max, we first need to rewrite the code to make it properly appear in both.
+To do so, we can replace <code>(min-max)</code> by <code>-(max-min)</code>.
+It allows us to factor the range concept in this way:
+</p>
+<pre><code>
+double[] increaseRange(double[] minMax, double increaseRatio) {
+	double[] increasedMinMax = new double[2];
+
+	double min = minMax[0];
+	double max = minMax[1];
+	double range = max - min;
+	increasedMinMax[0] = min - range * increaseRatio;
+	increasedMinMax[1] = max + range * increaseRatio;
+
+	return increasedMinMax;
+}
+</code></pre>
+<p>
+Now again, code similarity is not the decision criteria, but it is a good hint that there is something to factor.
+Having twice <code>range * increaseRatio</code> begs the question: does it represent something in our domain?
+Yes, it represents the change of range, the absolute amount to remove (or add) to the new min (or max).
+This is again a single value, not something that is supposed to change between the new min and the new max.
+So let's factor it too:
+</p>
+<pre><code>
+double[] increaseRange(double[] minMax, double increaseRatio) {
+	double[] increasedMinMax = new double[2];
+
+	double min = minMax[0];
+	double max = minMax[1];
+	double range = max - min;
+	double rangeChange = range * increaseRatio;
+	increasedMinMax[0] = min - rangeChange;
+	increasedMinMax[1] = max + rangeChange;
+
+	return increasedMinMax;
+}
+</code></pre>
+<p>
+Do you remember when we were speaking about goals and meaning?
+Is the goal or meaning of each variable clear?
+Can you make sense of all the code?
+What about the colleagues who, once you will be gone, will look at that same code they are not familiar with?
+Surely it should be easier to deal with that code now because, in the worst case, these colleagues can simply read some descriptions of the relevant domain.
+They can then see how it properly shows in your code, providing it a clear meaning.
+</p>
+<p>
+But hey, wait a minute.
+Factorization is about bringing common stuff together.
+So how come we passed from a method with 2 lines of computation to one with 6 lines of computation?
+And that is our third lesson:
+</p>
+<blockquote><strong><caption>Lesson 3:</caption>
+Factoring the code is not about reducing its size, but reducing its maintenance effort.
+</strong></blockquote>
+<p>
+Actually, factoring the code means introducing a concept in the code to abstract the factored instructions, like we introduced the min, max, and range concepts.
+If it is a "complex concept", like a whole sequence of instructions, factoring it introduces a new common method (small code increase), but also replaces the redundant instructions by a simple method call (big code reduction).
+If it is a "simple concept", like the ones here which represent a single instruction each, factoring it introduces the concept declaration (small code increase), but also replaces each single instruction by its concept (small code reduction at best, small code increase at worst).
+Repeat the addition of plenty of simple concepts, and the code globally increases, like in our example.
+The maintenance effort, however, decreases in both simple and complex cases because, if a change occurs, it should only be applied to the corresponding concept to have the expected effect everywhere it is relevant.
+</p>
+<!-- TODO Question? why -->
+<p>
+Like before, this lesson is driven by a core question.
+But although the lesson is almost identical to the previous one, the question to ask is fundamentally different.
+After all, we focus here on the <em>how</em>, not on the <em>what</em>.
+Furthermore, if we are here now, it is because we already asked ourselves the previous question.
+So we already know that if we change one piece of code, we must change the other piece of code for it to work.
+Which means that we already have a potential change in mind.
+The next question is then:
+</p>
+<blockquote><strong>What concept of the domain does this change applies to?</strong></blockquote>
+<p>
+Now it is not a mere "yes/no" answer.
+We touch here to the proper understanding of the code, how it should be <em>conceptually</em> designed.
+Conceptual Design is a whole branch of Information Science, too broad to address it here (and too large for what we actually need here).
+But the key point is that it focuses on representing the concepts of the domain and their relationships.
+More precisely, it is conceptual design with a programming (so at least to some extent a formal) language.
+In this case, we can further concentrate on the ontological aspect, with an <a href="https://en.wikipedia.org/wiki/Ontology_(information_science)">ontology</a> being a set of formalized concepts and relationships shared within a group (e.g. team, company, community of experts).
+</p>
+<p>
+Briefly, if you can put a name on the change you have in mind, and this name comes from the ontology of your domain, then you have identified a piece of code to factor.
+</p>
+
+<h3>Factoring at Various Scales</h3>
+
+<!-- TODO -->
+Factor as variable, field, method, object, package, lib, service.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h3>Factoring is not everything</h3>
+
+<p>
+<!-- TODO some factoring practices can be used for non-factoring purposes, don't reject an apparent factoring because factoring is irrelevant, there might be another reason -->
+</p>
+<pre><code>
+<!-- TODO -->
+</code></pre>
+
+<p>
+It is not rare to ask ourselves whether using a constant to refer to some data is relevant.
+The answers to <a href="https://stackoverflow.com/questions/4234129">this question</a> for instance highlight several valid motivations.
+Like easing localization, keeping the coding style consistent, or expressing more info in the constant name than the value alone can provide.
+Indeed, constants are tools to be used when they help for a purpose, but none of these motivations relate to factoring the code.
+What we are interested in here is when the factoring purpose becomes relevant.
+</p>
+
+
+<h2>Answers</h2>
+
+<!-- TODO -->
+<p>
+When you find two pieces of code which are similar, you only need to ask yourself a single question to know whether to factor them:
+</p>
+<blockquote><strong>If we change this piece of code in some way, is it required to change this other piece of code too?</strong></blockquote>
+<p>
+If you answer "yes" to this question, then these pieces of code must be factored otherwise they should not.
+It looks easy at first glance, but like a lot of simple methods, the complexity appears when you dig in the details.
+</p>
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<!--
+<h2 id="links">Related Posts</h2>
+
+TODO
+-->
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="OracleTutorial">
+	<cite>Lesson: Generics (Updated)</cite>,
+	in <cite>The Java™ Tutorials > Learning the Java Language</cite>,
+	accessed <time datetime="2017-03-22">March 22, 2017</time>.
+	URL: <a href="https://docs.oracle.com/javase/tutorial/java/generics/index.html">https://docs.oracle.com/javase/tutorial/java/generics/index.html</a>
+</li>
+</ul>
+</body>
+</html>
