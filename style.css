@@ -113,6 +113,33 @@ quote::before, quote::after {
 	content: "\"";
 }
 
+.tooltipped {
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+.tooltipped .tooltiptext {
+	visibility: hidden;
+	/*
+	width: 120px;
+	text-align: center;
+	color: #fff;
+	*/
+	background-color: #CCF;
+	padding: 5px 0;
+	border-radius: 6px;
+
+	/* Position the tooltip text - see examples below! */
+	position: absolute;
+	z-index: 1;
+}
+
+.tooltipped:hover .tooltiptext {
+	visibility: visible;
+}
+
+
 .warning {
 	background-color: #FCC;
 	box-sizing: border-box;
