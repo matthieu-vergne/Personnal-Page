@@ -69,9 +69,9 @@ class HomePage extends InternalPage {
 		$content .= "<ul id='otherMails'>$listEffective</ul>";
 		$content .= "<p>If you know me through another e-mail address, it is probably obsolete.</p>";
 		$content .= "<div class='$buttonClass' onclick='$buttonFunction' id='obsoleteMailsOn'>Show obsolete e-mails</div>";
-		$content .= "<div class='$buttonClass' onclick='$buttonFunction' id='obsoleteMailsOff' style='display: none'>Hide obsolete e-mails</div>";
+		$content .= "<div class='$buttonClass' onclick='$buttonFunction' id='obsoleteMailsOff'>Hide obsolete e-mails</div><script>toggle('obsoleteMailsOff');</script>";
 		$content .= "<br/>";
-		$content .= "<ul id='obsoleteMails' style='display: none'>$listObsolete</ul>";
+		$content .= "<ul id='obsoleteMails'>$listObsolete</ul><script>toggle('obsoleteMails');</script>";
 		
 		$content .= "<h1>Short Bio</h1>";
 		$content .= "<div class='quotes'>";
