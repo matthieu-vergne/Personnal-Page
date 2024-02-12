@@ -141,8 +141,8 @@ But even a professional code can be way worse than that, so focus on the semanti
 
 <p>
 Now that the most common trap is gone, let's be even more subtle.
-And what is more subtle than an explicit terminology properly representing our domain?
-So let's name our method and variables to make everything clear:
+And what better way to be subtle than to use an explicit terminology representing our domain?
+Joke aside, let's name our method and variables to make everything clear:
 </p>
 <pre><code>
 double[] increaseRange(double[] minMax, double increaseRatio) {
@@ -354,78 +354,115 @@ Factoring reduces any change to one single place, making the change quicker to a
 Indeed, if a change applies to a specific concept, then we only need to find the (single) place in the code where this concept is represented.
 </p>
 
-<!-- TODO -->
-<h3>Factoring Various Stuff</h3>
+<h3>Factoring Techniques</h3>
 
-Speak about the type of information to factor
-Speak about the scale of the factoring
-Factorization guide:
+<p>
+In this article, I illustrate traps by factoring some code into a separate method, and properly factor it with local variables.
+But don't get me wrong, factoring code into a dedicated method is totally valid.
+However, it covers a different purpose than the variable.
+Actually, it goes way beyond choosing between a variable or a method: it is a matter of <em>information</em> to factor and its <em>scope</em>.
+</p>
+
+<h4>Information</h4>
+
+<p>
+There are two kinds of information that can be factored: <em>data</em> and <em>computation</em>.
+Data is a mere value (number, string, object, etc.), either expressed as a literal or stored in a variable or field.
+In our <code>increaseRange</code> example, we only factor various pieces of data into dedicated variables.
+Computation is a sequence of instructions to execute (with parameters or not), typically a method or a piece of it.
+<code>increaseRange</code> itself can be considered as such, and having its instructions replicated in the code could be the reason why we created <code>increaseRange</code> in the first place.
+</p>
+<p>
+These two kinds of information can be further refined into two kinds of variants: <em>fixed</em> and <em>dynamic</em>.
+A fixed information is established once for all, while a dynamic information might evolve between calls, usually by relying on a mutable state to infer the variable part.
+The dynamicity is not to be mixed with the parameterization, though.
+While parameters are what we feed to a method, so we control them, the state might evolve through other means we are not in control with.
+</p>
+<p>
+Data is stored into a variable or field, and whether it is fixed or dynamic tells whether it can be <code>final</code> or not.
+Computation is stored into a method, and a dynamic one needs to have a state associated to it.
+This state can come from the local instance this method is part of, typically a field, or from another class, like a constant, or be factored with the method itself into a dedicated object.
+Since Java 8, we can also use a lambda, which is basically an object defined like a method but directly inside another method.
+If the lambda relies on mutable elements which are not parts of its parameters, it is a dynamic computation, otherwise a fixed one.
+In the end, lambdas are objects and objects are delegated methods, so factoring computation always comes down to calling a method in a way or another.
+</p>
+
+<h4>Scope</h4>
+
+<p>
+The scope of the information represents how far are the places that need it.
+If you need the same data twice (or more) into a single method, you can factor it into a local variable.
+If you need it in different classes, you need to increase its accessibility, for example by making it a static field.
+Similarly, a local computation can be factored into an instance method, while different classes might rely on a static method instead. 
+</p>
+<!-- TODO -->
+<p>
+Mention all scopes
+</p>
+
+<h4>Factoring Guide</h4>
+
+<p>Here is an overview of the usual factoring techniques based on the information to factor and its scope:</p>
 <table>
 	<thead>
 		<tr>
 			<th scope="col">
 				<!--
-				RECIPE FOR DIAGONAL HEADERS
+				RECIPE FOR DIAGONAL HEADER
 				Make it a square div by giving same height than width, then center vertically based on that (+50% from top -50% from content) then rotate 45°, then translate to the corner knowing that (1) it is inside a square so diagonal is 41.42% larger than side, and (2) it is already horizontally centered so half of it is needed to translate.
 				-->
 				<div style="position: relative ; width: 100% ; padding-bottom: 100%">
-					<span style="text-transform: uppercase ; text-align: center ; position: absolute ; left: 0 ; right: 0 ; top: 50% ; transform: translate(0, -50%) rotate(45deg) translate(20.71%, 0)">Factored<hr/>Scale</span>
+					<span style="text-transform: uppercase ; text-align: center ; position: absolute ; left: 0 ; right: 0 ; top: 50% ; transform: translate(0, -50%) rotate(45deg) translate(20.71%, 0)">Info<hr/>Scope</span>
 				</div>
 			</th>
-			<th scope="col">Fixed Data</th>
-			<th scope="col">Dynamic Data</th>
-			<th scope="col">Fixed Computation</th>
-			<th scope="col">Dynamic Computation</th>
+			<th scope="col">Fixed<br/>Data</th>
+			<th scope="col">Dynamic<br/>Data</th>
+			<th scope="col">Fixed<br/>Computation</th>
+			<th scope="col">Dynamic<br/>Computation</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
-			<th scope="row">Instructions</th>
+			<th scope="row">Instructions<br/>in a Method</th>
 			<td>Local final variable</td>
 			<td>Local variable</td>
 			<td>Local lambda<br/>Instance method</td>
 			<td>Local lambda<br/>Local object</td>
 		</tr>
 		<tr>
-			<th scope="row">Instance Methods</th>
+			<th scope="row">Instance Methods<br/>in a Class</th>
 			<td>Instance final field</td>
 			<td>Instance field</td>
 			<td>Instance lambda<br/>Instance method</td>
 			<td>Instance lambda<br/>Instance object</td>
 		</tr>
 		<tr>
-			<th scope="row">Static Methods</th>
+			<th scope="row">Static Methods<br/>in a Class</th>
 			<td>Private static final field</td>
 			<td>Private static field</td>
 			<td>Private static lambda<br/>Private static method</td>
 			<td>Private static lambda<br/>Private static object</td>
 		</tr>
 		<tr>
-			<th scope="row">Classes</th>
-			<td><span class="tooltipped" onclick="toggle('shared_desc')">Shared</span> static final field</td>
+			<th scope="row">Classes in<br/>an Application</th>
+			<td>Shared<sup class="infoMark" onclick="toggle('shared_desc')"></sup> static final field</td>
 			<td>Shared static field</td>
 			<td>Shared static lambda<br/>Shared static method</td>
 			<td>Shared static lambda<br/>Shared static object</td>
 		</tr>
 		<tr id="shared_desc"><script>toggle('shared_desc');</script>
-			<th scope="row">Shared</th>
+			<th scope="row"></th>
 			<td colspan=4 style="text-align: left">
+				Sharing requires different keywords depending on the classes:
 				<ul>
-					<li><code>protected</code> for sharing with child class</li>
-					<li>package-visible (default) for sharing with classes in same package</li>
-					<li><code>public</code> for sharing with classes in other packages</li>
+					<li><code>protected</code> for sharing with a child class</li>
+					<li>No keyword (default) for sharing with a class in the same package</li>
+					<li><code>public</code> for sharing with a class in another package</li>
 				</ul>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row">Packages</th>
-			<td>Public static final field</td>
-			<td>Public static field</td>
-			<td>Public static lambda<br/>Public static method</td>
-			<td>Public static lambda<br/>Public static object</td>
-		</tr>
-		<tr>
-			<th scope="row">Applications<br/>Service</th>
+			<th scope="row">Applications<br/>or Services</th>
 			<td>Fixed storage<br/>(env, property, file)</td>
 			<td>Dynamic storage<br/>(property, file, database)</td>
 			<td>Library</td>
@@ -435,37 +472,20 @@ Factorization guide:
 </table>
 
 Speak about right stuff can deal with left stuff
+	Non-final but not assigned twice then effectively final, so non-final OK
+	Lambda/object can deal with everything, but clearly too costly compared to variable or field: aim for the right balance
+
 Speak about bottom stuff can deal with top stuff
-Service can deal with everything, but clearly too costly compared to local final variable: aim for the right balance
-Lambda preferable at instructions level, to keep it local, otherwise method and objects preferable.
-Some might be not recommended for other reasons than factoring, like using static elements makes less testable.
-
-<h3>Factoring at Various Scales</h3>
-
-<p>
-In this article, I illustrate traps by factoring some code into a separate method, and properly factor it with local variables.
-But don't get me wrong, extracting code into a dedicated method is a valid factoring method, it was just not the most suited here.
-Actually, it goes way beyond choosing between a variable or a method: it is a matter of scale.
-If I keep it simple, it goes like that:
-</p>
-<ol>
-	<li>you find code to factor inside a method, so you may factor it with a dedicated variable ;</li>
-	<li>you find code to factor between two methods, so you may factor it with a dedicated method ;</li>
-	<li>you find code to factor between two classes, so you may factor it with a dedicated class ;</li>
-	<li>you find code to factor between two programs, so you may factor it with a dedicated program ;</li>
-</ol>
-<p>
-Of course, practice is not as simple as that.
-You may factor two methods by using a field, because you only need to factor the value and not the computation.
-You may factor two classes by using a static method, and stay with that because you don't need to go as far as having an object (with a state) that would require to make it a class.
-You may factor two programs by using a common configuration file, because you only need to factor some values and not the computation (yes, this is the field case but with a different scale).
-The goal is of course to choose the right way for the right need, and this need is not always obvious.
-</p>
+	Service can deal with everything, but clearly too costly compared to local final variable: aim for the right balance
 
 <h3>Factoring is not everything</h3>
 
+<!-- TODO -->
 <p>
-<!-- TODO some factoring practices can be used for non-factoring purposes, don't reject an apparent factoring because factoring is irrelevant, there might be another reason -->
+Guide gives an idea of what is technically feasible, but factoring is not the only criterion to consider
+Static elements make less testable, replace by instance field fed through constructor
+Lambda preferable at instructions level, to keep it local, otherwise method and objects preferable.
+code might looked factored but for non-factoring purposes, don't reject an apparent factoring because factoring is irrelevant, there might be another reason -->
 </p>
 <pre><code>
 <!-- TODO -->
