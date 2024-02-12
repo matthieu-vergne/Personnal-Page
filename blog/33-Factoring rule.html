@@ -373,7 +373,7 @@ Computation is a sequence of instructions to execute (with parameters or not), t
 <code>increaseRange</code> itself can be considered as such, and having its instructions replicated in the code could be the reason why we created <code>increaseRange</code> in the first place.
 </p>
 <p>
-These two kinds of information can be further refined into two kinds of variants: <em>fixed</em> and <em>dynamic</em>.
+These two kinds of information can be further refined into two variants: <em>fixed</em> and <em>dynamic</em>.
 A fixed information is established once for all, while a dynamic information might evolve between calls, usually by relying on a mutable state to infer the variable part.
 The dynamicity is not to be mixed with the parameterization, though.
 While parameters are what we feed to a method, so we control them, the state might evolve through other means we are not in control with.
@@ -386,6 +386,12 @@ Since Java 8, we can also use a lambda, which is basically an object defined lik
 If the lambda relies on mutable elements which are not parts of its parameters, it is a dynamic computation, otherwise a fixed one.
 In the end, lambdas are objects and objects are delegated methods, so factoring computation always comes down to calling a method in a way or another.
 </p>
+<!-- TODO -->
+<p>
+Speak about right stuff can deal with left stuff
+Non-final but not assigned twice then effectively final, so non-final OK
+Lambda/object can deal with everything, but clearly too costly compared to variable or field: aim for the right balance
+</p>
 
 <h4>Scope</h4>
 
@@ -395,9 +401,15 @@ If you need the same data twice (or more) into a single method, you can factor i
 If you need it in different classes, you need to increase its accessibility, for example by making it a static field.
 Similarly, a local computation can be factored into an instance method, while different classes might rely on a static method instead. 
 </p>
-<!-- TODO -->
 <p>
-Mention all scopes
+Mention all Java scopes
+</p>
+<p>
+Mention external scope (services)
+</p>
+<p>
+Speak about bottom stuff can deal with top stuff
+Service can deal with everything, but clearly too costly compared to local final variable: aim for the right balance
 </p>
 
 <h4>Factoring Guide</h4>
@@ -472,11 +484,7 @@ Mention all scopes
 </table>
 
 Speak about right stuff can deal with left stuff
-	Non-final but not assigned twice then effectively final, so non-final OK
-	Lambda/object can deal with everything, but clearly too costly compared to variable or field: aim for the right balance
-
 Speak about bottom stuff can deal with top stuff
-	Service can deal with everything, but clearly too costly compared to local final variable: aim for the right balance
 
 <h3>Factoring is not everything</h3>
 
