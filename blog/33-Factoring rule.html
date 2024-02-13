@@ -354,7 +354,7 @@ Factoring reduces any change to one single place, making the change quicker to a
 Indeed, if a change applies to a specific concept, then we only need to find the (single) place in the code where this concept is represented.
 </p>
 
-<h3>Factoring Techniques</h3>
+<h3>Factoring Storages</h3>
 
 <p>
 In this article, I illustrate traps by factoring some code into a separate method, and properly factor it with local variables.
@@ -374,7 +374,7 @@ Computation is a sequence of instructions to execute (with parameters or not), t
 </p>
 <p>
 These two kinds of information can be further refined into two variants: <em>fixed</em> and <em>dynamic</em>.
-A fixed information is established once for all, while a dynamic information might evolve between calls, usually by relying on a mutable state to infer the variable part.
+A fixed information is established once for all, while a dynamic information might evolve between uses, usually by relying on a mutable state to infer the variable part.
 The dynamicity is not to be mixed with the parameterization, though.
 While parameters are what we feed to a method, so we control them, the state might evolve through other means we are not in control with.
 </p>
@@ -382,15 +382,19 @@ While parameters are what we feed to a method, so we control them, the state mig
 Data is stored into a variable or field, and whether it is fixed or dynamic tells whether it can be <code>final</code> or not.
 Computation is stored into a method, and a dynamic one needs to have a state associated to it.
 This state can come from the local instance this method is part of, typically a field, or from another class, like a constant, or be factored with the method itself into a dedicated object.
-Since Java 8, we can also use a lambda, which is basically an object defined like a method but directly inside another method.
+Since Java 8, we can also use a lambda, which is basically an object defined like a method but possibly inside another method.
 If the lambda relies on mutable elements which are not parts of its parameters, it is a dynamic computation, otherwise a fixed one.
 In the end, lambdas are objects and objects are delegated methods, so factoring computation always comes down to calling a method in a way or another.
 </p>
-<!-- TODO -->
 <p>
-Speak about right stuff can deal with left stuff
-Non-final but not assigned twice then effectively final, so non-final OK
-Lambda/object can deal with everything, but clearly too costly compared to variable or field: aim for the right balance
+It is worth noting that, although a final variable or field can only store fixed data, fixed data is not limited to a final variable or field.
+Indeed, a non-final one can store dynamic data, but also fixed data, we just do not exploit the capacity of the storage to change its value.
+<code>final</code> is just an additional constraint, so not having it increases the capabilities (and assigning the data once makes it <a href="https://www.baeldung.com/java-effectively-final">effectively final</a> anyway).
+Similarly, an object is nice to keep a state required for dynamic computation, but nothing forbids it to not have one and provide fixed computation.
+Even better: data can be returned by a method, so when fixed or dynamic data is required, we may as well use a method, a lambda, or an object.
+Of course, it is not because an object can do everything that it should be used all the time.
+Each of them has its pros and cons, be it memory cost, time cost, maintainability, and so on.
+Pick the one that fit your case the best.
 </p>
 
 <h4>Scope</h4>
@@ -398,23 +402,53 @@ Lambda/object can deal with everything, but clearly too costly compared to varia
 <p>
 The scope of the information represents how far are the places that need it.
 If you need the same data twice (or more) into a single method, you can factor it into a local variable.
-If you need it in different classes, you need to increase its accessibility, for example by making it a static field.
+If you need it in different classes, you need to increase its scope, for example by making it a static field.
 Similarly, a local computation can be factored into an instance method, while different classes might rely on a static method instead. 
+We can identify a few representative scopes:
+</p>
+<ol>
+	<li>we can factor something out of a set of <em>instructions</em> inside a single method, typically some local storage, whether they are variables storing data or lambda storing computation, although an instance method would work as well for the latter ;</li>
+	<li>when we need to factor something from two <em>instance methods</em> of a class, it usually requires an instance storage, be it a field or a method ;</li>
+	<li>if the methods to factor are <em>static methods</em>, then obviously the storage becomes static as well ;</li>
+	<li>if the content to factor is in different <em>classes</em>, the static storage needs to be shared (non private) ;</li>
+	<li>this reasoning can even be pushed further to share information between <em>applications</em>, by storing data in a file, or computation in a library or a remote service.</li>
+</ol>
+<p>
+For the information, we saw that we can sort them by increasing capacity, from the final variable to the object for example.
+Each next level of storage can also cover the previous ones, although with some extra cost.
+Similarly here, each level of scope has the ability to cover the previous ones.
+You could imagine create a service for each and every thing to factor, but that would come with an extreme burden on your code.
+Again, it is a matter of choosing the right balance based on your needs.
 </p>
 <p>
-Mention all Java scopes
-</p>
-<p>
-Mention external scope (services)
-</p>
-<p>
-Speak about bottom stuff can deal with top stuff
-Service can deal with everything, but clearly too costly compared to local final variable: aim for the right balance
+Pay attention that the list above only provides representative cases, though.
+If you happen to factor something between a static method and an instance method, the static method will impose the need for a static access.
+If you don't want to create a static content, you may instead make it a parameter of the methods, or refactor the static method into an instance method to get the factored content through the constructor.
+This list only gives technical choices that can support each case, but they are rarely the only ones and are often chosen based on other criteria as well.
+It is then a matter of context and practice.
 </p>
 
-<h4>Factoring Guide</h4>
+<h2>Answers</h2>
 
-<p>Here is an overview of the usual factoring techniques based on the information to factor and its scope:</p>
+<!-- TODO -->
+Summarize the primary questions (why, what, how) in the Questions section.
+Answer them here by summarizing the lessons and secondary questions that allow to answer in more details.
+<blockquote><strong><caption>Lesson 3:</caption>
+Factoring the code is not about reducing its size, but reducing its maintenance effort.
+</strong></blockquote>
+<blockquote><strong>What improvements this change bring?</strong></blockquote>
+<blockquote><strong><caption>Lesson 1:</caption>
+You can only confirm what should be factored based on the <em>semantics</em> of the code, not its mere <em>syntax</em>.
+</strong></blockquote>
+<blockquote><strong>If we change the first piece of code, do we need to change the second one to make it work?</strong></blockquote>
+<blockquote><strong><caption>Lesson 2:</caption>
+You can only confirm how to factor based on the <em>semantics</em> of the code, not its mere <em>syntax</em>.
+</strong></blockquote>
+<blockquote><strong>What concept of the domain does this change applies to?</strong></blockquote>
+
+<p>
+Here is an overview of storages to use based on the <em>information</em> to factor and its <em>scope</em>:
+</p>
 <table>
 	<thead>
 		<tr>
@@ -482,43 +516,15 @@ Service can deal with everything, but clearly too costly compared to local final
 		</tr>
 	</tbody>
 </table>
-
-Speak about right stuff can deal with left stuff
-Speak about bottom stuff can deal with top stuff
-
-<h3>Factoring is not everything</h3>
-
-<!-- TODO -->
 <p>
-Guide gives an idea of what is technically feasible, but factoring is not the only criterion to consider
-Static elements make less testable, replace by instance field fed through constructor
-Lambda preferable at instructions level, to keep it local, otherwise method and objects preferable.
-code might looked factored but for non-factoring purposes, don't reject an apparent factoring because factoring is irrelevant, there might be another reason -->
-</p>
-<pre><code>
-<!-- TODO -->
-</code></pre>
-
-<p>
-It is not rare to ask ourselves whether using a constant to refer to some data is relevant.
-The answers to <a href="https://stackoverflow.com/questions/4234129">this question</a> for instance highlight several valid motivations.
-Like easing localization, keeping the coding style consistent, or expressing more info in the constant name than the value alone can provide.
-Indeed, constants are tools to be used when they help for a purpose, but none of these motivations relate to factoring the code.
-What we are interested in here is when the factoring purpose becomes relevant.
+Remember that, for each scope, any storage can as well be replaced by the one on its right.
+Similarly, for each kind of information, any storage can as well be replaced by the one below it.
+It makes the service the most powerful tool to use for factoring information, but don't use this reason to blindly transform everything into services.
+Local variables are still a good way to go with local stuff, just in case it was not that obvious.
+Moreover, don't forget that these are only representative cases, and there is more to it than this small table.
+Again, choose the storage that fits your needs.
 </p>
 
-
-<h2>Answers</h2>
-
-<!-- TODO -->
-<p>
-When you find two pieces of code which are similar, you only need to ask yourself a single question to know whether to factor them:
-</p>
-<blockquote><strong>If we change this piece of code in some way, is it required to change this other piece of code too?</strong></blockquote>
-<p>
-If you answer "yes" to this question, then these pieces of code must be factored otherwise they should not.
-It looks easy at first glance, but like a lot of simple methods, the complexity appears when you dig in the details.
-</p>
 
 <!-- Auto formatting of code tags as Java code -->
 <script language="Javascript" type="text/javascript">
