@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>How to Design a (Generics-Free) Generic Interface?</h1>
+
+<!-- TODO -->
+<!-- Trap of top-down: imagine generic, fail to specialize properly -->
+<!-- Counter-intuitive of bottom-up: start specific, generalize as needed -->
+<!-- # In situ implementation -->
+<!-- # Extract implementation to method -->
+<!-- # Make method static to identify all inputs -->
+<!-- # Extract method to object -->
+<!-- # Make method non-static to access object state -->
+<!-- # Extract method argument to constructor argument to exploit object state -->
+<!-- Key question: if I change the implementation, should the argument change? Yes then implementation-specific, no then generic -->
+<!-- # Extract interface from implementation -->
+<!-- # Create other implementations with their own constructor parameters -->
+<p>
+Generics have been introduced in Java 5 to <cite>add stability to your code by making more of your bugs detectable at compile time</cite>, dixit the <a href="#OracleTutorial">Oracle tutorial</a>.
+It is thus a great way to ensure that you are using the right type of object in your code even in cases where you don't know the exact type in advance.
+</p>
+
+<p>
+In this article, we focus specifically on the most common situation: we need to use a class that defines one or more generics for itself.
+Probably the most common use of generics comes with the standard Java data structures.
+As Java developers, we often instantiate a <code>List&lt;E></code> or a <code>Map&lt;K, V></code>, which are both generic classes (classes relying on Generics).
+As a matter of fact, which class to assign to each generics is rather straightforward.
+If you need to create a list of <code>Coin</code> objects, then just create a <code>List&lt;Coin></code>.
+If you need to map various <code>String</code> values to their own list of <code>Coin</code>, then create a <code>Map&lt;String, List&lt;Coin>></code>.
+</p>
+
+<h2>Questions</h2>
+
+<p>
+Maybe you already saw here and there these <code>extends</code> and <code>super</code> keywords.
+For example, when you call <code>list.addAll(otherList)</code>, the <code>addAll</code> method does not simply take a list of the same type (<code>List&lt;E></code>).
+And this is not the only one.
+Here are some straightforward methods we can use on a <code>List</code> object since Java 8:
+</p>
+
+<pre><code>
+public interface List&lt;E> extends Collection&lt;E> {
+	// ...
+	boolean addAll(Collection&lt;? extends E> c);
+	boolean removeAll(Collection&lt;?> c);
+	void replaceAll(UnaryOperator&lt;E> operator)
+	void sort(Comparator&lt;? super E> c);
+	// ...
+}
+</code></pre>
+
+<p>
+Using a <code>Comparator</code> for sorting is the usual deal, no surprise here.
+Using a <code>UnaryOperator</code> to replace each value with another one is not strange either for those familiar with it.
+Using a <code>Collection</code> instead of a <code>List</code> allows to consume a <code>Set</code>, which is sometimes useful.
+But what about their Generics?
+What are the <code>extends</code> and <code>super</code> keywords?
+And why one is using the proper generics <code>E</code> while the other only uses <code>?</code>?
+Should you also use them when you define your own method parameters?
+</p>
+
+<h2>A matter of reuse: genericness vs. constraints</h2>
+
+<p>
+The aim of Generics is to provide type controls at compilation time in cases where the type is not known in advance.
+Since you don't know the type, the question is then: what can you at least assume about it?
+The 4 generics definitions we saw previously allow to describe specific constraints on the Generics type.
+The more constraints the Generics fulfills, the more you know about it, and so the more you can do with it.
+But the more you constrain it, the less you can reuse your method elsewhere, because you can only use it where those constraints apply.
+The goal is thus to constrain the Generics enough to do what you need, but not more to not reduce the reusability of your code.
+</p>
+
+<h3>No particular type constraint? Then anything goes with <code>?</code></h3>
+
+<p>
+Let's start with the least constrained case:
+</p>
+<pre><code>
+boolean removeAll(Collection&lt;?> c);
+</code></pre>
+<p>
+This <code>List</code> method accepts a <code>Collection</code> with any Generics.
+It does not need to be of the same type than the Generics of the current <code>List</code>.
+Indeed, when you call <code>list.remove(x)</code>, you can provide any kind of object (<code>remove</code> accepts any <code>Object</code>).
+If it is an object of the wrong type, it will simply not be found in the list and thus won't be removed.
+There is no reason to constrain it to be of the same type.
+Similarly, when removing several objects, there is no reason to constrain their type either.
+</p>
+
+<p>
+When you define your own methods, you may start by accepting any Generics by setting them with the wildcard <code>?</code>.
+If you need something more specific at some point, your method will not compile.
+Just add the relevant constraint at that time.
+</p>
+
+<h3>Extract some <code>E</code> from it? Then <code>? extends E</code></h3>
+
+<p>
+Let's see the most intuitive constraint that is <code>extends</code>:
+</p>
+<pre><code>
+boolean addAll(Collection&lt;? extends E> c);
+</code></pre>
+<p>
+The <code>extends</code> keyword, as we are used to, means that the Generics type should extend <code>E</code>.
+It works either with <code>E</code> itself or any of its child classes.
+When adding elements to our <code>List</code>, we need to ensure they are of the right type <code>E</code>.
+Thus, the elements that we extract from the provided <code>Collection</code> should be of type <code>E</code>.
+Only then when can supply them to our <code>List</code>.
+</p>
+
+<p>
+When you define your own methods, check what you extract from the generic class that you receive (what is returned by a method that you need from it).
+If you need to <em>ext</em>ract a specific type of objects, then the corresponding Generics should <em>ext</em>end it.
+It does not matter what you do with it: just look at what type of object you need to extract from the generic class.
+Its Generics should extend this type to be compatible.
+</p>
+<pre><code>
+interface GenericClass&lt;X> {
+	X someCall();
+}
+&lt;T> void doSomething(GenericClass&lt;? extends T> arg) { // extends T
+	T extracted = arg.someCall(); // because you need to extract T from it
+}
+</code></pre>
+
+<h3>Supply some <code>E</code> to it? Then <code>? super E</code></h3>
+
+<p>
+Let's look then at <code>super</code>:
+</p>
+<pre><code>
+void sort(Comparator&lt;? super E> c);
+</code></pre>
+<p>
+The <code>super</code> keywords is the "reverse" of <code>extends</code>.
+The <code>Comparator</code> Generics should thus have a type which is <code>E</code> or a parent class, including <code>Object</code>.
+Indeed, our <code>List</code> contains objects of type <code>E</code>, so we will supply <code>E</code> instances to the <code>Comparator</code>.
+A <code>Comparator</code> that compares <code>E</code> instances works, but one that compares <code>Object</code> instances works too.
+For example, here we supply 2 <code>E</code> instances to a <code>Comparator</code>.
+But if it compares their <code>toString()</code> values, it can consume any object, not only <code>E</code> instances.
+So a <code>Comparator&lt;Object></code>, which can compare any kind of object, can also compare <code>E</code> instances, so we should be able to use it for our <code>List&lt;E></code>.
+</p>
+
+<p>
+When you define your own methods, check what you supply to the generic class that you receive (what argument you give to a method that you need from it).
+If you need to <em>sup</em>ply a specific type of objects, then the corresponding Generics should <em>sup</em>er it.
+It does not matter where it comes from: just look at what type of object you need to supply to the generic class.
+Its Generics should super this type to be compatible.
+</p>
+<pre><code>
+interface GenericClass&lt;X> {
+	void someCall(X x);
+}
+&lt;T> void doSomething(T t, GenericClass&lt;? super T> arg) { // super T
+	arg.someCall(t); // because you need to supply T to it
+}
+</code></pre>
+
+<h3>Extract and supply <code>E</code>? Then go full <code>E</code></h3>
+
+<p>
+Now let's look at the last case:
+</p>
+<pre><code>
+void replaceAll(UnaryOperator&lt;E> operator)
+</code></pre>
+<p>
+The <code>UnaryOperator</code> allows to replace a value by another: we give it the old value, it returns the new one.
+Our <code>List</code> containes <code>E</code> instances, so we need to <em>supply</em> a <code>E</code> to the operator, so its Generics should <code>super E</code>.
+But the returned values should be put back into our <code>List</code>, which accepts only <code>E</code> instances.
+So we also need to <em>extract</em> a <code>E</code> from the operator, so its Generics should also <code>extends E</code>.
+As a reminder, <code>super E</code> allows <code>E</code> or a parent class, and <code>extends E</code> allows <code>E</code> or a child class.
+The only way to fulfill both constraints is to be exactly of type <code>E</code>.
+This is why we need a <code>UnaryOperator&lt;E></code>.
+</p>
+
+<p>
+When you define your own methods, check what you supply and extract to the generic class that you receive.
+If for a specific Generics you need to extract a given type, extend it.
+If for a specific Generics you need to supply a given type, super it.
+If for the same Generics you need both, then apply both constraints by asking for the exact type.
+</p>
+<pre><code>
+interface GenericClass&lt;X> {
+	void someCall(X x);
+	X someOtherCall();
+}
+&lt;T> void doSomething(T supplied, GenericClass&lt;T> arg) { // T alone (extends + super)
+	arg.someCall(supplied);            // because you need to supply T to it
+	T extracted = arg.someOtherCall(); // and to extract T from it
+}
+</code></pre>
+
+<p>
+If the constraints apply to different generics, then consider them separately:
+</p>
+<pre><code>
+interface GenericClass&lt;X, Y> {
+	void someCall(X x);
+	Y someOtherCall();
+}
+&lt;T> void doSomething(T supplied, GenericClass&lt;? super T, ? extends T> arg) {
+	arg.someCall(supplied);            // supply T for X, so super T for X
+	T extracted = arg.someOtherCall(); // extract T for Y, so extends T for Y
+}
+</code></pre>
+
+<h2>Answers</h2>
+
+<p>
+In short, Generics should be constrained based on what you need from them.
+When you need a generic class, add constraints to its Generics based on how you need to interact with the generic class itself:
+</p>
+<ul>
+	<li>If you don't have any type constraint for it, just use the wildcard <code>&lt;?></code> alone ;</li>
+	<li>If for a specific Generics you need to extract a type T, then use <code>&lt;? extends T></code> (<em>ext</em>ract = <em>ext</em>ends) ;</li>
+	<li>If for a specific Generics you need to supply a type T, then use <code>&lt;? super T></code> (<em>sup</em>ply = <em>sup</em>er) ;</li>
+	<li>If for the same Generics you need both, then use <code>&lt;T></code> directly.</li>
+</ul>
+<p>
+	Just be aware that the more constraints you add, the less your code can be used elsewhere.
+	So prefer to apply only those constraints that you actually need rather than immediately going for <code>&lt;T></code>.
+	If you are not sure, just start with the wildcard <code>&lt;?></code>, then add the relevant constraints to make it compile.
+</p>
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<!--
+<h2 id="links">Related Posts</h2>
+
+TODO
+-->
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="OracleTutorial">
+	<cite>Lesson: Generics (Updated)</cite>,
+	in <cite>The Java™ Tutorials > Learning the Java Language</cite>,
+	accessed <time datetime="2017-03-22">March 22, 2017</time>.
+	URL: <a href="https://docs.oracle.com/javase/tutorial/java/generics/index.html">https://docs.oracle.com/javase/tutorial/java/generics/index.html</a>
+</li>
+</ul>
+</body>
+</html>
