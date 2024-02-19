@@ -43,6 +43,7 @@ if ($url->hasQueryVar('redirect')) {
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 		
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.css" rel="stylesheet" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
 		<link href="style.css" rel="stylesheet" type="text/css" />
 		
 		<script type="text/x-mathjax-config">
@@ -58,6 +59,7 @@ if ($url->hasQueryVar('redirect')) {
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/keep-markup/prism-keep-markup.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 		<script language="JavaScript" type="text/javascript" src="scripts.js"></script>
 		
 		<?php
