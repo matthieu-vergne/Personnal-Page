@@ -46,6 +46,7 @@ Here, we focus on our ability to identify the pieces of code that should be fact
 <p>
 Let's start with a simple method:
 </p>
+
 <pre><code>
 double[] transform(double[] in, double a) {
 	double[] out = new double[2];
@@ -56,43 +57,48 @@ double[] transform(double[] in, double a) {
 	return out;
 }
 </code></pre>
-<!-- TODO -->
+
 <p>
-For some readers, this method might smell bad, and they would be right for various reasons.
-But it is done in purpose, so let's cope with it for now and focus on the factorization aspect.
+For some readers, this code might smell bad, and they would be right for various reasons.
+But it is done on purpose, so let's cope with it for now and focus on the factorization aspect.
 Indeed, it illustrates a general reasoning of our time regarding code factoring, which is that when a piece of code appears twice, it shoud be factored.
 You may have heard for example about the <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY principle</a> (Don't Repeat Yourself), which is often interpreted like that.
 The people actually familiar with this principle (or who have read the Wikipedia page in details), know that it is not that trivial, but we will come back to that later.
 </p>
-<p>
-Starting from the code above, an average developer who care about code factorization would see the similarity
 
-Here we assume that the <code>in</code> argument is confirmed to have exactly 2 elements.
-But don't beat yourself up if you thought you had it, we all do mistakes.
-</p>
 <p>
-Do you see some reasons to factor this code?
-If yes, how would you factor it?
-Think about it for a moment before to continue the reading.
+Starting from the code above, an average developer who cares about code factorization would see the similarity between lines 4 and 5 and probably factor them like this:
 </p>
-<p>
-Do you have your answer?
-There is several ways to deal with such a case, but here is a common one:
-</p>
+
 <pre><code>
 double[] transform(double[] in, double a) {
 	double[] out = new double[2];
 
-	out[0] = transformOne(in[0], a);
-	out[1] = transformOne(in[1], a);
+	out[0] = <mark>transformOne(in[0], a)</mark>;
+	out[1] = <mark>transformOne(in[1], a)</mark>;
 
 	return out;
 }
 
-double transformOne(double x, double a) {
+<mark>double transformOne(double x, double a) {
 	return x + 0.5 * a;
-}
+}</mark>
 </code></pre>
+
+<p>
+Unfortunately, it is not always properly motivated.
+It might be a buggy code, like <code>in</code> being a (min, max) pair with a range that should be increased by a given amount <code>a</code> evenly distributed.
+In this case, line 4 should actually be <code>in[0] <mark>-</mark> 0.5 * a</code> and not be the same than line 5, and factoring them made it harder to fix the bug.
+It might be a poorly defined requirement, like <code>in</code> being the volumes of 2 different liquids, and <code>a</code> the amount of overall liquid to add.
+The distribution being unspecified, applying half of it in both might be an arbitrary decision that, once clarified, becomes 40/60, so both lines should again be different.
+It might also be a well defined requirement of 50/50 that might change later, like changing the values or making them configurable.
+Surely, the distribution not being 50/50 means having 2 different values, so again both lines should be different, not the same.
+In all these cases, the factoring just enforces the "apparent" same code to become "technically" the same, and changing it later requires to revert the factoring, thus losing your time twice: factoring the code <em>and</em> reverting it.
+</p>
+<p>
+The lesson to learn out of this example is that <strong>two pieces of code being similar does not mean that they should be factored</strong>.
+More precisely, the syntax is nothing more than a hint that factoring might be useful, and something else is required to actually confirm it.
+</p>
 
 <h2>The Semantic Decision</h2>
 
@@ -105,21 +111,6 @@ double transformOne(double x, double a) {
 <!-- ----------------------------------------------- -->
 <h2>Avoid the Syntactic Trap</h2>
 
-<p>
-Does your answer look like this?
-If you didn't factor as much, like the product but not the sum, don't beat yourself up, because again we all do mistakes.
-If you factored it to the same extent, welcome in the trap!
-Indeed, this code is buggy, and this factoring just made the bug even harder to fix now.
-What do you mean, you couldn't know? I told you from the start: <em>we all do mistakes</em>, even the guy who wrote this code.
-Didn't you heard that you should never trust some random code found on the internet?
-Well, now you know why.
-</p>
-<p>
-But really the motivation does not matter.
-It might be a buggy code, like <code>in</code> being a (min, max) pair that we want to increase the range by a given amount <code>a</code> (evenly distributed), but the code actually translates the range up instead of increasing it.
-It might be a poorly defined requirement, like <code>in</code> representing the volumes of 2 different liquids, and <code>a</code> the amount of overall liquid to add, but the 50/50 distribution comes from having no requirement and it might become 40/60 when it will be clarified.
-In both cases the factoring just enforces the common code, and fixing the bug or clarifying the requirement would lead to revert the factoring, thus losing time factoring <em>and</em> reverting it.
-</p>
 <p>
 If you factored the code, here is the mistake you did: to rely solely on the code similarity to infer what should be factored.
 It is good to <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">not repeating yourself</a>, but code similarity is <em>never</em> a decision criteria to tell whether some code should be factored.
