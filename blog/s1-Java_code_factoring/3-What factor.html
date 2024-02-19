@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	<meta charset="utf-8">
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+	<script language="JavaScript" type="text/javascript" src="../scripts.js"></script>
+	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+</head>
+<body id="blog">
+<h1>What Code Should Be Factored?</h1>
+
+https://en.wikipedia.org/wiki/Duplicate_code
+<p>
+<!-- TODO -->
+</p>
+<div class="warning">TODO Look also: https://itexpert.fr/blog/bonne-duplication-de-code/</div>
+<div class="warning">TODO Look also: https://fr.linkedin.com/pulse/factorisation-et-review-du-code-en-solo-ou-%C3%A9quipe-eric-venturino</div>
+<div class="warning">TODO Look also: https://essential-dev-skills.com/general/doit-on-abstraire-son-code</div>
+<div class="warning">TODO Look also: https://fr.quora.com/Est-ce-une-bonne-id%C3%A9e-de-factoriser-des-choses-en-programmant</div>
+<div class="warning">TODO Look also: https://forum.alsacreations.com/topic-5-88046-1-Factorisation-dun-code.html</div>
+
+<h2>Questions</h2>
+
+<p>
+This article is part of a more general approach towards <entry id="s1/0">code factoring</entry>, for which several questions need to be answered.
+Here, we focus on our ability to identify the pieces of code that should be factored, thus answering the following question:
+</p>
+<blockquote><strong>What code should be factored?</strong></blockquote>
+
+<h2>The Syntactic Hint</h2>
+
+<p>
+Let's start with a simple method:
+</p>
+<pre><code>
+double[] transform(double[] in, double a) {
+	double[] out = new double[2];
+
+	out[0] = in[0] + 0.5 * a;
+	out[1] = in[1] + 0.5 * a;
+
+	return out;
+}
+</code></pre>
+<!-- TODO -->
+<p>
+For some readers, this method might smell bad, and they would be right for various reasons.
+But it is done in purpose, so let's cope with it for now and focus on the factorization aspect.
+Indeed, it illustrates a general reasoning of our time regarding code factoring, which is that when a piece of code appears twice, it shoud be factored.
+You may have heard for example about the <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY principle</a> (Don't Repeat Yourself), which is often interpreted like that.
+The people actually familiar with this principle (or who have read the Wikipedia page in details), know that it is not that trivial, but we will come back to that later.
+</p>
+<p>
+Starting from the code above, an average developer who care about code factorization would see the similarity
+
+Here we assume that the <code>in</code> argument is confirmed to have exactly 2 elements.
+But don't beat yourself up if you thought you had it, we all do mistakes.
+</p>
+<p>
+Do you see some reasons to factor this code?
+If yes, how would you factor it?
+Think about it for a moment before to continue the reading.
+</p>
+<p>
+Do you have your answer?
+There is several ways to deal with such a case, but here is a common one:
+</p>
+<pre><code>
+double[] transform(double[] in, double a) {
+	double[] out = new double[2];
+
+	out[0] = transformOne(in[0], a);
+	out[1] = transformOne(in[1], a);
+
+	return out;
+}
+
+double transformOne(double x, double a) {
+	return x + 0.5 * a;
+}
+</code></pre>
+
+<h2>The Semantic Decision</h2>
+
+<!-- TODO -->
+
+<h2>A Matter of Ontology</h2>
+
+<!-- TODO -->
+
+<!-- ----------------------------------------------- -->
+<h2>Avoid the Syntactic Trap</h2>
+
+<p>
+Does your answer look like this?
+If you didn't factor as much, like the product but not the sum, don't beat yourself up, because again we all do mistakes.
+If you factored it to the same extent, welcome in the trap!
+Indeed, this code is buggy, and this factoring just made the bug even harder to fix now.
+What do you mean, you couldn't know? I told you from the start: <em>we all do mistakes</em>, even the guy who wrote this code.
+Didn't you heard that you should never trust some random code found on the internet?
+Well, now you know why.
+</p>
+<p>
+But really the motivation does not matter.
+It might be a buggy code, like <code>in</code> being a (min, max) pair that we want to increase the range by a given amount <code>a</code> (evenly distributed), but the code actually translates the range up instead of increasing it.
+It might be a poorly defined requirement, like <code>in</code> representing the volumes of 2 different liquids, and <code>a</code> the amount of overall liquid to add, but the 50/50 distribution comes from having no requirement and it might become 40/60 when it will be clarified.
+In both cases the factoring just enforces the common code, and fixing the bug or clarifying the requirement would lead to revert the factoring, thus losing time factoring <em>and</em> reverting it.
+</p>
+<p>
+If you factored the code, here is the mistake you did: to rely solely on the code similarity to infer what should be factored.
+It is good to <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">not repeating yourself</a>, but code similarity is <em>never</em> a decision criteria to tell whether some code should be factored.
+It is a good <em>hint</em> that there might be something to factor, but it never goes beyond that.
+</p>
+<p>
+A properly motivated factoring comes from two pieces of code sharing the same <em>goal</em>, and thus being computed the same way.
+But the goal of the code is not directly expressed in the code itself: it is in the meaning behind it.
+Which gives us the main lesson regarding what code should be factored:
+</p>
+<blockquote><strong>You can only confirm what should be factored based on the <em>semantics</em> of the code, not its mere <em>syntax</em>.</strong></blockquote>
+<p>
+As I mentionned earlier, there is several ways to deal with the case above.
+But the only reliable one here is to stop when we ask for reasons to factor this code.
+There is no way to find one because we miss information to understand the goal of the code.
+</p>
+<p>
+Actually, this lack of information can be identified rather easily.
+Indeed, the idea is to factor both formulae, so if one changes then the other also changes since they are now the same.
+But in the initiql code, if we change the first formula, nothing tells us that the second one should change too.
+As we saw, the code similarity alone is not enough to confirm that changing one <em>requires</em> to change the other to make it work.
+More generally, when you see some code similarity and think about factoring two pieces of code, ask yourself:
+</p>
+<blockquote><strong>If we change the first piece of code, do we <em>need</em> to change the second one to make it work?</strong></blockquote>
+<ul>
+	<li>If yes, then the two pieces of code <em>should</em> be factored, so only one change is required when needed.</li>
+	<li>If no, then the two pieces of code <em>should</em> remain separate, so both can evolve separately.</li>
+	<li>Any other answer should be reduced to "I don't know", meaning that more information is required to answer the question.</li>
+</ul>
+<p>
+I could have written "must" instead of "should", because as long as we focus only on the factoring aspect, that would be more correct.
+But in practice, there is often other constraints to consider, and you may face other priorities forbidding you to factor a code that "should" be factored.
+Like having to refactor too much things that you can afford for now, or facing some isolation constraints (technical, financial, security, etc.) that enforce the duplication, etc.
+Anyway, the idea remains: if the semantic of the code shows that two pieces of code have the same goal, then it should be factored.
+</p>
+<p>
+Of course the code here was purposefully made to focus on the similarity of the syntax.
+But even a professional code can be way worse than that, so focus on the semantics to avoid that trap.
+</p>
+
+<h2>Answer</h2>
+
+<!-- TODO -->
+
+Answer them here by summarizing the lessons and secondary questions that allow to answer in more details.
+<ol>
+	<li><em>Why</em> should we factor the code?</li>
+	<li><em>What</em> should we factor (or not factor)?</li>
+	<li><em>How</em> should we factor it?</li>
+</ol>
+
+<blockquote><strong><caption>Lesson 3:</caption>
+Factoring the code is not about reducing its size, but reducing its maintenance effort.
+</strong></blockquote>
+<blockquote><strong>What improvements this change bring?</strong></blockquote>
+<blockquote><strong><caption>Lesson 1:</caption>
+You can only confirm what should be factored based on the <em>semantics</em> of the code, not its mere <em>syntax</em>.
+</strong></blockquote>
+<blockquote><strong>If we change the first piece of code, do we need to change the second one to make it work?</strong></blockquote>
+<blockquote><strong><caption>Lesson 2:</caption>
+You can only confirm how to factor based on the <em>semantics</em> of the code, not its mere <em>syntax</em>.
+</strong></blockquote>
+<blockquote><strong>What concept of the domain does this change applies to?</strong></blockquote>
+
+<p>
+Here is an overview of storages to use based on the <em>information</em> to factor and its <em>scope</em>:
+</p>
+<table>
+	<thead>
+		<tr>
+			<th scope="col">
+				<!--
+				RECIPE FOR DIAGONAL HEADER
+				Make it a square div by giving same height than width, then center vertically based on that (+50% from top -50% from content) then rotate 45°, then translate to the corner knowing that (1) it is inside a square so diagonal is 41.42% larger than side, and (2) it is already horizontally centered so half of it is needed to translate.
+				-->
+				<div style="position: relative ; width: 100% ; padding-bottom: 100%">
+					<span style="text-transform: uppercase ; text-align: center ; position: absolute ; left: 0 ; right: 0 ; top: 50% ; transform: translate(0, -50%) rotate(45deg) translate(20.71%, 0)">Info<hr/>Scope</span>
+				</div>
+			</th>
+			<th scope="col">Fixed<br/>Data</th>
+			<th scope="col">Dynamic<br/>Data</th>
+			<th scope="col">Fixed<br/>Computation</th>
+			<th scope="col">Dynamic<br/>Computation</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<th scope="row">Instructions<br/>in a Method</th>
+			<td>Local final variable</td>
+			<td>Local variable</td>
+			<td>Local lambda<br/>Instance method</td>
+			<td>Local lambda<br/>Local object</td>
+		</tr>
+		<tr>
+			<th scope="row">Instance Methods<br/>in a Class</th>
+			<td>Instance final field</td>
+			<td>Instance field</td>
+			<td>Instance lambda<br/>Instance method</td>
+			<td>Instance lambda<br/>Instance object</td>
+		</tr>
+		<tr>
+			<th scope="row">Static Methods<br/>in a Class</th>
+			<td>Private static final field</td>
+			<td>Private static field</td>
+			<td>Private static lambda<br/>Private static method</td>
+			<td>Private static lambda<br/>Private static object</td>
+		</tr>
+		<tr>
+			<th scope="row">Classes in<br/>an Application</th>
+			<td>Shared<sup class="infoMark" onclick="toggle('shared_desc')"></sup> static final field</td>
+			<td>Shared static field</td>
+			<td>Shared static lambda<br/>Shared static method</td>
+			<td>Shared static lambda<br/>Shared static object</td>
+		</tr>
+		<tr id="shared_desc"><script>toggle('shared_desc');</script>
+			<th scope="row"></th>
+			<td colspan=4 style="text-align: left">
+				Sharing requires different keywords depending on the classes:
+				<ul>
+					<li><code>protected</code> for sharing with a child class</li>
+					<li>No keyword (default) for sharing with a class in the same package</li>
+					<li><code>public</code> for sharing with a class in another package</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">Applications<br/>or Services</th>
+			<td>Fixed storage<br/>(env, property, file)</td>
+			<td>Dynamic storage<br/>(property, file, database)</td>
+			<td>Library</td>
+			<td>Service</td>
+		</tr>
+	</tbody>
+</table>
+<p>
+Remember that, for each scope, any storage can as well be replaced by the one on its right.
+Similarly, for each kind of information, any storage can as well be replaced by the one below it.
+It makes the service the most powerful tool to use for factoring information, but don't use this reason to blindly transform everything into services.
+Local variables are still a good way to go with local stuff, just in case it was not that obvious.
+Moreover, don't forget that these are only representative cases, and there is more to it than this small table.
+Again, choose the storage that fits your needs.
+</p>
+
+
+<!-- Auto formatting of code tags as Java code -->
+<script language="Javascript" type="text/javascript">
+	for(var tags = document.getElementsByTagName('code'), i = tags.length; i--;) {
+		tags[i].className += " prettyprint language-java";
+	}
+</script>
+
+<!--
+<h2 id="links">Related Posts</h2>
+
+TODO
+-->
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="OracleTutorial">
+	<cite>Lesson: Generics (Updated)</cite>,
+	in <cite>The Java™ Tutorials > Learning the Java Language</cite>,
+	accessed <time datetime="2017-03-22">March 22, 2017</time>.
+	URL: <a href="https://docs.oracle.com/javase/tutorial/java/generics/index.html">https://docs.oracle.com/javase/tutorial/java/generics/index.html</a>
+</li>
+</ul>
+</body>
+</html>
