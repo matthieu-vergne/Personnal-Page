@@ -110,7 +110,7 @@ class BlogPage extends InternalPage {
 				$content = substr($content, $start, $stop-$start);
 				$content = $this->expandAll($content);
 				Website::setTitle(preg_replace("#(.*<h1>)|(</h1>.*)#is", "", $content));
-				return "<div id='blog' class='language-java'>$content</div>";
+				return "<div id='blog' class='language-java line-numbers'>$content</div>";
 			}
 		} else {
 			$content = '
