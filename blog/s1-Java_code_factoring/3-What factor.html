@@ -74,15 +74,12 @@ Starting from the code above, an average developer who cares about code factoriz
 double[] transform(double[] in, double a) {
 	double[] out = new double[2];
 
-	out[0] = <mark>transformOne(in[0], a)</mark>;
-	out[1] = <mark>transformOne(in[1], a)</mark>;
+	<mark>for (int i = 0 ; i &lt; 2 ; i++) {
+	out[0] = in[i] + 0.5 * a;
+}</mark>
 
 	return out;
 }
-
-<mark>double transformOne(double x, double a) {
-	return x + 0.5 * a;
-}</mark>
 </code></pre>
 
 <p>
@@ -90,19 +87,73 @@ Unfortunately, it is not always properly motivated.
 It might be a buggy code, like <code>in</code> being a (min, max) pair with a range that should be increased by a given amount <code>a</code> evenly distributed.
 In this case, line 4 should actually be <code>in[0] <mark>-</mark> 0.5 * a</code> and not be the same than line 5, and factoring them made it harder to fix the bug.
 It might be a poorly defined requirement, like <code>in</code> being the volumes of 2 different liquids, and <code>a</code> the amount of overall liquid to add.
-The distribution being unspecified, applying half of it in both might be an arbitrary decision that, once clarified, becomes 40/60, so both lines should again be different.
+The distribution being unspecified, applying half of it in both might be an arbitrary decision that, once clarified, might become 40/60 or some other uneven distribution, so both lines should again be different.
 It might also be a well defined requirement of 50/50 that might change later, like changing the values or making them configurable.
-Surely, the distribution not being 50/50 means having 2 different values, so again both lines should be different, not the same.
+Surely, the distribution not being 50/50 means having 2 different values, so again both lines would be different after the change, not the same.
 In all these cases, the factoring just enforces the "apparent" same code to become "technically" the same, and changing it later requires to revert the factoring, thus losing your time twice: factoring the code <em>and</em> reverting it.
 </p>
 <p>
 The lesson to learn out of this example is that <strong>two pieces of code being similar does not mean that they should be factored</strong>.
-More precisely, the syntax is nothing more than a hint that factoring might be useful, and something else is required to actually confirm it.
+If you look for other articles on the topic, you may find people saying that we should wait to have the duplicated code three or four times before to factor it.
+Although it reduces the risk of factoring something that should not, it is still not a definitive criteria to be sure that we can do it.
+Independently of how many times it replicates, the syntax is nothing more than a <em>hint</em> that factoring might be useful.
+Something else is required to actually confirm it.
 </p>
 
 <h2>The Semantic Decision</h2>
 
+<p>
+If the syntax is not enough, then what should we look at?
+Of course the title of this section spoils it, but let's not take it for granted and actually look for what we need.
+The initial idea was to factor both formulae because they look alike.
+But if we do so, it means that they both rely on the exact same code, so if one changes then the other also changes.
+Which begs the question: how do we know that, if the code of the first formula changes, the second formula should also change in the same way?
+</p>
+<p>
+As illustrated previously, having the same code right now might be a mere coincidence, because the current requirements didn't push for them to be different (or because there is bugs).
+The only way to confirm whether they should stay aligned is by confirming that, if one piece of code changes, then the other <em>must</em> change accordingly in order to not break the code.
+</p>
+<p>
+Some might think that it is about having the right test: one that would fail if you change one piece of code but not the other.
+That would be nice, but the test coverage is not guaranteed to have this level of validation, and surely the one who wrote that test did it based on some other sources of information.
+Others might think about having the right requirements: defining all the concepts and functionalities that should be implemented.
+But again nothing guarantees you to have a complete, clear, and reliable set of requirements (actually, practice takes a liking to never give it to you), and again a requirement does not just pop out of the void, but is based on some understanding of the context and needs to fufil.
+</p>
 <!-- TODO -->
+<p>
+So what should we rely on?
+</p>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addEvenly(double[] starts, double amount) {
+	double[] ends = new double[2];
+
+	ends[0] = starts[0] + 0.5 * amount;
+	ends[1] = starts[1] + 0.5 * amount;
+
+	return ends;
+}
+</code></pre>
+<pre style="display: inline-block; width: 49%"><code>
+double[] transform(double[] in, double a) {
+	double[] out = new double[2];
+
+	out[0] = in[0] + 0.5 * a;
+	out[1] = in[1] + 0.5 * a;
+
+	return out;
+}
+</code></pre>
+<p>
+But in the initial code, if we change the first formula, nothing tells us that the second one should change too.
+As we saw, the code similarity alone is not enough to confirm that changing one <em>requires</em> to change the other to make it work.
+More generally, when you see some code similarity and think about factoring two pieces of code, ask yourself:
+</p>
+<p>
+The semantic is about the <em>meaning</em> behind the code, what it represents.
+The issue is that our example shows nothing about it: what are <code>in</code>, <code>out</code> and <code>a</code>?
+We know what values they store and how we use them, but not for what purpose.
+So let's rewrite this method to show the meaning behind it:
+</p>
 
 <h2>A Matter of Ontology</h2>
 
@@ -111,28 +162,11 @@ More precisely, the syntax is nothing more than a hint that factoring might be u
 <!-- ----------------------------------------------- -->
 <h2>Avoid the Syntactic Trap</h2>
 
-<p>
-If you factored the code, here is the mistake you did: to rely solely on the code similarity to infer what should be factored.
-It is good to <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">not repeating yourself</a>, but code similarity is <em>never</em> a decision criteria to tell whether some code should be factored.
-It is a good <em>hint</em> that there might be something to factor, but it never goes beyond that.
-</p>
-<p>
-A properly motivated factoring comes from two pieces of code sharing the same <em>goal</em>, and thus being computed the same way.
-But the goal of the code is not directly expressed in the code itself: it is in the meaning behind it.
-Which gives us the main lesson regarding what code should be factored:
-</p>
 <blockquote><strong>You can only confirm what should be factored based on the <em>semantics</em> of the code, not its mere <em>syntax</em>.</strong></blockquote>
 <p>
 As I mentionned earlier, there is several ways to deal with the case above.
 But the only reliable one here is to stop when we ask for reasons to factor this code.
 There is no way to find one because we miss information to understand the goal of the code.
-</p>
-<p>
-Actually, this lack of information can be identified rather easily.
-Indeed, the idea is to factor both formulae, so if one changes then the other also changes since they are now the same.
-But in the initiql code, if we change the first formula, nothing tells us that the second one should change too.
-As we saw, the code similarity alone is not enough to confirm that changing one <em>requires</em> to change the other to make it work.
-More generally, when you see some code similarity and think about factoring two pieces of code, ask yourself:
 </p>
 <blockquote><strong>If we change the first piece of code, do we <em>need</em> to change the second one to make it work?</strong></blockquote>
 <ul>
