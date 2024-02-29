@@ -63,20 +63,37 @@ For some readers, this code might smell bad, and they would be right for various
 But it is done on purpose, so let's cope with it for now and focus on the factorization aspect.
 Indeed, it illustrates a general reasoning of our time regarding code factoring, which is that when a piece of code appears twice, it shoud be factored.
 You may have heard for example about the <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY principle</a> (Don't Repeat Yourself), which is often interpreted like that.
-The people actually familiar with this principle (or who have read the Wikipedia page in details), know that it is not that trivial, but we will come back to that later.
+The people actually familiar with this principle know that it is not that trivial, but we will come back to that later.
 </p>
 
 <p>
-Starting from the code above, an average developer who cares about code factorization would see the similarity between lines 4 and 5 and probably factor them like this:
+Starting from the code above, an average developer who cares about code factorization would see the similarity between lines 4 and 5 and probably factor them in a few steps, first factoring the common part:
 </p>
 
 <pre><code>
 double[] transform(double[] in, double a) {
 	double[] out = new double[2];
 
-	<mark>for (int i = 0 ; i &lt; 2 ; i++) {
-	out[0] = in[i] + 0.5 * a;
-}</mark>
+	<mark>double added = 0.5 * a;</mark>
+	out[0] = in[0] + <mark>added</mark>;
+	out[1] = in[1] + <mark>added</mark>;
+
+	return out;
+}
+</code></pre>
+
+<p>
+then factoring the common variable part:
+</p>
+
+<pre><code>
+double[] transform(double[] in, double a) {
+	double[] out = new double[2];
+
+	double added = 0.5 * a;
+	<mark>for (int i = 0 ; i &lt; 2 ; i++) {</mark>
+		out[<mark>i</mark>] = in[<mark>i</mark>] + added;
+	<mark>}</mark>
 
 	return out;
 }
@@ -84,13 +101,45 @@ double[] transform(double[] in, double a) {
 
 <p>
 Unfortunately, it is not always properly motivated.
-It might be a buggy code, like <code>in</code> being a (min, max) pair with a range that should be increased by a given amount <code>a</code> evenly distributed.
-In this case, line 4 should actually be <code>in[0] <mark>-</mark> 0.5 * a</code> and not be the same than line 5, and factoring them made it harder to fix the bug.
-It might be a poorly defined requirement, like <code>in</code> being the volumes of 2 different liquids, and <code>a</code> the amount of overall liquid to add.
-The distribution being unspecified, applying half of it in both might be an arbitrary decision that, once clarified, might become 40/60 or some other uneven distribution, so both lines should again be different.
-It might also be a well defined requirement of 50/50 that might change later, like changing the values or making them configurable.
-Surely, the distribution not being 50/50 means having 2 different values, so again both lines would be different after the change, not the same.
-In all these cases, the factoring just enforces the "apparent" same code to become "technically" the same, and changing it later requires to revert the factoring, thus losing your time twice: factoring the code <em>and</em> reverting it.
+Here is the goal of the method: to take an array of 2 values <code>in</code>, and add the provided value <code>a</code> to them, distributing the value among the items.
+At the time when the code was written, the requirements were not properly finalized, so we went with giving a 50/50 distribution, thus the <code>0.5</code> values.
+In a few weeks, this part of the requirements will be precised, and the distribution will be set to 47/53.
+Now the factored code has become a problem, because in the initial code we could have replaced the two <code>0.5</code> by <code>0.47</code> and <code>0.53</code>, but now we can't because we have imposed the same value for both.
+We need first to revert the factoring, and then to apply our changes:
+</p>
+
+<pre><code>
+double[] transform(double[] in, double a) {
+	double[] out = new double[2];
+
+	out[0] = in[0] + <mark>0.47</mark> * a;
+	out[1] = in[1] + <mark>0.53</mark> * a;
+
+	return out;
+}
+</code></pre>
+
+<p>
+We might still want to factor into a loop, but for that we would need to introduce an additional array for the weights, like so:
+</p>
+
+<pre><code>
+double[] transform(double[] in, double a) {
+	double[] out = new double[2];
+	<mark>double[] weights = {0.47, 0.53};</mark>
+
+	<mark>for (int i = 0 ; i &lt; 2 ; i++) {
+	out[i] = in[i] + weights[i] * a;
+}</mark>
+
+	return out;
+}
+</code></pre>
+
+<p>
+Some of the readers might already imagine some of their colleagues (or themselves) launching a debate about the added value of the loop compared to the added complexity in the code.
+That might be an interesting way to procrastinate, but the point is elsewhere.
+The mistake was to enforce the "apparent" same code to become "factually" the same, and changing it later requires to revert the factoring, thus losing your time twice.
 </p>
 <p>
 The lesson to learn out of this example is that <strong>two pieces of code being similar does not mean that they should be factored</strong>.
@@ -103,10 +152,35 @@ Something else is required to actually confirm it.
 <h2>The Semantic Decision</h2>
 
 <p>
+Now let's take the very same code, but change its goal: to take an array of 2 values <code>in</code>, and evenly add a certain amount of the provided value <code>a</code> to each of them.
+At the time when the code was written, the requirements were not properly finalized, so we went with distributing everything, thus a 50/50 distribution because it should be even, thus the <code>0.5</code> values.
+In a few weeks, this part of the requirements will be precised, and only 30% of <code>a</code> should be consumed, because we need the rest of it elsewhere, meaning we should provide to each item only 15% of it to make it even.
+Now the factored code is better, because we only have one place to change:
+</p>
+
+<pre><code>
+double[] transform(double[] in, double a) {
+	double[] out = new double[2];
+
+	double added = <mark>0.15</mark> * a;
+	for (int i = 0 ; i &lt; 2 ; i++) {
+		out[i] = in[i] + added;
+	}
+
+	return out;
+}
+</code></pre>
+
+<p>
+If we kept the code unfactored, we would have needed to do the change twice, one for each item.
+</p>
+<p>
+Retrospectively, we had the very same code
+<!-- TODO -->
 If the syntax is not enough, then what should we look at?
 Of course the title of this section spoils it, but let's not take it for granted and actually look for what we need.
 The initial idea was to factor both formulae because they look alike.
-But if we do so, it means that they both rely on the exact same code, so if one changes then the other also changes.
+But if we do so, it means that they both rely on the exact same code, so if one changes then the other also changes in the same way.
 Which begs the question: how do we know that, if the code of the first formula changes, the second formula should also change in the same way?
 </p>
 <p>
@@ -117,14 +191,29 @@ The only way to confirm whether they should stay aligned is by confirming that, 
 Some might think that it is about having the right test: one that would fail if you change one piece of code but not the other.
 That would be nice, but the test coverage is not guaranteed to have this level of validation, and surely the one who wrote that test did it based on some other sources of information.
 Others might think about having the right requirements: defining all the concepts and functionalities that should be implemented.
-But again nothing guarantees you to have a complete, clear, and reliable set of requirements (actually, practice takes a liking to never give it to you), and again a requirement does not just pop out of the void, but is based on some understanding of the context and needs to fufil.
+But again nothing guarantees you to have a complete, clear, and reliable set of requirements (actually, practice seems to prefer to never give one), and again a requirement does not just pop out of the void, but is based on some understanding of the context and needs to fufil.
 </p>
-<!-- TODO -->
 <p>
-So what should we rely on?
+<!-- TODO -->
+</p>
+<pre><code>
+double[] increaseRange(double[] minMax, double increaseRatio) {
+	double[] increasedMinMax = new double[2];
+
+	increasedMinMax[0] = minMax[0] + (minMax[0] - minMax[1]) * increaseRatio;
+	increasedMinMax[1] = minMax[1] + (minMax[1] - minMax[0]) * increaseRatio;
+
+	return increasedMinMax;
+}
+</code></pre>
+
+
+<p>
+Let's take the same code than before, but applied to two slightly different contexts that are explicited in the code.
+Can you spot the difference?
 </p>
 <pre style="display: inline-block; width: 49%"><code>
-double[] addEvenly(double[] starts, double amount) {
+double[] addEvenlyToEach(double[] starts, double amount) {
 	double[] ends = new double[2];
 
 	ends[0] = starts[0] + 0.5 * amount;
@@ -134,16 +223,180 @@ double[] addEvenly(double[] starts, double amount) {
 }
 </code></pre>
 <pre style="display: inline-block; width: 49%"><code>
-double[] transform(double[] in, double a) {
-	double[] out = new double[2];
+double[] addHalfToEach(double[] starts, double amount) {
+	double[] ends = new double[2];
 
-	out[0] = in[0] + 0.5 * a;
-	out[1] = in[1] + 0.5 * a;
+	ends[0] = starts[0] + 0.5 * amount;
+	ends[1] = starts[1] + 0.5 * amount;
 
-	return out;
+	return ends;
 }
 </code></pre>
 <p>
+The only difference is the method name, showing that we use the same code but for different goals.
+Now here comes the tricky question: how would you factor them? The same way or differently?
+Let's rephrase it as we said before: if one piece of code changes, then what other change <em>must</em> be applied to not break the code?
+There is changes that would go against the goals of the methods, like adapting a part of the formula.
+The only other change to do to not break the code (maintain its goal) would be to revert it, so these changes are not interesting.
+<span class=warning>BELOW IS ABSTRACTION, NOT FACTORING</span>
+An example of change that maintains the goal of each method is to increase the size of the array.
+And this leads to several <em>necessary</em> changes to make it work.
+</p>
+<p>
+Since each method is supposed to return an array of the same size thant <code>starts</code>, the first necessary change is to also expand <code>ends</code>:
+</p>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addEvenlyToEach(double[] starts, double amount) {
+	double[] ends = new double[<mark>3</mark>];
+
+	ends[0] = starts[0] + 0.5 * amount;
+	ends[1] = starts[1] + 0.5 * amount;
+
+	return ends;
+}
+</code></pre>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addHalfToEach(double[] starts, double amount) {
+	double[] ends = new double[<mark>3</mark>];
+
+	ends[0] = starts[0] + 0.5 * amount;
+	ends[1] = starts[1] + 0.5 * amount;
+
+	return ends;
+}
+</code></pre>
+<p>
+Since the change of size of <code>ends</code> comes necessarily with the change of size of <code>starts</code>, then we need to factor them.
+In this method, we don't have the hand on the size of <code>starts</code>, so the only thing we can do is set the size of <code>ends</code> based on it:
+</p>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addEvenlyToEach(double[] starts, double amount) {
+	double[] ends = new double[<mark>starts.length</mark>];
+
+	ends[0] = starts[0] + 0.5 * amount;
+	ends[1] = starts[1] + 0.5 * amount;
+
+	return ends;
+}
+</code></pre>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addHalfToEach(double[] starts, double amount) {
+	double[] ends = new double[<mark>starts.length</mark>];
+
+	ends[0] = starts[0] + 0.5 * amount;
+	ends[1] = starts[1] + 0.5 * amount;
+
+	return ends;
+}
+</code></pre>
+<p>
+That is one necessary change factored: if the size of <code>starts</code> changes again, the size of <code>ends</code> will follow without requiring to change it by ourselves.
+But what other change is required?
+For <code>addHalfToEach</code>, the line 4 and 5 are fine, because they do add half of the <code>amount</code> each time.
+For <code>addEvenlyToEach</code>, however, the computation is not correct anymore, since we need to add evenly to 3 items now.
+So let's fix that:
+</p>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addEvenlyToEach(double[] starts, double amount) {
+	double[] ends = new double[starts.length];
+
+	ends[0] = starts[0] + <mark>1.0/3.0</mark> * amount;
+	ends[1] = starts[1] + <mark>1.0/3.0</mark> * amount;
+
+	return ends;
+}
+</code></pre>
+<pre style="display: inline-block; width: 49% ; visibility: hidden"><code>
+double[] addHalfToEach(double[] starts, double amount) {
+	double[] ends = new double[starts.length];
+
+	ends[0] = starts[0] + 0.5 * amount;
+	ends[1] = starts[1] + 0.5 * amount;
+
+	return ends;
+}
+</code></pre>
+<p>
+This necessary change shows that we again need to factor the constant with the size of <code>starts</code>, so let's do that:
+</p>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addEvenlyToEach(double[] starts, double amount) {
+	double[] ends = new double[starts.length];
+
+	ends[0] = starts[0] + <mark>1.0/starts.length</mark> * amount;
+	ends[1] = starts[1] + <mark>1.0/starts.length</mark> * amount;
+
+	return ends;
+}
+</code></pre>
+<pre style="display: inline-block; width: 49% ; visibility: hidden"><code>
+double[] addHalfToEach(double[] starts, double amount) {
+	double[] ends = new double[starts.length];
+
+	ends[0] = starts[0] + 0.5 * amount;
+	ends[1] = starts[1] + 0.5 * amount;
+
+	return ends;
+}
+</code></pre>
+<p>
+That is another necessary change factored: if the size of <code>starts</code> changes again, the <code>weight</code> computation will follow without requiring to change it by ourselves.
+That gives us two methods with the right values for the existing items, but we are still missing the compuation of the thirs one.
+So let's duplicate our computation:
+</p>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addEvenlyToEach(double[] starts, double amount) {
+	double[] ends = new double[starts.length];
+
+	ends[0] = starts[0] + 1.0/starts.length * amount;
+	ends[1] = starts[1] + 1.0/starts.length * amount;
+	<mark>ends[2] = starts[2] + 1.0/starts.length * amount;</mark>
+
+	return ends;
+}
+</code></pre>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addHalfToEach(double[] starts, double amount) {
+	double[] ends = new double[starts.length];
+
+	ends[0] = starts[0] + 0.5 * amount;
+	ends[1] = starts[1] + 0.5 * amount;
+	<mark>ends[2] = starts[2] + 0.5 * amount;</mark>
+
+	return ends;
+}
+</code></pre>
+<p>
+Again, this necessary change comes with the change of size of <code>starts</code>, so we need to factor them:
+</p>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addEvenlyToEach(double[] starts, double amount) {
+	double[] ends = new double[starts.length];
+
+	<mark>for (int i = 0; i &lt; starts.length; i++) {</mark>
+		ends[<mark>i</mark>] = starts[<mark>i</mark>] + 1.0 / starts.length * amount;
+	<mark>}</mark>
+
+	return ends;
+}
+</code></pre>
+<pre style="display: inline-block; width: 49%"><code>
+double[] addHalfToEach(double[] starts, double amount) {
+	double[] ends = new double[starts.length];
+
+	<mark>for (int i = 0; i &lt; starts.length; i++) {</mark>
+		ends[<mark>i</mark>] = starts[<mark>i</mark>] + 0.5 * amount;
+	<mark>}</mark>
+
+	return ends;
+}
+</code></pre>
+<p>
+That is the last necessary change (and factoring) related to the expansion of <code>starts</code>.
+Now we have a factored code that works for 
+<!-- TODO Should we build on a reference to the WHY? Because we want to reduce maintenance effort they should be factored differently? -->
+To properly answer the question, 
+<!-- TODO -->
 But in the initial code, if we change the first formula, nothing tells us that the second one should change too.
 As we saw, the code similarity alone is not enough to confirm that changing one <em>requires</em> to change the other to make it work.
 More generally, when you see some code similarity and think about factoring two pieces of code, ask yourself:
