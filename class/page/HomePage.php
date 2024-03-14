@@ -36,21 +36,7 @@ class HomePage extends InternalPage {
 		
 		$isEffective = true;
 		$isObsolete = false;
-		$data = array(
-			// Amadeus
-			"matthieu.vergne@amadeus.com" => $isEffective,
-			
-			// Orange
-			"matthieu.vergne@orange.com" => $isObsolete,
-			"matthieu.vergne.ext@orange.com" => $isObsolete,
-			
-			// Meritis
-			"matthieu.vergne@meritis.fr" => $isEffective,
-			
-			// SII
-			"mvergne@sophia.sii.fr" => $isObsolete,
-			"mvergne@sii.fr" => $isObsolete,
-			
+		$data = array(// Don't share professional e-mails out of research ones
 			// NAIST
 			"vergne@is.naist.jp" => $isObsolete,
 			
