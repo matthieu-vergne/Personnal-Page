@@ -7,7 +7,7 @@ abstract class Page {
 			$className = substr($file, 0, strlen($file)-4);
 			$class = new ReflectionClass($className);
 			
-			if ($class->isSubclassOf(get_class()) && $class->isInstantiable()) {
+			if ($class->isSubclassOf(__CLASS__) && $class->isInstantiable()) {
 				$pages[] = new $className();
 			} else {
 				continue;
