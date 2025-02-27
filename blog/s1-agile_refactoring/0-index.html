@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring<br>or How to Change without Breaking</h1>
+
+<!-- TODO Add a table of contents that can be collapsed -->
+<toc root="refactoring" />
+
+<h2 id="context">Context</h2>
+
+<p>
+	<a href="https://en.wikipedia.org/wiki/Code_refactoring">Refactoring</a> is the process of changing the code without changing the behaviour.
+	It is used to improve the code quality on aspects which do not affect the features of the application.
+	Improving the code readability or giving it a simpler structure are some aspects that are generally considered while refactoring the code.
+	By remaining isofunctional, the program should still compile and functional tests should still pass once the refactoring is finished.
+</p>
+
+<h2 id="problem">Problem: Refactoring is necessarily costly, but not necessarily valuable</h2>
+
+<p>
+	In articles like the one you are reading, we often use simple examples which focus on the aspects we want to illustrate.
+	Consequently, it is often easy to pass from a "bad" code to a "better" one.
+	However, in real cases, it often requires (a lot) more time and effort.
+	The code is longer, dirtier, we need more time to think about what to do, discuss with the team, fail and retry, etc.
+	Personally, I spend <em>some</em> time implementing something that works, but <em>more</em> time refactoring it.
+	Often because it is only once you have something working that you can really see all the components you need and refactor them in a clear way.
+</p>
+<p>
+	Moreover, refactoring is isofunctional, which means that it adds no feature at all.
+	You spend some time adding no value to the software, but hope to compensate that by making it easier to increase this value later.
+	In other words, it must be considered as an investment: you necessarily lose on the short term while expecting more gains on a longer term.
+	It is often hard to motivate refactoring in a business setting with such a speculative aspect.
+</p>
+
+<h2 id="refactoring">Refactoring - The Agile Way</h2>
+<!-- TODO Do a pass to add links to other sections when relevant -->
+
+<p>
+	<a href="https://en.wikipedia.org/wiki/Agile_software_development">Agile practices</a> organize the work in order to quickly deliver the produced software.
+	By improving organizational and coding practices, people should be able to focus on what is the most important at the current time.
+	This focus allow to spend the effort on the most important changes, thus increasing the value of the software as much as possible given the limited resources.
+	By repeating it in small iterations, it ensures that we regularly improve the software.
+</p>
+<p>
+	As such, agility goes way beyond the code itself, but we will focus on how to apply this logics to code refactoring.
+	In other words, we aim at adapting the code while remaining isofunctional at <em>each and every step</em> of the refactoring.
+	It allows you to refactor the code progressively, spending only the time you can spend on this task.
+	You can freely stop refactoring, do something with higher priority, and come back to it when you can.
+	By splitting the refactoring task into arbitrarily small pieces, you can more easily spend time on it despite the other things to do.
+</p>
+<span class="warning">
+<p>
+	I mentionned several times the isofunctional aspect of refactoring.
+	It should not be overestimated: refactoring does not change the feature, but it changes the structure of the code.
+	Reflection for example allows to interact with the code by assuming it is structured in a certain way.
+	Refactoring breaks these assumptions, and thus can break your software if you don't pay attention.
+	If your tests assume your code is structured in some ways, you will need not only to refactor your code, but also rewrite your tests.
+</p>
+<p>
+	The most valuable recommendation I can give on that is: stop relying on your structure.
+	Such assumptions might be required sometimes, but it should remain the exception and motivated.
+	The philosophy behind Java is to have the programmer forget about the lower details.
+	The JVM usually does a far better job than you under the hood at this level.
+	Similarly in your own code, focus on the features by exposing what is necessary, and hide the implementation details within the class.
+	Using the right level of abstraction is the key to refactoring freely without breaking anything.
+	If you already have structure-based assumptions, start by rewriting them in a functional way, thinking about what you actually need.
+</p>
+</span>
+<p>
+	In this article, we focus on manual procedures to refactor your code.
+	IDEs often support some, if not all, of these procedures.
+	If you use an IDE, I strongly recommend you to check its documentation (especially its keyboard shortcuts) to see how to do them quickly.
+	IDEs are automated, which means they tend to systematically and correctly execute the changes, thus avoiding errors prone to occur with manual procedures.
+	You can also gain a lot in coding speed, which saves your time for more interesting things to do.
+</p>
+
+<h3 id="refactor-variable">Refactoring practices</h3>
+
+<ul>
+	<li><a href="entry:./1"><code>return</code> explicitness</a></li>
+	<li><a href="entry:./2"><code>continue</code> explicitness</a></li>
+	<li><a href="entry:./3">empty <code>else</code> explicitness</a></li>
+</ul>
+
+<h3 id="refactor-variable">Refactoring variables</h3>
+
+<h4 id="refactor-variable-extract">Extract a variable</h4>
+
+<p>Starting from an instruction which consumes a value:</p>
+<pre><code>
+	System.out.println("foo");
+</code></pre>
+
+<p>Create a variable with the value:</p>
+<pre><code>
+	String myString = "foo";
+	System.out.println("foo");
+</code></pre>
+
+<p>Use the variable instead of the value:</p>
+<pre><code>
+	String myString = "foo";
+	System.out.println(myString);// Replace it everywhere required
+</code></pre>
+
+<p class="warning">
+	If the value is a method call, check whether it has side effects.
+	If it has, extracting several calls into a single variable will change the behaviour of the program.
+</p>
+
+<h4 id="refactor-variable-inline">Inline a variable</h4>
+
+<p>Starting from an instruction which consumes a variable:</p>
+<pre><code>
+	String myString = "foo";
+	System.out.println(myString);
+</code></pre>
+
+<p>Inline the variable by applying directly its value:</p>
+<pre><code>
+	String myString = "foo";
+	System.out.println("foo");// Replace it everywhere required
+</code></pre>
+
+<p>You can move the variable down in the code or remove it if nobody uses it anymore:</p>
+<pre><code>
+	System.out.println("foo");
+</code></pre>
+
+<p class="warning">
+	If the value is a method call, check whether it has side effects.
+	If it has, inlining a single variable into several calls will change the behaviour of the program.
+</p>
+
+<h4 id="refactor-variable-split">Split a variable declaration</h4>
+
+<p>Starting from a single instruction which declares and instantiate your object:</p>
+<pre><code>
+	Object myObject = new Object();
+</code></pre>
+
+<p>Separate the instantiation of the object with a second instruction:</p>
+<pre><code>
+	Object myObject;
+	myObject = new Object();
+</code></pre>
+
+<h4 id="refactor-variable-join">Join a variable declaration</h4>
+
+<p>Starting from an instruction which declares your variable and another which instantiates it:</p>
+<pre><code>
+	Object myObject;
+	myObject = new Object();
+</code></pre>
+
+<p>Join them into a single instruction:</p>
+<pre><code>
+	Object myObject = new Object();
+</code></pre>
+
+<h4 id="refactor-variable-scope-increase">Increase a variable scope</h4>
+
+<p>The scope of a variable starts at its declaration:</p>
+<pre><code>
+	// Code A : myObject not usable here
+	Object myObject;
+	// Code B : myObject usable here
+</code></pre>
+
+<p>You can increase its scope by moving it up in the code:</p>
+<pre><code>
+	Object myObject;
+	// Code A : myObject usable here
+	// Code B : myObject usable here
+</code></pre>
+
+<p>By declaring it in a block (method, condition, for loop, etc.), the variable exists within this block:</p>
+<pre><code>
+	{
+		Object myObject;
+		// myObject usable here
+	}
+	// myObject not usable anymore
+</code></pre>
+
+<p>You can increase its scope to other blocks by moving it up again, out of the block:</p>
+<pre><code>
+	Object myObject;
+	{
+		// myObject usable here
+	}
+	// myObject usable here too
+</code></pre>
+
+<p>If a variable is declared in a method:</p>
+<pre><code>
+	void doSomething() {
+		Object myObject;
+		// myObject usable here
+	}
+	void doSomethingElse() {
+		// myObject not usable here
+	}
+</code></pre>
+
+<p>You can increase its scope to other methods by moving it as a field, out of the method:</p>
+<pre><code>
+	Object myObject;
+	void doSomething() {
+		// myObject usable here
+	}
+	void doSomethingElse() {
+		// myObject usable here too
+	}
+</code></pre>
+
+<p>If a field is not static:</p>
+<pre><code>
+	Object myObject;
+	void doSomething() {
+		// myObject usable here
+	}
+	static void doSomethingElse() {
+		// myObject not usable here
+	}
+</code></pre>
+
+<p>You can increase its scope to all the instances of the class by making it static:</p>
+<pre><code>
+	static Object myObject;
+	void doSomething() {
+		// myObject usable here
+	}
+	static void doSomethingElse() {
+		// myObject usable here
+	}
+</code></pre>
+
+<p>If a field (static or not) is declared in an inner class:</p>
+<pre><code>
+	class ParentClass() {
+		class InnerClassA() {
+			Object myObject;
+			// myObject usable here
+		}
+		class InnerClassB() {
+			// myObject not usable here
+		}
+		void parentMethod() {
+			// myObject not usable here
+		}
+	}
+</code></pre>
+
+<p>You can increase its scope to all the parent class by moving it there:</p>
+<pre><code>
+	class ParentClass() {
+		Object myObject;
+		class InnerClassA() {
+			// myObject usable here
+		}
+		class InnerClassB() {
+			// myObject usable here
+		}
+		void parentMethod() {
+			// myObject usable here
+		}
+	}
+</code></pre>
+
+<p class="warning">
+	You may already have a variable/field with the same name in the higher scope.
+	Rename one of them before to change the scope to avoid conflicts.
+</p>
+
+<h4 id="refactor-variable-scope-decrease">Decrease a variable scope</h4>
+
+<p>If a field (static or not) is declared in a parent class:</p>
+<pre><code>
+	class ParentClass() {
+		Object myObject;
+		class InnerClassA() {
+			// myObject usable here
+		}
+		class InnerClassB() {
+			// myObject usable here
+		}
+		void parentMethod() {
+			// myObject usable here
+		}
+	}
+</code></pre>
+
+<p>You can decrease its scope to a single inner class by moving it there:</p>
+<pre><code>
+	class ParentClass() {
+		class InnerClassA() {
+			Object myObject;
+			// myObject usable here
+		}
+		class InnerClassB() {
+			// myObject not usable here
+		}
+		void parentMethod() {
+			// myObject not usable here
+		}
+	}
+</code></pre>
+
+<p>If a field is static:</p>
+<pre><code>
+	static Object myObject;
+	void doSomething() {
+		// myObject usable here
+	}
+	static void doSomethingElse() {
+		// myObject usable here
+	}
+</code></pre>
+
+<p>You can decrease its scope to a single instance by making it non static:</p>
+<pre><code>
+	Object myObject;
+	void doSomething() {
+		// myObject usable here
+	}
+	static void doSomethingElse() {
+		// myObject not usable here
+	}
+</code></pre>
+
+<p>If a variable is declared as a field:</p>
+<pre><code>
+	Object myObject;
+	void doSomething() {
+		// myObject usable here
+	}
+	void doSomethingElse() {
+		// myObject usable here too
+	}
+</code></pre>
+
+<p>You can decrease its scope to a single method by moving it in the method:</p>
+<pre><code>
+	void doSomething() {
+		Object myObject;
+		// myObject usable here
+	}
+	void doSomethingElse() {
+		// myObject not usable here
+	}
+</code></pre>
+
+<p>If a variable is declared out of blocks:</p>
+<pre><code>
+	Object myObject;
+	{
+		// myObject usable here
+	}
+	// myObject usable here too
+</code></pre>
+
+<p>You can decrease its scope to a single block by moving it in the block:</p>
+<pre><code>
+	{
+		Object myObject;
+		// myObject usable here
+	}
+	// myObject not usable anymore
+</code></pre>
+
+<p>If a variable is declared early in the code:</p>
+<pre><code>
+	Object myObject;
+	// myObject usable here
+	// myObject usable here
+</code></pre>
+
+<p>You can decrease its scope by moving it down:</p>
+<pre><code>
+	// myObject not usable here
+	Object myObject;
+	// myObject usable here
+</code></pre>
+
+<p class="warning">
+	The variable or field might be used out of the block you target.
+	You need to remove these uses or replace them by other ones.
+	For replacements, you can for example create a separate variable or inline the variable there.
+</p>
+
+<h4 id="refactor-variable-rename">Rename a variable</h4>
+
+<p>Starting from an existing variable:</p>
+<pre><code>
+	String myAwfulName = "foo";
+	System.out.println(myAwfulName);
+</code></pre>
+
+<p>Create a new variable with the name you want:</p>
+<pre><code>
+	String myAwfulName = "foo";
+	String myAwesomeName;
+	System.out.println(myAwfulName);
+</code></pre>
+
+<p>Assign it the current variable:</p>
+<pre><code>
+	String myAwfulName = "foo";
+	String myAwesomeName = myAwfulName;
+	System.out.println(myAwfulName);
+</code></pre>
+
+<p>Replace the old variable by the new variable where it is used:</p>
+<pre><code>
+	String myAwfulName = "foo";
+	String myAwesomeName = myAwfulName;
+	System.out.println(myAwesomeName);// Replace it everywhere required
+</code></pre>
+
+<p>Inline the old variable once it is only used by the new variable:</p>
+<pre><code>
+	String myAwesomeName = "foo";
+	System.out.println(myAwesomeName);
+</code></pre>
+
+<h3 id="refactor-method">Refactoring methods</h3>
+
+<h4 id="refactor-method-extract">Extract a method</h4>
+
+<p>Starting from some code within a method:</p>
+<pre><code>
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Create a method beside it with the right signature:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct, double discount) {
+		// Don't care about the code yet
+		// Define just the right inputs and output
+		return 0.0;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Reproduce the relevant code in the method:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct, double discount) {
+		// If the code does not compile here
+		// cancel the change to go back to the previous step
+		// then fix the signature and retry
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		return totalPrice;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Replace the original code by the method call:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct, double discount) {
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		return totalPrice;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct, discount);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<h4 id="refactor-method-inline">Inline a method</h4>
+
+<p>Starting from some code within another method:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct, double discount) {
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		return totalPrice;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct, discount);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Extract the arguments at the method call into variables named like the method to inline:</p>
+<pre><code>
+	double computeTotalPrice(int count, double price, double discount) {
+		double baseTotal = count * price;
+		return baseTotal - discount;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		int count = productCount;       // Use the same name than the method
+		double price = pricePerProduct; // Use the same name than the method
+		// No need to do it for discount, which already has the same name
+		double totalPrice = computeTotalPrice(count, price, discount);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Extract the result of the method to inline into a variable named like the calling method:</p>
+<pre><code>
+	double computeTotalPrice(int count, double price, double discount) {
+		double baseTotal = count * price;
+		double totalPrice = baseTotal - discount;
+		return totalPrice;// Be sure to return a single variable, no computation nor method call here
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		int count = productCount;
+		double price = pricePerProduct;
+		double totalPrice = computeTotalPrice(count, price, discount);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Reproduce the code of the method to inline (except the return) into the calling method:</p>
+<pre><code>
+	double computeTotalPrice(int count, double price, double discount) {
+		double baseTotal = count * price;
+		double totalPrice = baseTotal - discount;
+		// Copy all the code above
+		return totalPrice;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		int count = productCount;
+		double price = pricePerProduct;
+		// Paste it here to replace the method call
+		double baseTotal = count * price;
+		double totalPrice = baseTotal - discount;
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Inline the extra variables used for the arguments:</p>
+<pre><code>
+	double computeTotalPrice(int count, double price, double discount) {
+		double baseTotal = count * price;
+		double totalPrice = baseTotal - discount;
+		return totalPrice;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		// Inline count and price
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>
+	Repeat all these operations with the next caller.
+	Once there is no caller anymore, you can remove the method.
+</p>
+
+<h4 id="refactor-method-scope-increase">Increase a method scope</h4>
+
+<p>The scope of a non static method is within the instance methods:</p>
+<pre><code>
+	void myMethod() {/*...*/}
+	
+	void doSomething() {
+		// myMethod() usable here
+	}
+	
+	static void doSomethingElse() {
+		// myMethod() not usable here
+	}
+</code></pre>
+
+<p>You can increase its scope to all the instances of the class by making it static:</p>
+<pre><code>
+	static void myMethod() {/*...*/}
+	
+	void doSomething() {
+		// myMethod() usable here
+	}
+	
+	static void doSomethingElse() {
+		// myMethod() usable here
+	}
+</code></pre>
+
+
+<p>If a method (static or not) is declared in an inner class:</p>
+<pre><code>
+	class ParentClass() {
+		class InnerClassA() {
+			void myMethod() {/*...*/}
+			// myMethod() usable here
+		}
+		class InnerClassB() {
+			// myMethod() not usable here
+		}
+		void parentMethod() {
+			// myMethod() not usable here
+		}
+	}
+</code></pre>
+
+<p>You can increase its scope to all the parent class by moving it there:</p>
+<pre><code>
+	class ParentClass() {
+		void myMethod() {/*...*/}
+		class InnerClassA() {
+			// myMethod() usable here
+		}
+		class InnerClassB() {
+			// myMethod() usable here
+		}
+		void parentMethod() {
+			// myMethod() usable here
+		}
+	}
+</code></pre>
+
+<p class="warning">
+	You may already have a method with the same signature in the higher scope.
+	Rename one of them before to change the scope to avoid conflicts.
+</p>
+
+<h4 id="refactor-method-scope-decrease">Decrease a method scope</h4>
+
+
+<p>If a method (static or not) is declared in a parent class:</p>
+<pre><code>
+	class ParentClass() {
+		void myMethod() {/*...*/}
+		class InnerClassA() {
+			// myMethod() usable here
+		}
+		class InnerClassB() {
+			// myMethod() usable here
+		}
+		void parentMethod() {
+			// myMethod() usable here
+		}
+	}
+</code></pre>
+
+<p>You can decrease its scope to a single inner class by moving it there:</p>
+<pre><code>
+	class ParentClass() {
+		class InnerClassA() {
+			void myMethod() {/*...*/}
+			// myMethod() usable here
+		}
+		class InnerClassB() {
+			// myMethod() not usable here
+		}
+		void parentMethod() {
+			// myMethod() not usable here
+		}
+	}
+</code></pre>
+
+<p>If a method is static:</p>
+<pre><code>
+	static void myMethod() {/*...*/}
+	
+	void doSomething() {
+		// myMethod() usable here
+	}
+	
+	static void doSomethingElse() {
+		// myMethod() usable here
+	}
+</code></pre>
+
+<p>You can decrease its scope to a single instance by making it non static:</p>
+<pre><code>
+	void myMethod() {/*...*/}
+	
+	void doSomething() {
+		// myMethod() usable here
+	}
+	
+	static void doSomethingElse() {
+		// myMethod() not usable here
+	}
+</code></pre>
+
+<p class="warning">
+	The method might be used out of the block you target.
+	You need to remove these uses or replace them by other ones.
+	For replacements, you can for example create a separate method or inline the method there.
+</p>
+
+<h4 id="refactor-method-rename">Rename a method</h4>
+
+<p>Starting from an existing method:</p>
+<pre><code>
+	double myAwfulName(int a, double b) {
+		return a * b;
+	}
+	
+	void doSomething() {
+		System.out.println(myAwfulName(1, 3.0));
+	}
+</code></pre>
+
+<p>Create a new method calling the old one but with the name you want:</p>
+<pre><code>
+	double myAwfulName(int a, double b) {
+		return a * b;
+	}
+	double myAwesomeName(int a, double b) {
+		return myAwfulName(a, b);
+	}
+	
+	void doSomething() {
+		System.out.println(myAwfulName(1, 3.0));
+	}
+</code></pre>
+
+<p>Replace the calls to the old method by calls the new method:</p>
+<pre><code>
+	double myAwfulName(int a, double b) {
+		return a * b;
+	}
+	double myAwesomeName(int a, double b) {
+		return myAwfulName(a, b);
+	}
+	
+	void doSomething() {
+		System.out.println(myAwesomeName(1, 3.0));// Replace it here
+	}
+</code></pre>
+
+<p>Inline the old method once it is only used by the new method:</p>
+<pre><code>
+	double myAwesomeName(int a, double b) {
+		return a * b;
+	}
+	
+	void doSomething() {
+		System.out.println(myAwesomeName(1, 3.0));
+	}
+</code></pre>
+
+<h4 id="refactor-method-parameter-addition">Add a parameter to a method</h4>
+
+<p>Starting from an existing method:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct) {
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - 1.50;
+		return totalPrice;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Extract the value to parameterize into a variable:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct) {
+		double baseTotal = productCount * pricePerProduct;
+		double discount = 1.50;                   // Create the variable
+		double totalPrice = baseTotal - discount; // Use it instead of the value
+		return totalPrice;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Move the variable at the top of the method:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct) {
+		double discount = 1.50;
+		// Keep all the rest of the code below
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		return totalPrice;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Extract the code without the new variable into another method with the same name:</p>
+<pre><code>
+	// New method, the absence of the variable enforces to add the new parameter
+	double computeTotalPrice(int productCount, double pricePerProduct, double discount) {
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		return totalPrice;
+	}
+	double computeTotalPrice(int productCount, double pricePerProduct) {
+		double discount = 1.50;
+		return computeTotalPrice(productCount, pricePerProduct, discount); // Call the new method
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Inline the old method where it is called:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct, double discount) {
+		double baseTotal = productCount * pricePerProduct;
+		double totalPrice = baseTotal - discount;
+		return totalPrice;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		// We obtain the new variable, used as a new argument to the method
+		double discount = 1.50;
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct, discount);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>
+	We have presented here a method to add a parameter in a <em>bottom-up</em> manner.
+	We start from the method using the value and move it <em>up the stack</em> towards the caller.
+	You may also add a parameter in a <em>top-down</em> manner.
+	The value is in the caller, you refactor the method to receive it, then you use it in the method.
+</p>
+
+<p class="warning">
+	Going top-down has some disadvantages.
+	You may figure out later that you could have taken a more relevant path towards the method using the value.
+	Cancelling from here require to cancel all the changes, while in a bottom-up manner you cancel only the last irrelevant changes.
+	Moreover, the parameter remains ineffective until you refactor the last method of the stack.
+	By going bottom-up, the value is used immediately where it is supposed to, so you can already play with it to some extents.
+</p>
+
+<h4 id="refactor-method-parameter-removal">Remove a parameter from a method</h4>
+
+<p>Starting from a method with a parameter that is not used:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct, double discount) {
+		// After some changes, discount is not used anymore
+		return productCount * pricePerProduct;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct, discount);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Extract the code of the method into another method with the same name, but without the parameter:</p>
+<pre><code>
+	// New method without the useless parameter
+	double computeTotalPrice(int productCount, double pricePerProduct) {
+		return productCount * pricePerProduct;
+	}
+	double computeTotalPrice(int productCount, double pricePerProduct, double discount) {
+		return computeTotalPrice(productCount, pricePerProduct); // Call the new method
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct, discount);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>Inline the old method where it is used:</p>
+<pre><code>
+	double computeTotalPrice(int productCount, double pricePerProduct) {
+		return productCount * pricePerProduct;
+	}
+	void doSomething() {
+		int productCount = 10;
+		double pricePerProduct = 1.23;
+		double discount = 1.50;// Not required anymore, move or remove
+		double totalPrice = computeTotalPrice(productCount, pricePerProduct);
+		System.out.println(totalPrice);
+	}
+</code></pre>
+
+<p>
+	We have presented here a method to remove a parameter in a <em>bottom-up</em> manner.
+	We start from the method not needing the value anymore and remove it <em>up the stack</em> towards the caller.
+	You may also remove a parameter in a <em>top-down</em> manner.
+	The value is set to a default in the caller, you refactor the method to use its own default value, then you remove the parameter with the default of the caller.
+</p>
+
+<p class="warning">
+	Going top-down has some disadvantages.
+	You may figure out later that you still need the value somewhere in the stack.
+	Cancelling from here require to cancel all the changes, while in a bottom-up manner you stop as soon as you reach a method still needing it.
+</p>
+
+<h4 id="refactor-method-parameter-replacement">Replace a parameter of a method</h4>
+
+<p>
+	This case occurs mainly when using a parameter but finding a more relevant one in a caller higher in the stack.
+	It may have more information to exploit or a type more suited for the method, for example.
+	If you cannot get it by a more relevant mean than refactoring the stack, then:
+</p>
+<ol>
+<li>add the new parameter in a <em>top-down</em> manner ;</li>
+<li>once you reach the target method, use the new parameter instead of the old one ;</li>
+<li>remove the old parameter in a <em>bottom-up</em> manner.</li>
+</ol>
+
+<h4 id="refactor-method-return-replacement">Replace the return type of a method</h4>
+
+<p>
+	You start from a method which returns an unsatisfactory type.
+	Two cases can occur:
+</p>
+<ul>
+<li>
+	The method is doing some unwanted computation.
+	For example, it computes a <code>double</code> but returns it as an <code>int</code>, thus truncating the value.
+	In this case:
+	<ol>
+		<li>isolate the unwanted computation in the method, for example by storing the result in a <code>double</code> before to return it as an <code>int</code> ;</li>
+		<li>extract the correct code into a new method with a different name (changing the return type is not enough in Java to avoid conflicts) ;</li>
+		<li>inline the old method where it is used ;</li>
+		<li>rename the new method like the old one ;</li>
+		<li>remove the unwanted computation where it is used.</li>
+	</ol>
+</li>
+<li>
+	The method misses some computation that you want to include.
+	For example, it returns an object instead of returning its <code>String</code> representation.
+	In this case:
+	<ol>
+		<li>add the necessary computation where the method is called, for example by calling <code>toString()</code> on the returned object ;</li>
+		<li>extract together the method call and the correct code into a new method with a different name (changing the return type is not enough in Java to avoid conflicts) ;</li>
+		<li>inline the old method into the new method ;</li>
+		<li>rename the new method like the old one.</li>
+	</ol>
+</li>
+</ul>
+
+<h3 id="refactor-class">Refactoring classes</h3>
+
+<h4 id="refactor-class-extract">Extract a class</h4>
+
+<p>
+	You start from a method which contains some code that you want to abstract:
+</p>
+<pre><code>
+	void doSomething() {
+		String productName = "foo";
+		double basePrice = 12.34;
+		double discountRatio = 0.1;
+		double actualPrice = basePrice * (1.0 - discountRatio);
+		System.out.println("product " + productName + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	You see several pieces of data related to a single product and want to bring them together into a single object.
+	You can create a class within the method:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			// We create the class empty
+		}
+		String productName = "foo";
+		double basePrice = 12.34;
+		double discountRatio = 0.1;
+		double actualPrice = basePrice * (1.0 - discountRatio);
+		System.out.println("product " + productName + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	Instantiate it so we can start using it:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+		}
+		Product product = new Product();// We create the empty instance
+		String productName = "foo";
+		double basePrice = 12.34;
+		double discountRatio = 0.1;
+		double actualPrice = basePrice * (1.0 - discountRatio);
+		System.out.println("product " + productName + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	Let's start simple by reproducing the name of the product:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";// Simply make it redundant and specific, we will refactor it later
+		}
+		Product product = new Product();
+		String productName = "foo";
+		double basePrice = 12.34;
+		double discountRatio = 0.1;
+		double actualPrice = basePrice * (1.0 - discountRatio);
+		System.out.println("product " + productName + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	You can now use <code>product.name</code> everywhere <code>productName</code> is used:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+		}
+		Product product = new Product();
+		String productName = "foo";
+		double basePrice = 12.34;
+		double discountRatio = 0.1;
+		double actualPrice = basePrice * (1.0 - discountRatio);
+		System.out.println("product " + product.name + " costs " + actualPrice);// Replace here
+	}
+</code></pre>
+
+<p>
+	You can now remove <code>productName</code> which is not used:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+		}
+		Product product = new Product();
+		// One thing less, let's go for the next one
+		double basePrice = 12.34;
+		double discountRatio = 0.1;
+		double actualPrice = basePrice * (1.0 - discountRatio);
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	Repeat the previous steps to move the base price into the product too:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+			double basePrice = 12.34;// Create
+		}
+		Product product = new Product();
+		double discountRatio = 0.1;
+		double actualPrice = product.basePrice * (1.0 - discountRatio);// And replace
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	Repeat again to move the discount too:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+			double basePrice = 12.34;
+			double discountRatio = 0.1;// Create
+		}
+		Product product = new Product();
+		double actualPrice = product.basePrice * (1.0 - product.discountRatio);// And replace
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	At this point, you have the data structure.
+	The next step is to factor the relevant methods in to the object.
+	The actual price for example is only related to the data of the product, you can get it for any product.
+	So let's reproduce this computation into a new method of our object:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+			double basePrice = 12.34;
+			double discountRatio = 0.1;
+			
+			// Here is our new method
+			double actualPrice() {
+				return basePrice * (1.0 - discountRatio);
+			}
+		}
+		Product product = new Product();
+		double actualPrice = product.basePrice * (1.0 - product.discountRatio);
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	You can now use it instead of the original code:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+			double basePrice = 12.34;
+			double discountRatio = 0.1;
+			
+			double actualPrice() {
+				return basePrice * (1.0 - discountRatio);
+			}
+		}
+		Product product = new Product();
+		double actualPrice = product.actualPrice();// More simple this way
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	At this point, the object is created.
+	You may stop here, but usually there is some highly specific code that you want to generalize for reuse.
+	Let's first extract all the specific values.
+	To do so, explicit the currently implicit constructor:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+			double basePrice = 12.34;
+			double discountRatio = 0.1;
+			
+			Product() {
+				// It already exists, we just make it explicit
+			}
+			
+			double actualPrice() {
+				return basePrice * (1.0 - discountRatio);
+			}
+		}
+		Product product = new Product();
+		double actualPrice = product.actualPrice();
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	Then we create a new constructor which sets one of the fields:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+			double basePrice = 12.34;
+			double discountRatio = 0.1;
+			
+			Product() {
+			}
+			
+			// We create a new one to not break the existing code
+			Product(String name) {
+				this.name = name;
+			}
+			
+			double actualPrice() {
+				return basePrice * (1.0 - discountRatio);
+			}
+		}
+		Product product = new Product();
+		double actualPrice = product.actualPrice();
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	We can now use it in place of the no-arg constructor:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+			double basePrice = 12.34;
+			double discountRatio = 0.1;
+			
+			Product() {
+			}
+			
+			Product(String name) {
+				this.name = name;
+			}
+			
+			double actualPrice() {
+				return basePrice * (1.0 - discountRatio);
+			}
+		}
+		Product product = new Product("foo");// Use it here
+		double actualPrice = product.actualPrice();
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	Once it is replaced everywhere required, we can remove the obsolete constructor:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name = "foo";
+			double basePrice = 12.34;
+			double discountRatio = 0.1;
+			
+			// No need for the no-arg anymore
+			
+			Product(String name) {
+				this.name = name;
+			}
+			
+			double actualPrice() {
+				return basePrice * (1.0 - discountRatio);
+			}
+		}
+		Product product = new Product("foo");
+		double actualPrice = product.actualPrice();
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	Since the field is always set by the constructor, we don't need its default value anymore:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name;// Just declare it without any value
+			double basePrice = 12.34;
+			double discountRatio = 0.1;
+			
+			Product(String name) {
+				this.name = name;
+			}
+			
+			double actualPrice() {
+				return basePrice * (1.0 - discountRatio);
+			}
+		}
+		Product product = new Product("foo");
+		double actualPrice = product.actualPrice();
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	We repeat the steps to use a new constructor with a second parameter:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name;
+			double basePrice;// Declare only
+			double discountRatio = 0.1;
+			
+			Product(String name, double basePrice) {// New parameter
+				this.name = name;
+				this.basePrice = basePrice;
+			}
+			
+			double actualPrice() {
+				return basePrice * (1.0 - discountRatio);
+			}
+		}
+		Product product = new Product("foo", 12.34);// New argument
+		double actualPrice = product.actualPrice();
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	We repeat again the steps for the discount:
+</p>
+<pre><code>
+	void doSomething() {
+		class Product {
+			String name;
+			double basePrice;
+			double discountRatio;// Declare only
+			
+			Product(String name, double basePrice, double discountRatio) {// New parameter
+				this.name = name;
+				this.basePrice = basePrice;
+				this.discountRatio = discountRatio;
+			}
+			
+			double actualPrice() {
+				return basePrice * (1.0 - discountRatio);
+			}
+		}
+		Product product = new Product("foo", 12.34, 0.1);// New argument
+		double actualPrice = product.actualPrice();
+		System.out.println("product " + product.name + " costs " + actualPrice);
+	}
+</code></pre>
+
+<p>
+	Now, the class is completely independent from the code of the method.
+	You can increase its scope to make it available elsewhere.
+</p>
+
+<span class="warning">
+<p>
+	You can extract a class when you want, although there is <entry id="35">some hints</entry> that let you know when it is relevant to create an object:
+</p>
+<ol>
+	<li>you have a redundant use of the same arguments for several methods calls, motivating a common structure encapsulating them ;</li>
+	<li>you need to maintain several correlated variables to represent your state, motivating to bring them in the same scope ;</li>
+	<li>you need customized controls on your data structure, motivating the use of a dedicated object providing these controls.</li>
+</ol>
+<p>
+	The more hints you have, the more reasons you have to create an object.
+	However, the hints should only push you to think further about it.
+	The only reason to create one is related to the <em>semantics</em>, not the <em>syntax</em>.
+	Create an object when it makes sense.
+</p>
+</span>
+
+<h4 id="refactor-class-inline">Inline a class</h4>
+
+<p>
+	If you have a class that does nothing specific, you may want to remove it to use directly the data it contains.
+	Let's start with a simple case:
+</p>
+<pre><code>
+	class SalesList {
+		List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	// A method that just transfers the object, without interacting with it
+	void doSomething() {
+		SalesList sales = retrieveSales();
+		displaySales(sales);
+	}
+	// A method which creates the object and returns it
+	SalesList retrieveSales() {
+		List&lt;Double> sales = /* retrieve data from database */;
+		return new SalesList(sales);
+	}
+	// A method which consumes the object
+	void displaySales(SalesList sales) {
+		double total = sales.toStream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	There is no added value in this class compared to the <code>List</code> it contains.
+	The specific code we have in the method is used only here and might be implemented in other ways.
+	As such, we prefer to use directly the <code>List</code> instead of having a dedicated class.
+</p>
+<p>
+	Let's start by exposing the list:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;// Make it accessible to anyone anywhere
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		SalesList sales = retrieveSales();
+		displaySales(sales);
+	}
+	SalesList retrieveSales() {
+		List&lt;Double> sales = /* retrieve data from database */;
+		return new SalesList(sales);
+	}
+	void displaySales(SalesList sales) {
+		double total = sales.toStream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	Wherever you <em>use</em> the object, use its internal data to not depend on the class methods:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		SalesList sales = retrieveSales();
+		displaySales(sales);
+	}
+	SalesList retrieveSales() {
+		List&lt;Double> sales = /* retrieve data from database */;
+		return new SalesList(sales);
+	}
+	void displaySales(SalesList sales) {
+		double total = sales.sales.stream().mapToDouble(d->d).sum();// Bypass toStream()
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	Once the object is used only to get its internal data, extract this internal data into a variable:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		SalesList sales = retrieveSales();
+		displaySales(sales);
+	}
+	SalesList retrieveSales() {
+		List&lt;Double> sales = /* retrieve data from database */;
+		return new SalesList(sales);
+	}
+	void displaySales(SalesList sales) {
+		List&lt;Double> salesList = sales.sales;// We only use the object here now
+		double total = salesList.stream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	You can now extract the rest of the code into a method which uses the internal data:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		SalesList sales = retrieveSales();
+		displaySales(sales);
+	}
+	SalesList retrieveSales() {
+		List&lt;Double> sales = /* retrieve data from database */;
+		return new SalesList(sales);
+	}
+	void displaySales(SalesList sales) {
+		displaySales(sales.sales);// Extract the code
+	}
+	void displaySales(List&lt;Double> sales) {// In a method with the right parameter
+		double total = sales.stream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	Inline the old method wherever it is used:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		SalesList sales = retrieveSales();
+		displaySales(sales.sales);// Inline here to call the new method
+	}
+	SalesList retrieveSales() {
+		List&lt;Double> sales = /* retrieve data from database */;
+		return new SalesList(sales);
+	}
+	void displaySales(SalesList sales) {// This method is not called anymore
+		displaySales(sales.sales);
+	}
+	void displaySales(List&lt;Double> sales) {
+		double total = sales.stream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	Once it is done, the old method can be removed:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		SalesList sales = retrieveSales();
+		displaySales(sales.sales);
+	}
+	SalesList retrieveSales() {
+		List&lt;Double> sales = /* retrieve data from database */;
+		return new SalesList(sales);
+	}
+	// Refactoring finished here
+	void displaySales(List&lt;Double> sales) {
+		double total = sales.stream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	For the methods which instantiate the object, extract the internal data generation into a dedicated method.
+	You may need to use a different name to avoid conflicts:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		SalesList sales = retrieveSales();
+		displaySales(sales.sales);
+	}
+	SalesList retrieveSales() {
+		List&lt;Double> sales = retrieveSalesAsList();//Extract here
+		return new SalesList(sales);
+	}
+	List&lt;Double> retrieveSalesAsList() {// New method without the object
+		return /* retrieve data from database */;
+	}
+	void displaySales(List&lt;Double> sales) {
+		double total = sales.stream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	Once again, replace the calls to the old method by the new ones:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		List&lt;Double> sales = retrieveSalesAsList();// Replace here
+		displaySales(sales);// Use the right argument here
+	}
+	SalesList retrieveSales() {
+		List&lt;Double> sales = retrieveSalesAsList();
+		return new SalesList(sales);
+	}
+	List&lt;Double> retrieveSalesAsList() {
+		return /* retrieve data from database */;
+	}
+	void displaySales(List&lt;Double> sales) {
+		double total = sales.stream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	Once it is not used anymore, remove the old method:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		List&lt;Double> sales = retrieveSalesAsList();
+		displaySales(sales);
+	}
+	List&lt;Double> retrieveSalesAsList() {
+		return /* retrieve data from database */;
+	}
+	void displaySales(List&lt;Double> sales) {
+		double total = sales.stream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	Once removed, feel free to rename your new method with the old name, which is now free:
+</p>
+<pre><code>
+	class SalesList {
+		public List&lt;Double> sales;
+		
+		SalesList(List&lt;Double> sales) {
+			this.sales = sales;
+		}
+		
+		Stream&lt;Double> toStream() {
+			return sales.stream();
+		}
+	}
+	void doSomething() {
+		List&lt;Double> sales = retrieveSales();
+		displaySales(sales);
+	}
+	// Refactoring finihsed here
+	List&lt;Double> retrieveSales() {
+		return /* retrieve data from database */;
+	}
+	void displaySales(List&lt;Double> sales) {
+		double total = sales.stream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<p>
+	Once you replaced any method which produce or consume the class, you do not depend on it anymore.
+	You can remove it to rely only on the data it has encapsulated:
+</p>
+<pre><code>
+	// Refactoring globally finihsed, good job
+	void doSomething() {
+		List&lt;Double> sales = retrieveSalesAsList();
+		displaySales(sales);
+	}
+	List&lt;Double> retrieveSalesAsList() {
+		return /* retrieve data from database */;
+	}
+	void displaySales(List&lt;Double> sales) {
+		double total = sales.stream().mapToDouble(d->d).sum();
+		System.out.println("Total sales: " + total);
+	}
+</code></pre>
+
+<!-- TODO class scope increase/decrease -->
+<!-- TODO class rename -->
+
+<h3 id="refactor-interface">Refactoring interfaces</h3>
+
+<p>
+	TODO
+</p>
+<pre><code>
+	TODO
+</code></pre>
+<!-- TODO interface extraction/inlining -->
+<!-- TODO interface scope increase/decrease/move -->
+<!-- TODO interface rename -->
+
+<h3 id="refactor-package">Refactoring packages</h3>
+
+<p>
+	TODO
+</p>
+<pre><code>
+	TODO
+</code></pre>
+<!-- TODO interface extraction/inlining -->
+<!-- TODO interface scope increase/decrease/move -->
+<!-- TODO interface rename -->
+
+<h2 id="answer">Answer</h2>
+
+<p>
+	TODO
+</p>
+https://refactoring.guru/design-patterns/strategy
+
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25"/></li>
+</ul>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+
+</body>
+</html>
