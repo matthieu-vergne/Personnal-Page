@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>How to Apply the Strategy Design Pattern?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	It is often the case that we have to choose between different ways to produce the same thing.
+	For example:
+</p>
+<ul>
+<li>you want to serialize an object, but it can use different output formats (JSON, XML, etc.) ;</li>
+<li>you want to deserialize an object, but it can be retrieved from different input formats (JSON, XML, etc.) ;</li>
+<li>you want to instantiate an object, but it can be done by using the arguments in different ways ;</li>
+<li>you want to compute data, but it can be done by using different algorithms ;</li>
+<li>etc.</li>
+</ul>
+
+<p>
+	To illustrate the refactoring process, here is a generic example that <code>doesSomething</code> in various ways:
+</p>
+<pre><code>
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	if (param1.isInSomeState()) {
+		return doItThisWay(param1, input);
+	} else if (param2.isInSomeState()) {
+		return doItThatWay(param2, input);
+	} else {
+		return doItAnotherWay(param1, param2, input);
+	}
+}
+</code></pre>
+
+<p>
+	We see that, based on the arguments <code>param1</code> and <code>param2</code>, it will consume the <code>input</code> differently.
+	The key point is to have the three methods <code>doIt&lt;...&gt;Way</code>, which are the 3 strategies used in this example.
+	If you cannot exactly tell what are your strategies in your own code, refactor it to make them appear clearly.
+	You may extract them in dedicated methods, like in this example, to ensure they are clearly identified.
+</p>
+
+<h2 id="problem">Problem: Too Much to Decide</h2>
+
+<p>
+	The method <code>doesSomething</code> has various responsibilities here:
+</p>
+<ol>
+	<li><em>how</em> something can be done (the 3 methods called)</li>
+	<li><em>which</em> is the right way to do it (the conditions for each method)</li>
+	<li><em>what</em> to do now (execute the selected method)</li>
+</ol>
+<p>
+	Various responsibilities means various reasons to change it.
+	If you want to add a new strategy, you have to increase the complexity of the method.
+	If you want to use a smarter selection process, you have to increase the complexity of the method.
+	It can become a mess if it is not kept under control.
+</p>
+
+<h2 id="method">Method</h2>
+
+<p>
+	The <a href="https://en.wikipedia.org/wiki/Strategy_pattern">Strategy Design Pattern</a> consists in splitting these 3 responsibilities into separate components.
+	Instead of having several conditions within <code>doesSomething</code>, we take an object that already knows which strategy to apply and just apply it.
+	The implementation of each strategy and selecting the right one is done beforehand.
+	We will see here how to split this example, step by step, in an <entry id="34">agile way</entry>.
+</p>
+
+<h3 id="method-generalize">Generalize the code</h2>
+
+<p>
+	The first step is to identify the <em>generic</em> and <em>specific</em> parts of the strategies.
+	In other words, you need to identify what <em>must</em> be expected from any strategy, and what are mere implementation details specific to some of them.
+	In this example, <code>param1</code> and <code>param2</code> are used depending on the strategy, which helps us identify them as <em>specific</em> parts.
+	Beside that, <code>input</code> and the returned <code>Result</code> are systematic, which makes them <em>generic</em> parts of the strategies:
+</p>
+<pre><code>
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	if (param1.isInSomeState()) {
+		return doItThisWay(param1, input);
+	} else if (param2.isInSomeState()) {
+		return doItThatWay(param2, input);
+	} else {
+		return doItAnotherWay(param1, param2, input);
+	}
+}
+</code></pre>
+
+<p class="warning">
+	Identifying specific and generic parts is not about the <em>syntax</em>, but about the <em>semantics</em>.
+	It is not because an argument is used in all the current strategies that it is a generic part.
+	A new strategy may be implemented that would not require it.
+	Similarly, although more subtle, it is not because an argument is not used by all the strategies that it is not a generic part.
+	Think about the "no op" (do nothing) or "fake" strategies: they usually use nothing we provide and just do something predefined.
+	To identify generic and specific parts, you need to think about the meaning of the strategy.
+	A serializing strategy makes no sense if we don't give it something to serialize, which makes it a generic part required by all the serializing strategies.
+</p>
+
+<p>
+	Once you have identified the generic and specific parts, then you can design you strategy interface.
+	The point is that it should focus on the <em>generic</em> parts only.
+	In our example, every strategy should consume an <code>input</code> and return a <code>Result</code>.
+	We create an interface with them, and name the interface and method based on what the strategies should do.
+	Create it close to your method to easily interact with it:
+</p>
+<pre><code>
+interface DoingStrategy {
+	Result justDoIt(Input input);
+}
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	//...
+}
+</code></pre>
+<p>
+	It is obvious, but... Please choose better names than that.
+	You may use temporary names at this stage, but don't forget to rename them at the end.
+</p>
+
+<h3 id="method-instantiate">Instantiate the Strategies</h2>
+
+<p>
+	Instantiate a new strategy instance for the first case:
+</p>
+<pre><code>
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	if (param1.isInSomeState()) {
+		// Declare it empty, the point is to create the instance
+		DoingStrategy strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return null;
+			}
+		};
+		return doItThisWay(param1, input);
+	} else if (param2.isInSomeState()) {
+		return doItThatWay(param2, input);
+	} else {
+		return doItAnotherWay(param1, param2, input);
+	}
+}
+</code></pre>
+
+<p>
+	Then replicate all the code related to the first strategy in this instance:
+</p>
+<pre><code>
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	if (param1.isInSomeState()) {
+		DoingStrategy strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				// Reproduce all the code here
+				return doItThisWay(param1, input);
+			}
+		};
+		return doItThisWay(param1, input);
+	} else if (param2.isInSomeState()) {
+		return doItThatWay(param2, input);
+	} else {
+		return doItAnotherWay(param1, param2, input);
+	}
+}
+</code></pre>
+
+<p>
+	Finally, replace the original code by the call of the strategy:
+</p>
+<pre><code>
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	if (param1.isInSomeState()) {
+		DoingStrategy strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThisWay(param1, input);
+			}
+		};
+		// Only call the method of strategy instance here
+		return strategy.justDoIt(input);
+	} else if (param2.isInSomeState()) {
+		return doItThatWay(param2, input);
+	} else {
+		return doItAnotherWay(param1, param2, input);
+	}
+}
+</code></pre>
+
+<p>
+	Repeat these 3 steps for each strategy to instantiate each of them:
+</p>
+<pre><code>
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	if (param1.isInSomeState()) {
+		DoingStrategy strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThisWay(param1, input);
+			}
+		};
+		return strategy.justDoIt(input);
+	} else if (param2.isInSomeState()) {
+		DoingStrategy strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThatWay(param2, input);
+			}
+		};
+		return strategy.justDoIt(input);
+	} else {
+		DoingStrategy strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItAnotherWay(param1, param2, input);
+			}
+		};
+		return strategy.justDoIt(input);
+	}
+}
+</code></pre>
+
+<p>
+	At this point in time, you have already split your code.
+	Before, for each condition, you were calling a method in one go.
+	Now, you first instantiate a strategy which chooses which method to call, then you call it through the strategy.
+</p>
+
+<h3 id="method-factor">Factor the Strategy Calls</h2>
+
+<p>
+	Now that we have decorrelated the choice of the method to call and the actual call, we can reorganize our code to exploit that.
+	First, <entry id="34#refactor-variable-split">split the strategies declarations</entry> and factor them by <entry id="34#refactor-variable-scope-increase">increasing their scope</entry> to the whole method:
+	
+</p>
+<pre><code>
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	DoingStrategy strategy;// Declare it once here
+	if (param1.isInSomeState()) {
+		strategy = new DoingStrategy() {// Fill it here for strategy 1
+			public Result justDoIt(Input input) {
+				return doItThisWay(param1, input);
+			}
+		};
+		return strategy.justDoIt(input);
+	} else if (param2.isInSomeState()) {
+		strategy = new DoingStrategy() {// Fill it here for strategy 2
+			public Result justDoIt(Input input) {
+				return doItThatWay(param2, input);
+			}
+		};
+		return strategy.justDoIt(input);
+	} else {
+		strategy = new DoingStrategy() {// Fill it here for strategy 3
+			public Result justDoIt(Input input) {
+				return doItAnotherWay(param1, param2, input);
+			}
+		};
+		return strategy.justDoIt(input);
+	}
+}
+</code></pre>
+
+<p>
+	Now that the strategy is available in the whole method, increase also the scope of the call to remove the redundancy:
+</p>
+<pre><code>
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	DoingStrategy strategy;
+	if (param1.isInSomeState()) {
+		strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThisWay(param1, input);
+			}
+		};
+	} else if (param2.isInSomeState()) {
+		strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThatWay(param2, input);
+			}
+		};
+	} else {
+		strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItAnotherWay(param1, param2, input);
+			}
+		};
+	}
+	return strategy.justDoIt(input);// Call the chosen strategy here, not in each condition
+}
+</code></pre>
+
+<p>
+	Now we clearly see a first step (the conditions) which chooses which strategy to apply, then a second step (return) which calls the chosen strategy.
+</p>
+
+<h3 id="method-extract-selection">Extract the Strategy Selection</h2>
+
+<p>
+	As we mentionned at the beginning, choosing one of the strategies is a responsibility on its own.
+	We <entry id="34#refactor-method-extract">extract it</entry> in a dedicated <code>selectStrategy</code> method to isolate it from the strategy call:
+</p>
+<pre><code>
+// Create the new method
+DoingStrategy selectStrategy(Param1 param1, Param2 param2) {
+	DoingStrategy strategy;
+	if (param1.isInSomeState()) {
+		strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThisWay(param1, input);
+			}
+		};
+	} else if (param2.isInSomeState()) {
+		strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThatWay(param2, input);
+			}
+		};
+	} else {
+		strategy = new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItAnotherWay(param1, param2, input);
+			}
+		};
+	}
+	return strategy;
+}
+// Call it in the original method
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	DoingStrategy strategy = selectStrategy(param1, param2);
+	return strategy.justDoIt(input);
+}
+</code></pre>
+
+<p>
+	The selection process is highly correlated with the available strategies.
+	You may find interesting to move the selection method into the strategy interface, as a static method ready for use:
+</p>
+<pre><code>
+// Within the interface declaration
+interface DoingStrategy {
+	Result justDoIt(Input input);
+	
+	// Declare the selection process
+	public static DoingStrategy select(Param1 param1, Param2 param2) {
+		DoingStrategy strategy;
+		if (param1.isInSomeState()) {
+			strategy = new DoingStrategy() {
+				public Result justDoIt(Input input) {
+					return doItThisWay(param1, input);
+				}
+			};
+		} else if (param2.isInSomeState()) {
+			strategy = new DoingStrategy() {
+				public Result justDoIt(Input input) {
+					return doItThatWay(param2, input);
+				}
+			};
+		} else {
+			strategy = new DoingStrategy() {
+				public Result justDoIt(Input input) {
+					return doItAnotherWay(param1, param2, input);
+				}
+			};
+		}
+		return strategy;
+	}
+}
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	// Refactor the call correspondingly
+	DoingStrategy strategy = DoingStrategy.select(param1, param2);
+	return strategy.justDoIt(input);
+}
+</code></pre>
+
+<p>
+	Notice that this last step works only if the three methods <code>doIt&lt;...&gt;Way</code> are also static.
+	If they are not, refactor them to make them static.
+	If they depend on fields or other internal elements, you may need to expose them as additional specific parameters.
+	They will be added to the selection method arguments to provide them to the strategy instances.
+</p>
+
+<h3 id="method-extract-implementation">Extract the Strategy Implementations</h2>
+
+<p>
+	As mentionned at the beginning, describing <em>how</em> to implement a strategy and <em>which</em> strategy to choose are different responsibilities.
+	Consequently, we also extract the first instance into its own method:
+</p>
+<pre><code>
+interface DoingStrategy {
+	Result justDoIt(Input input);
+	
+	// Create a method to produce the first strategy
+	static DoingStrategy thisWay(Param1 param1) {
+		return new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThisWay(param1, input);
+			}
+		};
+	}
+	
+	static DoingStrategy select(Param1 param1, Param2 param2) {
+		DoingStrategy strategy;
+		if (param1.isInSomeState()) {
+			strategy = DoingStrategy.thisWay(param1);// Call it here
+		} else if (param2.isInSomeState()) {
+			strategy = new DoingStrategy() {
+				public Result justDoIt(Input input) {
+					return doItThatWay(param2, input);
+				}
+			};
+		} else {
+			strategy = new DoingStrategy() {
+				public Result justDoIt(Input input) {
+					return doItAnotherWay(param1, param2, input);
+				}
+			};
+		}
+		return strategy;
+	}
+}
+</code></pre>
+
+<p>
+	Repeat the process for each strategy:
+</p>
+<pre><code>
+interface DoingStrategy {
+	Result justDoIt(Input input);
+	
+	// Create strategy 1
+	static DoingStrategy thisWay(Param1 param1) {
+		return new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThisWay(param1, input);
+			}
+		};
+	}
+	// Create strategy 2
+	static DoingStrategy thatWay(Param2 param2) {
+		return new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItThatWay(param2, input);
+			}
+		};
+	}
+	// Create strategy 3
+	static DoingStrategy anotherWay(Param1 param1, Param2 param2) {
+		return new DoingStrategy() {
+			public Result justDoIt(Input input) {
+				return doItAnotherWay(param1, param2, input);
+			}
+		};
+	}
+	
+	static DoingStrategy select(Param1 param1, Param2 param2) {
+		DoingStrategy strategy;
+		if (param1.isInSomeState()) {
+			strategy = DoingStrategy.thisWay(param1);// Choose strategy 1
+		} else if (param2.isInSomeState()) {
+			strategy = DoingStrategy.thatWay(param2);// Choose strategy 2
+		} else {
+			strategy = DoingStrategy.anotherWay(param1, param2);// Choose strategy 3
+		}
+		return strategy;
+	}
+}
+</code></pre>
+
+<h3 id="method-simplify">Simplify your code</h2>
+
+<p>
+	The split is done: the code has been restructured to have dedicated methods to (i) instantiate each strategy, (ii) choose which one to call, and (iii) call it.
+	Now all that remains is to simplify the code to remove the unwanted complexity.
+</p>
+
+<p>
+	One of them is the <entry id="34#refactor-method-inline">inlining of the three original strategy methods</entry>.
+	Indeed, rather than having a strategy instance which calls a strategy method, we may as well put everything in the instance itself:
+</p>
+<pre><code>
+static DoingStrategy thisWay(Param1 param1) {
+	return new DoingStrategy() {
+		public Result justDoIt(Input input) {
+			// Move the code of doItThisWay(...) here
+			return result;
+		}
+	};
+}
+// Same thing for the other strategies
+</code></pre>
+
+<p>
+	If you are familiar with lambda expressions, you may further simplify the code with it if you find it clear enough:
+</p>
+<pre><code>
+static DoingStrategy thisWay(Param1 param1) {
+	return input -> {
+		// ...
+		return result;
+	};
+}
+</code></pre>
+
+<p>
+	You may also <entry id="34#refactor-variable-scope-decrease">decrease the scope of the strategy instance</entry> in the selection method.
+	You can then <entry id="34#refactor-variable-join">join</entry> and <entry id="34#refactor-variable-inline">inline it</entry> to completely remove it:
+</p>
+<pre><code>
+static DoingStrategy select(Param1 param1, Param2 param2) {
+	// Nothing to declare here
+	if (param1.isInSomeState()) {
+		return DoingStrategy.thisWay(param1);// Return directly strategy 1
+	} else if (param2.isInSomeState()) {
+		return DoingStrategy.thatWay(param2);// Return directly strategy 2
+	} else {
+		return DoingStrategy.anotherWay(param1, param2);// Return directly strategy 3
+	}
+	// Nothing to return here
+}
+</code></pre>
+
+<p>
+	You can also inline the strategy in the original <code>doesSomething</code> method:
+</p>
+<pre><code>
+Result doesSomething(Param1 param1, Param2 param2, Input input) {
+	return DoingStrategy.select(param1, param2).justDoIt(input);
+}
+</code></pre>
+
+<p>
+	Instead, you may be interested in inlining it in the code that calls it.
+	It would allow you to move the selection process earlier in the code, and maybe simplify it further.
+</p>
+
+<h2 id="answer">Summary</h2>
+
+<p>
+	When you have a method that is able to use different strategies to do the same thing, you may profit from applying the Strategy design pattern.
+	To do so:
+</p>
+<ol>
+	<li>create the interface of the strategies focusing on the common parameters and return type (generic parts) ;</li>
+	<li>for each piece of code to extract as a strategy:
+		<ol>
+			<li>instantiate a new strategy close to the code ;</li>
+			<li>reproduce the code within the strategy ;</li>
+			<li>replace the original code by the instance call.</li>
+		</ol>
+	</li>
+	<li>separate the strategy instantiations and calls to factor the calls after the selection process ;</li>
+	<li>extract the selection process in a dedicated method ;</li>
+	<li>extract the strategy implementations into dedicated methods ;</li>
+	<li>simplify the code.</li>
+</ol>
+
+<!--
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25"/></li>
+</ul>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+-->
+
+</body>
+</html>
