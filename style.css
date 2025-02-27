@@ -374,7 +374,7 @@ article div#lastUpdateTime {
 }
 
 #blog code {
-	font-size: 0.8em;/* Seems equivalent to body font size */
+	font-size: 0.85em;/* Seems equivalent to body font size */
 }
 
 #blog code mark {
