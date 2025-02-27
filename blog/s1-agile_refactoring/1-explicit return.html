@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring<br><code>return</code> Explicitness</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	A <code>return</code> statement with expression occurs at the end of a method or lambda expression having a return type (non <code>void</code>).
+	The <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.4.7">Java 8 specifications</a> require that these methods or lambda return by using a <code>return</code> statement with expression.
+	As such, these statements can only be explicit.
+</p>
+<p>
+	However, as per the <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.17">Java 8 specification</a>, we also have the <code>return</code> statement with no expression.
+	It occurs at the end of a (<code>void</code>) method, lambda expression, or constructor, and it does not have a requirement to be explicit.
+	Indeed, reaching the end of the method body is enough information to know that we can give the control back to the caller, acting as an implicit <code>return</code>.
+	In this case, we say that <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.1">the method completes normally</a>, while an explicit statement leads to a "forced" return, called an abrupt completion.
+</p>
+
+<h2 id="Action">Make the <code>return</code> statement explicit/implicit</h2>
+
+<p>
+	A method body (for a method, lambda or constructor) with an implicit <code>return</code> statement is simply a block that terminates with no instruction or an instruction which is not a <code>return</code> statement:
+</p>
+<pre><code>
+void myMethod() {
+	System.out.println("Show something");
+	// No return statement, it is implicit and the method completes normally
+}
+</code></pre>
+<p>
+	To make it explicit, we only need to add the <code>return</code> statement at the end of the block, as the last instruction:
+</p>
+<pre><code>
+void myMethod() {
+	System.out.println("Show something");
+	return;// return statement, it is explicit and the method completes abruptly
+}
+</code></pre>
+<p>
+	Similarly, if the last instruction of a method body is a <code>return</code> statement, we can make it implicit by simply removing it.
+</p>
+<p class="warning">
+	Note that we only speak about the last instruction of the method body!
+	The <code>return</code> statement must be the last instruction declared and executed.
+</p>
+
+<h2 id="iso-proof">Isofunctionality</h2>
+
+<p>
+	An explicit <code>return</code> statement completes the method body abruptly, allowing to ignore the following instructions:
+</p>
+<pre><code>
+void myMethod(int a) {
+	System.out.println("Show something");
+	if (a > 10) {
+		return;
+	}
+	System.out.println("Show something else");
+}
+</code></pre>
+<p>
+	In this case, if <code>a</code> is 10 or less, the body will write both strings and complete normally.
+	Otherwise, the <code>return</code> statement will be executed, completing the body abruptly and ignoring the second string writing.
+</p>
+<p>
+	In the particular case where no other instruction follows the <code>return</code> statement, nothing will be executed anyway.
+	Like in this example:
+</p>
+<pre><code>
+void myMethod(int a) {
+	System.out.println("Show something");
+	if (a > 10) {
+		return;
+	}
+}
+</code></pre>
+<p>
+	Either the condition triggers, completing the body abruptly, or it does not, completing the body normally but with no further instruction, thus acting as an implicit <code>return</code>.
+	An equivalent code, with only explicit <code>return</code> statements, would be the following:
+</p>
+<pre><code>
+void myMethod(int a) {
+	System.out.println("Show something");
+	if (a > 10) {
+		return;
+	} else {
+		return;
+	}
+}
+</code></pre>
+<p>
+	In short, an implicit <code>return</code> (body completes normally) is equivalent to an explicit <code>return</code> (body completes abruptly) followed by no other instruction.
+	Consequently, to remain iso-functional, an implicit statement must be replaced by an explicit statement at the end of the block, as the last instruction.
+	Similarly, an explicit <code>return</code> statement at the end of the block can be removed to make it implicit.
+	If the statement is not the last of the block, the iso-functionality is not guaranteed.
+</p>
+
+</body>
+</html>

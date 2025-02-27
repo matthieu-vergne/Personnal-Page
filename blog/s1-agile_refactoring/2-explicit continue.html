@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring<br><code>continue</code> Explicitness</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	As per the <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.16">Java 8 specification</a>, a <code>continue</code> statement passes the control to the loop-continuation of a <code>while</code>, <code>do</code>, or <code>for</code> loop.
+	It is however not a requirement to be explicit: reaching the end of the block implementing the loop is enough information to know that we can pass to the next iteration, acting as an implicit <code>continue</code>.
+	In this case, we say that <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.1">the iteration completes normally</a>, while an explicit statement leads to a "forced" completion, called an abrupt completion.
+</p>
+<p class="info">
+	We focus here on the <code>continue</code> statement with no label, which passes the control to the innermost enclosing loop.
+</p>
+
+<h2 id="Action">Make the <code>continue</code> statement explicit/implicit</h2>
+
+<p>
+	A loop body with an implicit <code>continue</code> statement is simply a block that terminates with no instruction or an instruction which is not a <code>continue</code> statement:
+</p>
+<pre><code>
+for (int i = 0; i &lt; 100; i++) {
+	System.out.println("Show something");
+	// No continue statement, it is implicit and the iteration completes normally
+}
+</code></pre>
+<p>
+	To make it explicit, we only need to add the <code>continue</code> statement at the end of the block, as the last instruction:
+</p>
+<pre><code>
+for (int i = 0; i &lt; 100; i++) {
+	System.out.println("Show something");
+	continue;// continue statement, it is explicit and the iteration completes abruptly
+}
+</code></pre>
+<p>
+	Similarly, if the last instruction of a loop body is a <code>continue</code> statement, we can make it implicit by simply removing it.
+</p>
+<p class="warning">
+	Note that we only speak about the last instruction of the loop body!
+	The <code>continue</code> statement must be the last instruction declared and executed.
+</p>
+
+<h2 id="iso-proof">Isofunctionality</h2>
+
+<p>
+	An explicit <code>continue</code> statement completes the iteration abruptly, allowing to ignore the following instructions:
+</p>
+<pre><code>
+for (int i = 0; i &lt; 100; i++) {
+	System.out.println("Show something");
+	if (i > 10) {
+		continue;
+	}
+	System.out.println("Show something else");
+}
+</code></pre>
+<p>
+	In this case, if <code>i</code> is 10 or less, the iteration will write both strings and complete normally.
+	Otherwise, the <code>continue</code> statement will be executed, completing the iteration abruptly and ignoring the second string writing.
+</p>
+<p>
+	In the particular case where no other instruction follows the <code>continue</code> statement, nothing will be executed anyway.
+	Like in this example:
+</p>
+<pre><code>
+for (int i = 0; i &lt; 100; i++) {
+	System.out.println("Show something");
+	if (i > 10) {
+		continue;
+	}
+}
+</code></pre>
+<p>
+	Either the condition triggers, completing the iteration abruptly, or it does not, completing the iteration normally but with no further instruction, thus acting as an implicit <code>continue</code>.
+	An equivalent code, with only explicit <code>continue</code> statements, would be the following:
+</p>
+<pre><code>
+for (int i = 0; i &lt; 100; i++) {
+	System.out.println("Show something");
+	if (i > 10) {
+		continue;
+	} else {
+		continue;
+	}
+}
+</code></pre>
+<p>
+	In short, an implicit <code>continue</code> (iteration completes normally) is equivalent to an explicit <code>continue</code> (iteration completes abruptly) followed by no other instruction.
+	Consequently, to remain iso-functional, an implicit statement must be replaced by an explicit statement at the end of the block, as the last instruction.
+	Similarly, an explicit <code>continue</code> statement at the end of the block can be removed to make it implicit.
+	If the statement is not the last of the block, the iso-functionality is not guaranteed.
+</p>
+
+</body>
+</html>

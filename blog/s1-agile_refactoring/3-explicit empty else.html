@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring<br>Empty <code>else</code> Explicitness</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	As per the <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.9.2">Java 8 specification</a>, an <code>else</code> statement allows to execute code when the condition of an <code>if</code> statement is not fulfilled (false).
+	It is however not a requirement to be explicit: if instructions need to be executed only when the condition is fulfilled, we can use <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.9.1">the <code>if</code> statement alone</a>.
+</p>
+
+<h2 id="Action">Make the <code>else</code> statement explicit/implicit</h2>
+
+<p>
+	A condition with an implicit <code>else</code> statement is simply a block following the <code>if</code> statement:
+</p>
+<pre><code>
+if (a > 10) {
+	System.out.println("Show something");
+}
+// No else statement, it is implicitly empty (no instruction if the condition is false)
+</code></pre>
+<p>
+	To make it explicit, we only need to add the empty <code>else</code> statement after the block of the <code>if</code>:
+</p>
+<pre><code>
+if (a > 10) {
+	System.out.println("Show something");
+} else {
+	// else statement, it is explicitly empty (no instruction if the condition is false)
+}
+</code></pre>
+<p>
+	Similarly, if an <code>else</code> statement is empty, we can make it implicit by simply removing it.
+</p>
+
+<h2 id="iso-proof">Isofunctionality</h2>
+
+<p>
+	An easy way to convince oneself about the equivalence of Java programs is to show they have the same byte code.
+	For example, if we create a method that contains only our <code>if</code> statement:
+</p>
+<pre><code>
+void myMethod(int a) {
+	if (a > 10) {
+		System.out.println("Show something");
+	}
+}
+</code></pre>
+<p>Compiling it produces the following byte code:</p>
+<pre><code>
+void myMethod(int a);
+   0  iload_1 [a]   // load an int value from local variable 1
+   1  bipush 10     // push 10 onto the stack as an integer value
+   3  if_icmple 14  // if value1 &lt;= value2, branch to instruction 14
+   6  getstatic java.lang.System.out : java.io.PrintStream [16]
+                    // get the static field java.lang.System.out
+   9  ldc &lt;String "Show something"> [22]
+                    // push "Show something" onto the stack
+  11  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]
+                    // invoke println
+  14  return        // return void from the method
+</code></pre>
+<p>
+	If we add the explicit <code>else</code>, the produced byte code is exactly the same.
+	Since the compiler itself considers that an empty <code>else</code> can be safely removed, there is a low chance to be wrong in our claim.
+</p>
+<p>
+	But an example is not a proof: how can we know that it can be done for any piece of code?
+	Let's make a <em>reductio ad absurdum</em>: for the behaviour of the code to change, it needs to change its outputs for the same inputs.
+	By adding an explicit <code>else</code>, we only add the capacity to add new instructions when the condition is false.
+	The <code>else</code> itself does not change any output nor any state that may impact these outputs.
+	By having an empty <code>else</code>, we decide to add no instruction for this case, thus keeping the very same set of instructions to execute.
+	Since neither the inputs nor instructions change, the outputs do not change either.
+	Consequently, adding an empty <code>else</code> cannot change the behaviour of the program, making it equivalent to an <code>if</code> statement.
+</p>
+
+</body>
+</html>
