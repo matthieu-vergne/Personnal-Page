@@ -89,11 +89,21 @@ class BlogPage extends InternalPage {
 		}, $content);
 	}
 	
+	private function expandTocTags($content) {
+		// TODO Retrieve structure from content
+		$toc = Toc::extractFrom($content);
+		return preg_replace_callback('#<toc root="([^"]+)" ?/>#', function($matches) use($toc) {
+			$root = $matches[1];
+			return $toc->from($root)->formatEntries();
+		}, $content);
+	}
+	
 	private function expandAll($content) {
 		$content = $this->expandEntryTags($content);
 		$content = $this->expandEntryLinks($content);
 		$content = $this->expandLocalLinks($content);
 		$content = $this->expandIncludeTags($content);
+		$content = $this->expandTocTags($content);
 		return $content;
 	}
 	

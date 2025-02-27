@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>When to Create an Object in Java?</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	Java is heavily based on objects: we often create classes to represent various concepts.
+	A Java program without classes (or a single class with just a <code>main()</code> method) is almost always considered as a "bad" Java program.
+	But there is already a lot of classes in the standard libraries of Java.
+	We have standard data structures, like <code>List</code>, <code>Set</code>, <code>Map</code>, etc.
+	We have standard operations, like <code>Object.toString()</code>, <code>Object.equals()</code>, <code>Collections.sort()</code>, etc.
+	So we may wonder whether it makes sense to create our own classes.
+</p>
+
+<h2 id="problem">Algorithmic Jargon Is Not Enough</h2>
+
+<p>
+	The standard libraries offer so much that you will probably never use all of them.
+	But it does not mean that they offer all you need.
+	Think about it: how would you feel by speaking about sales, physics, flowers or other topics, but by restricting yourself to algorithmic concepts like lists, maps, filters, reduction operations and the likes?
+	Surely it would allow everyone to speak the same language, but it would make it hard to speak about anything specific to each domain.
+</p>
+
+<h2 id="thinking">Let's Think about It</h2>
+
+<h3 id="thinking-theory">A Bit of Theory</h2>
+
+<p>
+	The whole point of a language, even a programming language, is to understand each other.
+	A programming language must be "understood" by the machine, which is the work of the compiler (<code>javac</code> in Java).
+	The only thing you need to care about regarding that is that it compiles properly.
+	Your main objective as a programmer, however, is to make clear to yourself and to your colleagues what you are coding, so everyone can evolve and maintain it easily.
+</p>
+<p>
+	A computer is a <a href="https://en.wikipedia.org/wiki/Turing_machine">Turing machine</a>.
+	What a computer does can be completely described with few components (a tape of cells, a writing head, a state register) and few instructions (write a cell, move the head, change the state).
+	Yes, everything a computer does can be expressed with just that! Neet, isn't it?
+	Now, please express the Dijkstra's algorithm with these concepts only. You have an hour.
+</p>
+<p>
+	The Turing machine is powerful by its genericity, but being generic means that it abstracts from the specifics.
+	A computer is a specific way to implement a Turing machine with computing parts.
+	If you want to describe what a computer is and what it does, you would be more at ease speaking about the CPU, the GPU, the memory, and so on.
+	These parts offer a more suitable vocabulary, but they execute programs by consuming strings of zeros and ones.
+	So would you speak about how to operate these computing parts by vomitting a series of zeros and ones?
+</p>
+<p>
+	<a href="https://en.wikipedia.org/wiki/Reduced_instruction_set_computer">RISC</a> and <a href="https://en.wikipedia.org/wiki/Complex_instruction_set_computer">CISC</a> are different attempts to encode these zeros and ones into instructions like read, write, add, increment, and so on.
+	Above that, we created the C language, which allows to hide these simplistic instructions to offer more advanced ones.
+	Now we can declare variables and functions, call them where necessary, read and write some data on the disc, and so on.
+	But let's abstract from the "data and function" stuff and speak about proper sales concepts.
+	For that, we name our variables and functions to speak about these concepts, so that we know this array of doubles represents the number of sales for each month of the year.
+	But what about flowers, which have petals, pistils, leaves, and so on?
+	And here come the objects of C++: you encapsulate all these numbers into an object named as you see fit.
+	As long as these numbers allow you to do what you need with them, just use them the way you want.
+	As you don't need to know which sequence of zeros and ones will be processed by the "tape and head" of the computer, the user of your object does not need to know about the internal details of the object itself.
+</p>
+<p>
+	Java is like C++ without C: take the higher level objects, and hide the lower level stuff.
+	Java builds on the assumption that we are often bad at dealing with low level details and that we need to focus at our own level of abstraction.
+	Since programmers are experts in algorithms and the likes, the whole point of the standard libraries in Java is to offer a level of abstraction suited to them.
+	Thus ignoring the memory, the CPU, and so on, and use instead lists, maps, filters, and the likes.
+	Your objective as a programmer is to apply it to a specific domain, where you need to speak about sales and flowers.
+	An object is a way to abstract from this algorithm jargon to speak more about your application domain.
+	You are just another step on the stack of abstractions starting from the Turing machine.
+</p>
+
+<h3 id="thinking-practice">A Bit of Practice</h2>
+
+<p>
+	Now that we know that the aim of an object is to abstract from lower details by creating concepts relevant to our application domain, let's see how it is done.
+	There is basically two ways to deal with it: <em>proactive</em> and <em>retroactive</em>.
+</p>
+<p>
+	In a <em>proactive</em> way, you create an object (by creating a class and instantiating it) as soon as you need a variable.
+	You start with an empty class, instantiate it, and fill it progressively when you find useful stuff to do with it.
+	If at some point you see that this object does nothing more than its internal data already does (e.g. it contains a <code>List</code> and you use it like a <code>List</code>), then you <entry id="34#refactor-class-inline">inline your class</entry> to reduce the vocabulary to maintain.
+	This is more the way to go for highly formal people, and honestly it is quite rare to go this way because we always learn first about variables, arrays, and functions, before objects, classes, and interfaces.
+	You can go that way if you like, it works, but it is quite niche and has its own advantages and inconveniences, so let's ignore it here.
+</p>
+<p>
+	The usual way is <em>retroactive</em>, where you first code what you need and, once it works and you get a good grasp of the concepts you need, you create the relevant classes to represent these concepts.
+	Let's take an example:
+</p>
+<pre><code>
+	void doSomething() {
+		List&lt;Item> backpack = getBackpackContent();
+		List&lt;Equipment> equipments = getEquipments();
+		
+		// Retrieve all the weight the player is carrying
+		double weight = 0.0;
+		for(Item item : backpack) {
+			weight += item.getWeight();
+		}
+		for(Equipment equipment : equipments) {
+			weight += equipment.getWeight();
+		}
+		displayWeightOnScreen(weight);
+		
+		// Retrieve all the bonuses that apply to the player
+		List&lt;Bonus> bonuses = new LinkedList&lt;>();
+		for(Item item : backpack) {
+			bonuses.addAll(item.getBonuses());
+		}
+		for(Equipment equipment : equipments) {
+			bonuses.addAll(equipment.getBonuses());
+		}
+		displayBonusesOnScreen(weight);
+	}
+</code></pre>
+
+<p>
+	In order to abstract the lower details, first <entry id="34#refactor-method-extract">extract</a> each relevant piece of code into a dedicated method:
+</p>
+<pre><code>
+	void doSomething() {
+		List&lt;Item> backpack = getBackpackContent();
+		List&lt;Equipment> equipments = getEquipments();
+		
+		double weight = computeTotalWeight(backpack, equipments);
+		displayWeightOnScreen(weight);
+		
+		List&lt;Bonus> bonuses = retrieveAllBonuses(backpack, equipments);
+		displayBonusesOnScreen(weight);
+	}
+	
+	double computeTotalWeight(List&lt;Item> backpack, List&lt;Equipment> equipments) {
+		double weight = 0.0;
+		for(Item item : backpack) {
+			weight += item.getWeight();
+		}
+		for(Equipment equipment : equipments) {
+			weight += equipment.getWeight();
+		}
+		return weight;
+	}
+	
+	List&lt;Bonus> retrieveAllBonuses(List&lt;Item> backpack, List&lt;Equipment> equipments) {
+		List&lt;Bonus> bonuses = new LinkedList&lt;>();
+		for(Item item : backpack) {
+			bonuses.addAll(item.getBonuses());
+		}
+		for(Equipment equipment : equipments) {
+			bonuses.addAll(equipment.getBonuses());
+		}
+		return bonuses;
+	}
+</code></pre>
+
+<p>
+	There is your first hint: you have a redundant use of the same arguments (<code>backpack</code> and <code>equipments</code>) for several methods calls.
+	It can be for calling different methods one after another (like here), for different calls of the same method, or calling methods which themselves call other methods with the same arguments, etc.
+	It shows that both are related in some ways, since they are useful in the same locations, and thus it might make sense to keep them together in a common data structure.
+</p>
+<p class="note">
+	In other languages, like C++, a data tructure differes from an object by having only data, no methods being allowed.
+	In Java, there is no specific concept for a data structure, you just create an object with no methods.
+</p>
+
+<p>
+	At some points, you see that these methods can be used in different places:
+</p>
+<pre><code>
+	void doSomething() {
+		List&lt;Item> backpack = getBackpackContent();
+		List&lt;Equipment> equipments = getEquipments();
+		
+		double weight = computeTotalWeight(backpack, equipments);
+		displayWeightOnScreen(weight);
+		
+		List&lt;Bonus> bonuses = retrieveAllBonuses(backpack, equipments);
+		displayBonusesOnScreen(weight);
+	}
+	void doSomethingWithTheWeight() {
+		List&lt;Item> backpack = getBackpackContent();
+		List&lt;Equipment> equipments = getEquipments();
+		double weight = computeTotalWeight(backpack, equipments);
+		// Do something with the weight
+	}
+	void doSomethingWithTheBonuses() {
+		List&lt;Item> backpack = getBackpackContent();
+		List&lt;Equipment> equipments = getEquipments();
+		List&lt;Bonus> bonuses = retrieveAllBonuses(backpack, equipments);
+		// Do something with the bonuses
+	}
+</code></pre>
+
+<p>
+	To avoid computing it several times, you want to store the values until the content of the backpack changes.
+</p>
+<p>
+	The easy part is to cache all your values (backpack, equipements, weights and bonuses) in additional fields.
+	You can set them in the dedicated methods if they are not already set.
+	This is your second hint: you need several correlated variables to represent your state, like the backpack, its weight, and its bonuses.
+	Maintaining their coherency requires to use them together, which usually means having them in the same scope.
+	Having all of them in the same object eases this kind of thing, althouhg it is not necessary.
+</p>
+<p>
+	The hard part is to systematically reset these cache fields when the backpack or equipments lists are changed.
+	Since the lists do not offer such a feature, you need to implement it everywhere it is required.
+	Hopefully, you can factor it in a method to apply everywhere, but you still need to make redundant calls to this method.
+	This is your third and strongest hint: you need customized controls on your data structure.
+</p>
+<p>
+	At this point, avoid dealing with separate pieces of data and <entry id="34#refactor-class-extract">extract them into a dedicated class</entry>.
+</p>
+
+<!-- TODO Focus on semantics -->
+<!-- TODO Examples of hints where it makes no sense -->
+
+<h2 id="summary">Summary</h2>
+
+<p>
+	You can extract a class when you want, although there is some hints that let you know when it is relevant to create an object:
+</p>
+<ol>
+	<li>you have a redundant use of the same arguments for several methods calls, motivating a common structure encapsulating them ;</li>
+	<li>you need to maintain several correlated variables to represent your state, motivating to bring them in the same scope ;</li>
+	<li>you need customized controls on your data structure, motivating the use of a dedicated object providing these controls.</li>
+</ol>
+<p>
+	The more hints you have, the more reasons you have to create an object.
+	However, the hints should only push you to think further about it.
+	The only reason to create one is related to the <em>semantics</em>, not the <em>syntax</em>.
+	Create an object when it makes sense.
+</p>
+
+<h2 id="links">Related Questions</h2>
+
+<ul>
+	<li><entry id="25"/></li>
+</ul>
+
+<h2 id="bibliography">Bibliography</h2>
+
+<ul>
+<li id="gitbook"><cite>Git Book</cite>: <a href="https://git-scm.com/book/en/v2">https://git-scm.com/book/en/v2</a></li>
+</ul>
+
+</body>
+</html>
