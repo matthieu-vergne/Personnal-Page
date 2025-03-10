@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring<br>Conditional Distribution &amp; Factoring</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	As per the <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.9.2">Java 8 specification</a>, an <code>if-then-else</code> statement allows to choose between two branches of execution.
+	The condition of the <code>if</code> statement provides the decision criteria between executing the <code>if</code> block (when the condition is satisfied) or the <code>else</code>block (when it is not).
+	However, those branches remain part of the program, with instructions being exeuted before or after the conditional.
+	It is then possible to move the instructions in and out of the conditional, as long as the possible execution sequences remain equivalent.
+</p>
+
+<h2 id="Action">Instruction distribution &amp; factoring</h2>
+
+<p>
+	Let's represent a conditional in this way:
+</p>
+<pre><code>
+if (condition) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p class="warning">TODO Highlight the need to reduce the condition to an evaluation statement for no side effect that might be impacted by the reordering. Link to variable extraction.</p>
+<p>
+	If your conditional does not have an <code>else</code> statement, you need to <a href="entry:./3">explicit it</a>.
+</p>
+<p>
+	Then, let's see how to distribute some <code>code X</code> into the conditional, or to factor it out of the conditional.
+</p>
+
+<h3 id="Action-top">Distributing &amp; factoring an instruction at the top</h3>
+
+<p>
+	Let's look at this case:
+</p>
+<pre><code>
+// code X
+if (condition) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	As long as the scopes are not broken (we see later what it means), you can distribute <code>code X</code> at the start of <em>all</em> the blocks of the conditional (<code>else</code> included).
+</p>
+<pre><code>
+if (condition) {
+	// code X
+	// code A
+} else {
+	// code X
+	// code B
+}
+</code></pre>
+<p>
+	In the reverse, when a common <code>code X</code> appears at the start of <em>all</em> the blocks (<code>else</code> included), you can factor it just before the conditional.
+</p>
+
+<h3 id="Action-bottom">Distributing &amp; factoring an instruction at the bottom</h3>
+
+<p>
+	Let's look at the opposite case:
+</p>
+<pre><code>
+if (condition) {
+	// code A
+} else {
+	// code B
+}
+// code X
+</code></pre>
+<p>
+	As long as the scopes are not broken (we see later what it means), you can distribute <code>code X</code> at the end of <em>all</em> the blocks of the conditional (<code>else</code> included).
+</p>
+<pre><code>
+if (condition) {
+	// code A
+	// code X
+} else {
+	// code B
+	// code X
+}
+</code></pre>
+<p>
+	In the reverse, when a common <code>code X</code> appears at the end of <em>all</em> the blocks (<code>else</code> included), you can factor it just after the conditional.
+</p>
+
+<h3 id="Action-scope">Only if the scopes are not broken</h3>
+
+<p>
+	Let's look at this example:
+</p>
+<pre><code>
+boolean condition = true;
+if (condition) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	By distributing the first instruction into the conditional, we end up with a code that does not a compile, and for a good reason:
+</p>
+<pre><code>
+if (<mark class="error">condition</mark>) {
+	boolean condition = true;
+	// code A
+} else {
+	boolean condition = true;
+	// code B
+}
+</code></pre>
+<p>
+	The distributed instruction declares the variable used in the condition.
+	This condition needs to rely on data available in the scope containing the conditional.
+	By moving the instruction inside, we reduce the scope of the variable inside the <code>if</code> and <code>else</code> statements, making it unavailable for the condition.
+	We have <em>broken the scope</em> of the <code>condition</code> variable.
+</p>
+<p>
+	Here is a more tricky case:
+</p>
+<pre><code>
+boolean condition = false;
+condition = true;
+if (condition) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	By distributing the second instruction into the conditional, we end up with a code that does compile, but is not iso-functional:
+</p>
+<pre><code>
+boolean condition = false;
+if (condition) {
+	condition = true;
+	// code A
+} else {
+	condition = true;
+	// code B
+}
+</code></pre>
+<p>
+	Indeed, in the previous code, the condition evaluates to <code>true</code>, thus executing <code>code A</code>.
+	By distributing the instruction, the condition now evaluates to <code>false</code>, thus executing <code>code B</code>.
+	We have broken the scope of the <code>condition</code> <em>value</em>.
+	<span class="warning">TODO Link to moving the instructions around, which need to keep read/write consistency.</span>
+</p>
+<p>
+	But the scope requirement is not limited to the condition:
+</p>
+<pre><code>
+int value = 123;
+if (condition) {
+	// code A
+} else {
+	// code B
+}
+int result = value + 3;
+</code></pre>
+<p>
+	If we distribute the first instruction, we have the same issue than before but for a different variable:
+</p>
+<pre><code>
+if (condition) {
+	int value = 123;
+	// code A
+} else {
+	int value = 123;
+	// code B
+}
+int result = <mark class="error">value</mark> + 3;
+</code></pre>
+<p>
+	The <code>value</code> variable is now declared in a scope unavailable for computing the <code>result</code>.
+	You can avoid that by splitting the variable declaration (<span class="warning">TODO Link to variable splitting</span>), so only the initialization is distributed:
+</p>
+<pre><code>
+int value;
+if (condition) {
+	// code A
+	value = 123;
+} else {
+	value = 123;
+	// code B
+}
+int result = value + 3;
+</code></pre>
+<p>
+	Or, if the code allows to reduce the scope of <code>result</code>, first distribute its computation in the conditional:
+</p>
+<pre><code>
+int value = 123;
+if (condition) {
+	// code A
+	int result = value + 3;
+} else {
+	// code B
+	int result = value + 3;
+}
+</code></pre>
+<p>
+	Then distribute <code>value</code>:
+</p>
+<pre><code>
+if (condition) {
+	int value = 123;
+	// code A
+	int result = value + 3;
+} else {
+	int value = 123;
+	// code B
+	int result = value + 3;
+}
+</code></pre>
+<p>
+	In the previous case, the scope of <code>result</code> remains out of the conditional, so we keep the declaration of <code>value</code> out of the conditional too to have the same scope.
+	In the next case, the scope of <code>result</code>, and with it the use of <code>value</code> (this is the important part), is reduced inside the conditional, so we can also reduce the scope of <code>value</code> inside the conditional, since we don't need it out of it anymore.
+	A good practice is to split (<span class="warning">TODO Link to variable splitting</span>) the variables to manage separately its declaration and its initialization.
+	If both can be distributed/factored, they can be joined again afterward.
+</p>
+
+<h2 id="iso-proof">Isofunctionality</h2>
+
+<p>
+	Let's represent several cases at once:
+</p>
+<pre><code>
+// code X
+if (condition) {
+	// code A
+} else {
+	// code B
+}
+// code Y
+</code></pre>
+{P}S{Q} , {Q}T{R}
+----------------- Rule of composition
+   {P}S;T{R}
+
+  {B & P}S{Q} , {!B & P}T{Q}
+------------------------------ Rule of conditional
+{P}if B then S else T endif{Q}
+
+{P}X{Q} , {Q}if cond then A else B{R}
+------------------------------------- Rule of composition
+   {P}X;if cond then A else B{R}
+
+
+{P}
+X {P & X}
+if cond then ( {P & X & cond}
+	A {P & X & cond & A}
+) else ( {P & X & !cond}
+	B {P & X & !cond & B}
+)
+
+{P}
+if cond then ( {P & cond}
+	X {P & cond & X}
+	A {P & cond & X & A} =  {P & X & cond & A}
+) else ( {P & !cond}
+	X {P & !cond & X}
+	B {P & !cond & X & B} =  {P & X & !cond & B}
+)
+{R}
+==============================================================
+To prove that the two code snippets are equivalent, we can use a mathematical approach. Let's denote "code X" as Cx, "code A" as Ca, and "code B" as Cb. The original code can be represented as:
+```java
+if (condition) {
+	// Cx
+} else {
+	// Cx
+}
+if (condition) {
+	// Ca
+} else {
+	// Cb
+}
+```
+The modified code can be represented as:
+```java
+if (condition) {
+	// Cx
+	// Ca
+} else {
+	// Cx
+	// Cb
+}
+```
+We want to prove that these two codes are equivalent, which means they produce the same output for all possible inputs. Let's use a mathematical approach to show this equivalence:
+1. If condition is true, then both codes execute "Cx" and "Ca". This means they will produce the same output.
+2. If condition is false, then both codes execute "Cx" and "Cb". This means they will also produce the same output.
+3. Since the outputs are the same for all possible inputs, we can conclude that the two code snippets are equivalent.
+This mathematical approach shows that the two code snippets are indeed equivalent.
+
+
+<!-- ----------------------------------------------------------------------------------------------------------------------------------- -->
+<p>
+	An easy way to convince oneself about the equivalence of Java programs is to show they have the same byte code.
+	For example, if we create a method that contains only our <code>if</code> statement:
+</p>
+<pre><code>
+void myMethod(int a) {
+	if (a > 10) {
+		System.out.println("Show something");
+	}
+}
+</code></pre>
+<p>Compiling it produces the following byte code:</p>
+<pre><code>
+void myMethod(int a);
+   0  iload_1 [a]   // load an int value from local variable 1
+   1  bipush 10     // push 10 onto the stack as an integer value
+   3  if_icmple 14  // if value1 &lt;= value2, branch to instruction 14
+   6  getstatic java.lang.System.out : java.io.PrintStream [16]
+                    // get the static field java.lang.System.out
+   9  ldc &lt;String "Show something"> [22]
+                    // push "Show something" onto the stack
+  11  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]
+                    // invoke println
+  14  return        // return void from the method
+</code></pre>
+<p>
+	If we add the explicit <code>else</code>, the produced byte code is exactly the same.
+	Since the compiler itself considers that an empty <code>else</code> can be safely removed, there is a low chance to be wrong in our claim.
+</p>
+<p>
+	But an example is not a proof: how can we know that it can be done for any piece of code?
+	Let's make a <em>reductio ad absurdum</em>: for the behaviour of the code to change, it needs to change its outputs for the same inputs.
+	By adding an explicit <code>else</code>, we only add the capacity to add new instructions when the condition is false.
+	The <code>else</code> itself does not change any output nor any state that may impact these outputs.
+	By having an empty <code>else</code>, we decide to add no instruction for this case, thus keeping the very same set of instructions to execute.
+	Since neither the inputs nor instructions change, the outputs do not change either.
+	Consequently, adding an empty <code>else</code> cannot change the behaviour of the program, making it equivalent to an <code>if</code> statement alone.
+</p>
+
+</body>
+</html>

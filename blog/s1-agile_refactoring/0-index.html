@@ -102,6 +102,8 @@
 	<li><a href="entry:./1"><code>return</code> explicitness</a></li>
 	<li><a href="entry:./2"><code>continue</code> explicitness</a></li>
 	<li><a href="entry:./3">empty <code>else</code> explicitness</a></li>
+	<li><a href="entry:./4">conditional distributon &amp; factoring</a></li>
+	<li><a href="entry:./5">variable renaming</a></li>
 </ul>
 
 <h3 id="refactor-variable">Refactoring variables</h3>
@@ -410,41 +412,6 @@
 	You need to remove these uses or replace them by other ones.
 	For replacements, you can for example create a separate variable or inline the variable there.
 </p>
-
-<h4 id="refactor-variable-rename">Rename a variable</h4>
-
-<p>Starting from an existing variable:</p>
-<pre><code>
-	String myAwfulName = "foo";
-	System.out.println(myAwfulName);
-</code></pre>
-
-<p>Create a new variable with the name you want:</p>
-<pre><code>
-	String myAwfulName = "foo";
-	String myAwesomeName;
-	System.out.println(myAwfulName);
-</code></pre>
-
-<p>Assign it the current variable:</p>
-<pre><code>
-	String myAwfulName = "foo";
-	String myAwesomeName = myAwfulName;
-	System.out.println(myAwfulName);
-</code></pre>
-
-<p>Replace the old variable by the new variable where it is used:</p>
-<pre><code>
-	String myAwfulName = "foo";
-	String myAwesomeName = myAwfulName;
-	System.out.println(myAwesomeName);// Replace it everywhere required
-</code></pre>
-
-<p>Inline the old variable once it is only used by the new variable:</p>
-<pre><code>
-	String myAwesomeName = "foo";
-	System.out.println(myAwesomeName);
-</code></pre>
 
 <h3 id="refactor-method">Refactoring methods</h3>
 
