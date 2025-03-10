@@ -377,6 +377,11 @@ article div#lastUpdateTime {
 	font-size: 0.85em;/* Seems equivalent to body font size */
 }
 
+#blog code hr {
+	display: inline-block;
+	width: 100%;
+}
+
 #blog code mark {
 	display: inline-block;
 	color: inherit;
