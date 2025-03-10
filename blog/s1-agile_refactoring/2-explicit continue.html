@@ -57,7 +57,7 @@ for (int i = 0; i &lt; 100; i++) {
 }
 </code></pre>
 <p>
-	Similarly, if the last instruction of a loop body is a <code>continue</code> statement, we can make it implicit by simply removing it.
+	In the reverse, if the last instruction of a loop body is a <code>continue</code> statement, we can make it implicit by simply removing it.
 </p>
 <p class="warning">
 	Note that we only speak about the last instruction of the loop body!
@@ -111,7 +111,7 @@ for (int i = 0; i &lt; 100; i++) {
 <p>
 	In short, an implicit <code>continue</code> (iteration completes normally) is equivalent to an explicit <code>continue</code> (iteration completes abruptly) followed by no other instruction.
 	Consequently, to remain iso-functional, an implicit statement must be replaced by an explicit statement at the end of the block, as the last instruction.
-	Similarly, an explicit <code>continue</code> statement at the end of the block can be removed to make it implicit.
+	In the reverse, an explicit <code>continue</code> statement at the end of the block can be removed to make it implicit.
 	If the statement is not the last of the block, the iso-functionality is not guaranteed.
 </p>
 

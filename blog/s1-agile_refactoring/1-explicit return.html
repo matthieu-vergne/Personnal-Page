@@ -60,7 +60,7 @@ void myMethod() {
 }
 </code></pre>
 <p>
-	Similarly, if the last instruction of a method body is a <code>return</code> statement, we can make it implicit by simply removing it.
+	In the reverse, if the last instruction of a method body is a <code>return</code> statement, we can make it implicit by simply removing it.
 </p>
 <p class="warning">
 	Note that we only speak about the last instruction of the method body!
@@ -114,7 +114,7 @@ void myMethod(int a) {
 <p>
 	In short, an implicit <code>return</code> (body completes normally) is equivalent to an explicit <code>return</code> (body completes abruptly) followed by no other instruction.
 	Consequently, to remain iso-functional, an implicit statement must be replaced by an explicit statement at the end of the block, as the last instruction.
-	Similarly, an explicit <code>return</code> statement at the end of the block can be removed to make it implicit.
+	In the reverse, an explicit <code>return</code> statement at the end of the block can be removed to make it implicit.
 	If the statement is not the last of the block, the iso-functionality is not guaranteed.
 </p>
 
