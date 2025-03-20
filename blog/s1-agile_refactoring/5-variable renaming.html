@@ -33,6 +33,7 @@
 	Focusing on the variable declarator ID, it is composed of an identifier and, for arrays, one or more dimensions (the <code>[]</code> stuff).
 	The specifications for a <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.3">field declaration</a>, a <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.4.1">method parameter</a>, and a <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.8.1">constructor parameter</a> differ, but they all converge towards the same identifier definition.
 	All of them share the same purpose (storing some values for reuse), so despite speaking about "variable renaming" because it is the most frequent case, we also cover the fields and parameters.
+	<span class="warning">TODO Consider how <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-4.html#jls-4.12.3">the term "variable" is used in the specs</a>.</span>
 	We don't say "identifier renaming" because they also participate in method and class naming, which are different beasts.
 	<span class="warning">TODO Link to method renaming.</span>
 	<span class="warning">TODO Link to class renaming.</span>
@@ -56,7 +57,7 @@
 <p>
 	However, you might have cases where you can't use that renaming feature.
 	For example when you use a simple notepad (yes, a blind, massive search and replace is a bad idea), or when the variable is public and used in external projects that you don't want to break, etc.
-	In such a case, here is how to do it step by step:
+	In such a case, here are the different phases to go through:
 </p>
 <ol>
 	<li>
@@ -134,18 +135,18 @@
 	</li>
 </ol>
 <p>
-	There might have a few differences between local variables, parameters, and fields, but they all follow these steps.
-	For a parameter, you create a new local variable in step 1 to not break the method or constructor signature with a new parameter, and discard it in step 7 while renaming the old parameter.
-	For a field used in other projects, the old field remains usable until the end of step 4, and you may start step 5 only when you consider that other projects depending on you have done their own refactoring.
-	Deprecating the old field with documentation is a good way to inform your dependers of the required actions they need to take (steps 2-6) to remain compatible with a future version where the old variable will be removed.
-	Just don't do it before you finishes step 2, because the new field is not aligned yet with the old one before that.
-	The most time consuming steps, when a lot of code is involved, are steps 2-6 that depend on the number of read/writes present in the code, so you should plan carefully your changes when others depend on you.
+	There might have a few differences between local variables, parameters, and fields, but they all follow these phases.
+	For a parameter, you create a new local variable in phase 1 to not break the method or constructor signature with a new parameter, and discard it in phase 7 while renaming the old parameter.
+	For a field used in other projects, the old field remains usable until the end of phase 4, and you may start phase 5 only when you consider that other projects depending on you have done their own refactoring.
+	Deprecating the old field with documentation is a good way to inform your dependers of the required actions they need to take (phases 2-6) to remain compatible with a future version where the old variable will be removed.
+	Just don't do it before you finishes phase 2, because the new field is not aligned yet with the old one before that.
+	The most time consuming phases, when a lot of code is involved, are phases 2-6 that depend on the number of read/writes present in the code, so you should plan carefully your changes when others depend on you.
 </p>
 
 <h3 id="Action-example">Overall example</h3>
 
 <p>
-	Here is a full example of code to illustrate all these steps:
+	Here is a full example of code to illustrate all these phases:
 </p>
 <pre><code>
 double computePrice(double a) {
@@ -155,7 +156,8 @@ double computePrice(double a) {
 }
 </code></pre>
 <p>
-	Step 1: Create the new variable from the old one.
+	Phase 1: Create the new variable from the old one.
+	It is a trivial action to do in a single step.
 </p>
 <pre><code>
 double computePrice(double a) {
@@ -166,7 +168,8 @@ double computePrice(double a) {
 }
 </code></pre>
 <p>
-	Step 2: Align the new variable to the old one.
+	Phase 2: Align the new variable to the old one.
+	Each alignment is a separate step in this phase: you can add them in any order and at any time, no need to add all of them at once, the code still works.
 </p>
 <pre><code>
 double computePrice(double a) {
@@ -182,7 +185,8 @@ double computePrice(double a) {
 }
 </code></pre>
 <p>
-	Step 3: Replace the reads of the old one by the new one, keeping the alignment before that allows this replacement.
+	Phase 3: Replace the reads of the old one by the new one, keeping the alignment before that allows this replacement.
+	Again, each change is a separate step to be done at your own pace.
 </p>
 <pre><code>
 double computePrice(double a) {
@@ -198,7 +202,8 @@ double computePrice(double a) {
 }
 </code></pre>
 <p>
-	Step 4: Replace the writes of the old one by the new one, reversing the following alignment to keep the old one aligned.
+	Phase 4: Replace the writes of the old one by the new one, reversing the following alignment to keep the old one aligned.
+	A replace+reverse pair (e.g. lines 4+5) must be done at once, but each pair can be done separately.
 </p>
 <pre><code>
 double computePrice(double a) {
@@ -214,7 +219,8 @@ double computePrice(double a) {
 }
 </code></pre>
 <p>
-	Step 5: Get rid of the alignments for reads.
+	Phase 5: Get rid of the alignments for reads.
+	Again, each removal is independent.
 </p>
 <pre><code>
 double computePrice(double a) {
@@ -227,7 +233,8 @@ double computePrice(double a) {
 }
 </code></pre>
 <p>
-	Step 6: Get rid of the alignments for writes.
+	Phase 6: Get rid of the alignments for writes.
+	Same thing, each removal is independent.
 </p>
 <pre><code>
 double computePrice(double a) {
@@ -238,7 +245,8 @@ double computePrice(double a) {
 }
 </code></pre>
 <p>
-	Step 7: Get rid of the old variable.
+	Phase 7: Get rid of the old variable.
+	To be done in a single atomic step.
 </p>
 <pre><code>
 	double computePrice(double <mark>price</mark>) {
@@ -258,31 +266,31 @@ double computePrice(double a) {
 	It is usually quite obvious that renaming a variable/parameter/field is isofunctional.
 	Either you mistakenly use a name that is already used and you mess up everything, but the compiler itself rejects it because it is declared twice, either you use a unique name and it works.
 	After all, identifiers only allow to point to a memory location where to read/write data, and naming it differently changes nothing regarding how we use it.
-	What is more interesting is to show that each manual step is also isofunctional.
+	What is more interesting is to show that each manual phase is also isofunctional.
 </p>
 <p>
-	Step 1 creates a new variable (local variable, parameter, or field).
+	Phase 1 creates a new variable (local variable, parameter, or field).
 	We store in it the initial value of the old variable, but we don't use it for anything.
 	In particular, we don't use it to change the behaviour of the program.
 	In short, it is isofunctional by definition.
 </p>
 <p>
-	Step 2 add alignment instructions to update the value of the new variable with the current value of the old one.
+	Phase 2 add alignment instructions to update the value of the new variable with the current value of the old one.
 	Again, all we do is change the value stored for the new variable, but we still never use it for anything.
 	So it is again isofunctional by definition.
-	However, after this step is over (and only after it is over), we also know that all the instructions (at least those in our control) that involve the old variable are directly surrounded by these alignments.
+	However, after this phase is over (and only after it is over), we also know that all the instructions (at least those in our control) that involve the old variable are directly surrounded by these alignments.
 	In other words, just <em>before</em> and just <em>after</em> such an instruction is executed, we know that the state of the new variable is the same than the state of the old variable.
 	That will be useful later.
 </p>
 <p>
-	Step 3 replaces the reads of the old variable, meaning that we are in one of these instructions involving the old variable.
+	Phase 3 replaces the reads of the old variable, meaning that we are in one of these instructions involving the old variable.
 	As mentionned above, just before to execute it, we know that the old and new variable are in the same state.
 	So by replacing the old variable by the new one, we know that we consume the same value.
 	As such, the instruction remains the same, and with the same inputs, so the output also remain the same.
 	The direct consequence of it is having the same behavkiour than before, thus being isofunctional.
 </p>
 <p>
-	Step 4 is a bit tricky, because it includes 2 changes at a time.
+	Phase 4 is a bit tricky, because it includes 2 changes at a time.
 	But what we should look at is the state of the programm before and after the 2 instructions involved: the variable computation and the alignment post-write.
 </p>
 <ol>
@@ -310,17 +318,17 @@ double computePrice(double a) {
 	Since both versions of the code, by starting at the same initial state of the program, lead to the same final state of the program, they are equivalent, and thus isofunctional.
 </p>
 <p>
-	So far, steps 1 to 4 are shown to be isofunctional.
+	So far, phases 1 to 4 are shown to be isofunctional.
 	And as mentionned before, they act on the code under our control.
 	If we include any code out of our control, like code in another project using the old variable (especially fields), it does not change that isofunctionality.
 	Indeed, all our instructions are surrounded by these alignments that ensure that (i) we never compute anything before to ensure that both variables are in the same state, and (ii) we never go ahead without ensuring they are still in the same state.
 	If we remove an alignment pre-computation (for reads), an external code may have changed the state of the old variable, making it different to the new variable.
 	The computation would then give a different result between the old variable and the new one, thus breaking isofunctionality.
 	At the opposite, by removing the alignment post-computation (for writes), the old variable would not be updated, thus providing an obsolete value to the external code using it later, breaking isofunctionality too.
-	This is why the next step 5, which removes these alignments, cannot be started until the external users have also finished step 4.
+	This is why the next phase 5, which removes these alignments, cannot be started until the external users have also finished phase 4.
 </p>
 <p>
-	After step 4 is done (internally and externally), we always have this pattern occurring in the code:
+	After phase 4 is done (internally and externally), we always have this pattern occurring in the code:
 </p>
 <ol>
 	<li>Some computation is done (internally or externally), updating the new variable</li>
@@ -332,25 +340,25 @@ double computePrice(double a) {
 <p>
 	Since the new and old variables are already aligned at point 2 (write alignment), point 4 (read alignment) is redundant and can be removed.
 	Even if you look at the very first read alignment, which may succeeds the declaration which acts as a write alignment in addition to the variable declaration.
-	This is why step 5, which removes the read alignments, is isofunctional: they are now all preceded by write alignments that make them redundant, so we can remove them in any order without impacting the program.
+	This is why phase 5, which removes the read alignments, is isofunctional: they are now all preceded by write alignments that make them redundant, so we can remove them in any order without impacting the program.
 </p>
 <p>
 	Then, since the old variable is not read anymore, not even for aligning (point 4 is gone), giving it a value on point 2 is also devoid of relevant effect on the program, so we can get rid of point 2.
-	This is why step 6, which removes the write alignments, is isofunctional: we only write in the old variable, never read it, so we can remove these writes in any order without impacting the program.
+	This is why phase 6, which removes the write alignments, is isofunctional: we only write in the old variable, never read it, so we can remove these writes in any order without impacting the program.
 </p>
 <p>
-	For external users, since we have reached step 4 before them, they can safely reach step 4 after us.
-	But then, from their point of view, step 4 is reached exhaustively, so they can go ahead with step 5 and 6, since they are isofunctional.
+	For external users, since we have reached phase 4 before them, they can safely reach phase 4 after us.
+	But then, from their point of view, phase 4 is reached exhaustively, so they can go ahead with phase 5 and 6, since they are isofunctional.
 	In other words, the external user can go through all the refactoring at once.
-	If there is a chain of depencdencies, the idea is to reach step 4 incrementally in the chain, until the end of the chain is reached.
-	The end passes through all the steps at once, then the chain is navigated in reverse to apply the steps 5 and above incrementally.
-	This way, when we internally decide to stop at step 4, we only need to care about the length of that chain, then assum that upon coming back to us, everything has been refactored on our dependers.
-	That gives us the ability to go through all the remaining steps, until the old variable is completely removed, without breaking the code of our depdenders.
+	If there is a chain of depencdencies, the idea is to reach phase 4 incrementally in the chain, until the end of the chain is reached.
+	The end passes through all the phases at once, then the chain is navigated in reverse to apply the phases 5 and above incrementally.
+	This way, when we internally decide to stop at phase 4, we only need to care about the length of that chain, then assum that upon coming back to us, everything has been refactored on our dependers.
+	That gives us the ability to go through all the remaining phases, until the old variable is completely removed, without breaking the code of our depdenders.
 </p>
 <p>
-	Finally, step 7 occurs when the old variable is not used anywhere anymore, only created to initialize the new variable.
+	Finally, phase 7 occurs when the old variable is not used anywhere anymore, only created to initialize the new variable.
 	At that point, all we do is remove the intermediary step of passing through the old variable first.
-	Nothing changes in terms of behaviours, so this final step is also isofunctional.
+	Nothing changes in terms of behaviours, so this final phase is also isofunctional.
 </p>
 
 </body>
