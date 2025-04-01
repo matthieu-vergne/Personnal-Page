@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring<br>Condition Split &amp; Join</h1>
+
+<h2 id="context">Context</h2>
+
+<p>
+	As per the <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.9.2">Java 8 specification</a>, an <code>if-then-else</code> statement allows to choose between two branches of execution.
+	The condition of the <code>if</code> statement provides the decision criteria between executing the <code>if</code> block (when the condition is satisfied) or the <code>else</code> block (when it is not).
+	This condition can be composed, especially with an <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.23"><em>and</em> operator</a> or an <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.24"><em>or</em> operator</a>
+	It is then possible to split this condition, distributing the code into several conditionals than can be moved around.
+	They can be joined as well, giving the ability to organize the conditionals in various ways.
+</p>
+
+<h2 id="Action">Condition split &amp; join</h2>
+
+<p class="warning">TODO</p>
+<p class="warning">TODO Focus on if-else, to reach that state you may need: explicit else + replace else statement by block (link to articles)</p>
+<p class="warning">TODO Useful for moving blocks around, especially combined with: conditional decomposition (link to article)</p>
+
+<h3 id="Action-disjunction">Disjunction (<code>||</code>, <em>or</em> operator)</h3>
+
+<p>
+	Here is a disjunction, an <em>or</em> conditional between two booleans <code>c1</code> and <code>c2</code>:
+</p>
+<pre><code>
+if (c1 || c2) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	Literally, the condition means that if one of the two booleans is <code>true</code>, then <code>code A</code> is executed, otherwise it is <code>code B</code>.
+	We can also read it like this: if the first boolean is <code>true</code> we execute <code>code A</code>, if the second boolean is <code>true</code> we also execute <code>code A</code>, otherwise we execute <code>code B</code>.
+	This second reading is the recipe to follow in order to change the code: split the disjunction by having <code>code A</code> executed in two separated blocks, with the first boolean then with the second boolean:
+</p>
+<pre><code>
+if (c1) {
+	// code A
+} else if (c2) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	The join is just the reverse operation: if you have the two first blocks with the same code, here <code>code A</code>, then factor them into a single block, the factored condition being a disjunction of the two initial conditions.
+	They must be the two <em>first</em> blocks, and have the exact same code, for them to be joined.
+</p>
+
+<h3 id="Action-conjunction">Conjunction (<code>&amp;&amp;</code>, <em>and</em> operator)</h3>
+
+<p>
+	The conjunction case is quite different, but the split remain simple.
+	Let's tart with this code:
+</p>
+<pre><code>
+if (c1 &amp;&amp; c2) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	To split the condition, you can first copy the whole conditional and replace only the content of the first block by the copy:
+</p>
+<pre><code>
+if (c1 &amp;&amp; c2) {
+	if (c1 &amp;&amp; c2) {         //
+		// code A           // Copy of the full
+	} else {                // conditional into
+		// code B           // its first block.
+	}                       //
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	Then, just reduce the first condition to the first boolean, and the second condition to the second boolean:
+</p>
+<pre><code>
+if (c1) {     // Remove c2 here
+	if (c2) { // Remove c1 here
+		// code A
+	} else {
+		// code B
+	}
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	To join the code into a conjunction, the process is more involved, since you need to find the same structure as above in order to join it.
+	But once it is done, just prepend the internal condition with the external one through a conjunction:
+</p>
+<pre><code>
+if (c1) {
+	if (c1 &amp;&amp; c2) { // Add c1 here in first position
+		// code A
+	} else {
+		// code B
+	}
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	Then remove completely the external conditional to keep only the interal one:
+</p>
+<pre><code>
+// Keep only the content of the first block
+if (c1 &amp;&amp; c2) {
+	// code A
+} else {
+	// code B
+}
+// Remove the rest
+</code></pre>
+
+<h2 id="iso-proof">Isofunctionality</h2>
+
+<p class="warning">TODO</p>
+
+<h3 id="iso-proof-disjunction">Disjunction (<code>||</code>, <em>or</em> operator)</h3>
+
+<p>
+	The isofunctionality of the disjunction split/join is rather easy to demonstrate.
+	So let's start with this one.
+</p>
+<pre><code>
+if (c1 || c2) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	If you create the truth table of this code, then the execution of <code>A</code> follows the common <em>or</em> operator, since it is controlled by the <em>or</em> condition.
+	Thus, it is always executed unless both booleans are <code>false</code>.
+	Meanwhile, the execution of <code>B</code> is the complementary (or negation) of the execution of <code>A</code>, since the two blocks of a conditional are exclusive.
+	Thus, it is only executed when both booleans are <code>false</code>.
+	Which gives us this truth table:
+</p>
+<table>
+	<tr>
+		<th><code>c1</code></th>
+		<th><code>c2</code></th>
+		<th></th>
+		<th><code>A</code></th>
+		<th><code>B</code></th>
+	</tr>
+	<tr>
+		<td>0</td>
+		<td>0</td>
+		<td></td>
+		<td>0</td>
+		<td>1</td>
+	</tr>
+	<tr>
+		<td>0</td>
+		<td>1</td>
+		<td></td>
+		<td>1</td>
+		<td>0</td>
+	</tr>
+	<tr>
+		<td>1</td>
+		<td>0</td>
+		<td></td>
+		<td>1</td>
+		<td>0</td>
+	</tr>
+	<tr>
+		<td>1</td>
+		<td>1</td>
+		<td></td>
+		<td>1</td>
+		<td>0</td>
+	</tr>
+</table>
+<p>
+	Now let's look at the code with the split condition:
+</p>
+<pre><code>
+if (c1) {
+	// code A
+} else if (c2) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	If the first boolean is false, then the first block with <code>A</code> is not executed, and the second condition is evaluated.
+	If the second boolean is false, then this second block with <code>A</code> is also not executed, leading to execute the <code>else</code> clause with <code>B</code> instead.
+	This is exactly the first line of the previous truth table.
+	If we repeat the reasoning for each row of the table, we always obtain the same result.
+	In other words, both versions lead to the same execution steps, so if the program is at a given state \(S\) before the conditional, it will result in the same state \(S'\) after the conditional, whether the code is split or joined, thus they are isofunctional.
+</p>
+
+<h3 id="iso-proof-conjunction">Conjunction (<code>&amp;&amp;</code>, <em>and</em> operator)</h3>
+
+<p>
+	Let's focus on the conjunction now:
+</p>
+<pre><code>
+if (c1 &amp;&amp; c2) {
+	// code A
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	We can use a truth table to demonstrate the conjunction, like for the disjunction.
+	Instead of an <em>or</em> table for <code>A</code>, we get an <em>and</em> table, and <code>B</code> remains the negation of <code>A</code>.
+	However, it is interesting to see that each step of the change is actually isofunctional too.
+	Let's tart with the internal copy:
+</p>
+<pre><code>
+if (c1 &amp;&amp; c2) {
+	if (c1 &amp;&amp; c2) {         //
+		// code A           // Copy of the full
+	} else {                // conditional into
+		// code B           // its first block.
+	}                       //
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	By copying the whole conditional into its first block, we make the first block more complex.
+	However, since it is in the first block, the internal conditional can only be executed when the external condition passes.
+	But then, the internal condition passes too, since it is the very same, so the internal <code>else</code> block is never executed.
+	Since only <code>code A</code> is executed when the conjunction passes, and only <code>code B</code> is executed otherwise, it is still isofunctional with the original code.
+</p>
+<p>
+	Now let's go to the next step:
+</p>
+<pre><code>
+if (c1) {     // Remove c2 here
+	if (c2) { // Remove c1 here
+		// code A
+	} else {
+		// code B
+	}
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	Here, the only way to execute <code>code A</code> is to have both booleans at <code>true</code>, since we need to make both conditions pass.
+	All the other blocks are filled with <code>code B</code>, so when any of the two booleans is <code>false</code>, only <code>code B</code> is executed.
+	You may use a truth table to convince yourself if required.
+	Then again, it is the exact same thing than with the original code, thus it is still isofunctional.
+	Now the condition si split, thus demonstrating the split is isofunctional.
+</p>
+<p>
+	As for the join, let's check what happens when we prepend the internal condition:
+</p>
+<pre><code>
+if (c1) {
+	if (c1 &amp;&amp; c2) { // Add c1 here in first position
+		// code A
+	} else {
+		// code B
+	}
+} else {
+	// code B
+}
+</code></pre>
+<p>
+	In a similar way than before, the internal condition is evaluated only when the external one passes, so at that time <code>c1</code> is known to be <code>true</code>.
+	Since the internal conditiona is a conjunction, having the first operand always <code>true</code> meand that the evaluation always depend on the second operand, thus <code>c2</code>.
+	In other words, bringing <code>c1</code> into the internal condition changes nothing because we still need to do the same evaluation of <code>c2</code>.
+	Thus, we are isofunctional with the split condition that precedes this change.
+</p>
+<p>
+	Then, by removing the external condition, we just retrieve the original code with a joined condition:
+</p>
+<pre><code>
+// Keep only the content of the first block
+if (c1 &amp;&amp; c2) {
+	// code A
+} else {
+	// code B
+}
+// Remove the rest
+</code></pre>
+<p>
+	This is by definition isofunctional with the initial joined condition, since it <em>is</em> the joined condition itself, and thus isofunctional with the split condition as well.
+</p>
+
+<p class="warning">TODO Can be achieved with: invert conditional + split disjunction + else statement to block + invert external conditional + invert internal conditional</p>
+
+</body>
+</html>
