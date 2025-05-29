@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring:<br>Conditional Inversion</h1>
+<h2 id="context">Context</h2>
+
+<p>
+	As per the <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.9.2">Java 8 specification</a>, an <code>if-then-else</code> statement allows to choose between two branches of execution.
+	The condition of the <code>if</code> statement provides the decision criteria between executing the <code>if</code> block (when the condition is satisfied) or the <code>else</code> block (when it is not).
+	This structure with two branches can be reversed to be more intuitive.
+</p>
+
+<h2 id="Action">Conditional inversion</h2>
+
+<p>
+	You must start with a minimal but complete conditional, meaning an <code>if</code> + an <code>else</code>.
+	If you only have the <code>if</code>, then you need to <entry id="./3">explicit the <code>else</code></entry> first.
+</p>
+<pre><code>
+if (condition) {
+  // code A
+} else {
+  // code B
+}
+</code></pre>
+<p>
+	Simply put, a conditional inversion consists in inversing <code>condition</code> and the blocks of the conditional:
+</p>
+<pre><code>
+if (!condition) {
+  // code B
+} else {
+  // code A
+}
+</code></pre>
+<p>The same effect can be achieved with a <entry id="./8">conditional split</entry>, although in more steps: separate the blocks, reverse them, and join them again.</p>
+
+<h2 id="iso-proof">Isofunctionality</h2>
+
+<p>
+	There is not much to prove here, since we build on the basic definition of the conditional.
+	But we can illustrate it with this truth table:
+</p>
+<table>
+	<tr>
+		<th><code>condition</code></th>
+		<th></th>
+		<th><code>A</code></th>
+		<th><code>B</code></th>
+	</tr>
+	<tr><td>0</td><td></td><td>0</td><td>1</td></tr>
+	<tr><td>1</td><td></td><td>1</td><td>0</td></tr>
+</table>
+<p>
+	The first version of the code checks whether <code>condition == true</code>, which corresponds to the second row where we execute <code>A</code> but not <code>B</code>.
+	Otherwise, we know by definition that <code>condition == false</code>, which corresponds to the first row where we execute <code>B</code> but not <code>A</code>.
+	The second version of the code expresses the very same truth table, thus the equivalence, but instead we read the first row (<code>false => B</code>) and then the second (<code>true => A</code>).
+</p>
+
+</body>
+</html>
