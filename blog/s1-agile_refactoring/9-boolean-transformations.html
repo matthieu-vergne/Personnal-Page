@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring<br>Boolean Transformations</h1>
+<h2 id="context">Context</h2>
+
+<p>
+	Java 8 supports <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.10.3">boolean values</a>, namely <code>true</code> and <code>false</code>.
+	A boolean value can be replaced by its opposite with <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.15.6">a negation <code>!</code></a> or combined with <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.23">a conjunction <code>&amp;&amp;</code> (or <code>&amp;</code>)</a> or <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.24">a disjunction <code>||</code> (or <code>|</code>)</a>.
+	In practice, combinations usually focus on the double operators, like <code>&amp;&amp;</code>, instead of the single operators, like <code>&amp;</code>, to only evaluate the relevant parts of the boolean formulae, so we do the same here.
+	To unlock the ability to refactor the code in relevant ways, let's look at useful tricks to express a boolean expression in various equivalent ways, meaning without changing its overall boolean value.
+</p>
+
+<h2 id="Action">Boolean transformations</h2>
+
+<p>
+	We start from an expression, which can result into <code>true</code> or <code>false</code> when evaluated at runtime:
+</p>
+<pre><code>
+expression
+</code></pre>
+
+<h3 id="Action-preserve">Code preservation</h2>
+
+<p>
+	We can introduce an explicit boolean value without changing the evaluation by using the right combinator:
+</p>
+<pre><code>
+true  &amp;&amp; expression // Equivalent to "expression"
+false || expression // Equivalent to "expression"
+</code></pre>
+<p>
+	Both of them are equivalent to the initial <code>expression</code> alone.
+	They can be used to introduce explicit values for further refactoring.
+</p>
+
+<h3 id="Action-dead">Dead code insertion</h2>
+
+<p>
+	If we invert the combinators, the <code>expression</code> becomes dead code:
+</p>
+<pre><code>
+true  || expression // Equivalent to "true"
+false &amp;&amp; expression // Equivalent to "false"
+</code></pre>
+<p>
+	Indeed, for these combinators, the left-hand side is enough to infer the result.
+	Since we use the double operators, the right-hand side is not evaluated because it will not change the result.
+	They can be used to introduce an <code>expression</code> that we need (but was not there initially) without changing the semantics of the formula.
+</p>
+
+<h3 id="Action-practice">Some practice</h2>
+
+<p>
+	If we combine everything, <code>expression</code> can be written in a really complicated way like this:
+</p>
+<pre><code>
+false &amp;&amp; (expression || !expression &amp;&amp; expression) || (true || expression) &amp;&amp; expression // Equivalent to "expression"
+</code></pre>
+<p>
+	That means of course that such a complex expression can be simplified as well by reversing the transformation steps:
+</p>
+<pre><code>
+false &amp;&amp; (expression || !expression &amp;&amp; expression) || (true || expression) &amp;&amp; expression
+                                                    // true || expression = true
+false &amp;&amp; (expression || !expression &amp;&amp; expression) || true &amp;&amp; expression
+                                                   // true &amp;&amp; expression = expression
+false &amp;&amp; (expression || !expression &amp;&amp; expression) || expression
+         // the parenthesis can evaluate to some "foo" boolean value
+false &amp;&amp; foo || expression
+// but we don't care because false &amp;&amp; expression = false
+false || expression
+// false || expression = expression
+expression
+</code></pre>
+
+<h2 id="iso-proof">Isofunctionality</h2>
+
+<p>
+	There is not much to demonstrate here, since we build on the mathematical definitions of the conjunctions (<code>&amp;&amp;</code>) and disjunctions (<code>||</code>), but we can illustrate it with this truth table:
+</p>
+<table>
+	<tr>
+		<th><code style="padding: 0 1em">A</code></th>
+		<th><code style="padding: 0 1em">B</code></th>
+		<th></th>
+		<th><code>A&amp;&amp;B</code></th>
+		<th><code>A||B</code></th>
+	</tr>
+	<tr><td>0</td><td>0</td><td></td><td style="color: #fff; background-color: #f00">0</td><td style="color: #000; background-color: #0f0">0</td></tr>
+	<tr><td>0</td><td>1</td><td></td><td style="color: #fff; background-color: #f00">0</td><td style="color: #000; background-color: #0f0">1</td></tr>
+	<tr><td>1</td><td>0</td><td></td><td style="color: #000; background-color: #0f0">0</td><td style="color: #fff; background-color: #f00">1</td></tr>
+	<tr><td>1</td><td>1</td><td></td><td style="color: #000; background-color: #0f0">1</td><td style="color: #fff; background-color: #f00">1</td></tr>
+</table>
+<p>
+	The green parts represent the code preservations:
+</p>
+<ul>
+	<li>if <code>A = true</code> and <code>B = expression</code>, then the bottom left green shows we get the same value than <code>B</code>, thus <code>expression</code>, ignoring completely <code>true</code></li>
+	<li>if <code>A = false</code> and <code>B = expression</code>, then the top right green shows we get the same value than <code>B</code>, thus <code>expression</code>, ignoring completely <code>false</code></li>
+</ul>
+<p>
+	The red parts represent the dead codes:
+</p>
+<ul>
+	<li>if <code>A = true</code> and <code>B = expression</code>, then the bottom right red shows we get the same value than <code>A</code>, thus <code>true</code>, ignoring completely <code>expression</code></li>
+	<li>if <code>A = false</code> and <code>B = expression</code>, then the top left red shows we get the same value than <code>A</code>, thus <code>false</code>, ignoring completely <code>expression</code></li>
+</ul>
+
+</body>
+</html>
