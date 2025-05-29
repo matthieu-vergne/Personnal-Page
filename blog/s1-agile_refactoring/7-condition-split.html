@@ -30,16 +30,24 @@
 <p>
 	As per the <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.9.2">Java 8 specification</a>, an <code>if-then-else</code> statement allows to choose between two branches of execution.
 	The condition of the <code>if</code> statement provides the decision criteria between executing the <code>if</code> block (when the condition is satisfied) or the <code>else</code> block (when it is not).
-	This condition can be composed, especially with an <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.23"><em>and</em> operator</a> or an <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.24"><em>or</em> operator</a>
-	It is then possible to split this condition, distributing the code into several conditionals than can be moved around.
+	This condition can be composed, especially with an <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.23"><em>and</em> operator</a> or an <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.24"><em>or</em> operator</a>.
+	It is then possible to split this condition, distributing the code into several conditionals that can be moved around<span class="warning">link to article</span>.
 	They can be joined as well, giving the ability to organize the conditionals in various ways.
 </p>
 
 <h2 id="Action">Condition split &amp; join</h2>
 
-<p class="warning">TODO</p>
-<p class="warning">TODO Focus on if-else, to reach that state you may need: explicit else + replace else statement by block (link to articles)</p>
-<p class="warning">TODO Useful for moving blocks around, especially combined with: conditional decomposition (link to article)</p>
+<p>
+	A condition is a boolean expression.
+	It can combine several boolean expressions via binary operators, often conjunctions (<code>&amp;&amp;</code>, <em>and</em> operator) and disjunctions (<code>||</code>, <em>or</em> operator).
+	Conjunctions and disjunctions work differently, and as such split differently, so we will consider them separately.
+	We also look at the general case of an <code>if-then-else</code> statement, but you can remove all the <code>else</code> blocks to know how to deal with an <code>if</code> statement alone.
+	You can also <entry id="./3">explicit the <code>else</code></entry> to be closer to what is presented here.
+</p>
+<p>
+	A condition split is quite reduced in its impact, but when the conditional structure becomes more complex, it might be interesting to split and join the conditions <entry id="./8">and the conditionals</entry>.
+	It breaks the whole structure into smaller pieces that can be moved around<span class="warning">link to article</span> and recomposed into a more intuitive construction.
+</p>
 
 <h3 id="Action-disjunction">Disjunction (<code>||</code>, <em>or</em> operator)</h3>
 
@@ -143,7 +151,10 @@ if (c1 &amp;&amp; c2) {
 
 <h2 id="iso-proof">Isofunctionality</h2>
 
-<p class="warning">TODO</p>
+<p>
+	Proving an a conditional often involves truth tables.
+	It is especially relevant when looking at the conditions themselves, since <em>or</em> and <em>and</em> operators have well known truth tables.
+</p>
 
 <h3 id="iso-proof-disjunction">Disjunction (<code>||</code>, <em>or</em> operator)</h3>
 
@@ -218,7 +229,7 @@ if (c1) {
 	If the first boolean is false, then the first block with <code>A</code> is not executed, and the second condition is evaluated.
 	If the second boolean is false, then this second block with <code>A</code> is also not executed, leading to execute the <code>else</code> clause with <code>B</code> instead.
 	This is exactly the first line of the previous truth table.
-	If we repeat the reasoning for each row of the table, we always obtain the same result.
+	If we repeat the reasoning for each row of the table, we always find the same result than in the table.
 	In other words, both versions lead to the same execution steps, so if the program is at a given state \(S\) before the conditional, it will result in the same state \(S'\) after the conditional, whether the code is split or joined, thus they are isofunctional.
 </p>
 
@@ -276,7 +287,7 @@ if (c1) {     // Remove c2 here
 	All the other blocks are filled with <code>code B</code>, so when any of the two booleans is <code>false</code>, only <code>code B</code> is executed.
 	You may use a truth table to convince yourself if required.
 	Then again, it is the exact same thing than with the original code, thus it is still isofunctional.
-	Now the condition si split, thus demonstrating the split is isofunctional.
+	Now the condition is split, thus demonstrating the split is isofunctional.
 </p>
 <p>
 	As for the join, let's check what happens when we prepend the internal condition:
@@ -294,7 +305,7 @@ if (c1) {
 </code></pre>
 <p>
 	In a similar way than before, the internal condition is evaluated only when the external one passes, so at that time <code>c1</code> is known to be <code>true</code>.
-	Since the internal conditiona is a conjunction, having the first operand always <code>true</code> meand that the evaluation always depend on the second operand, thus <code>c2</code>.
+	Since the internal conditional is a conjunction, having the first operand always <code>true</code> meand that the evaluation always depend on the second operand, thus <code>c2</code>.
 	In other words, bringing <code>c1</code> into the internal condition changes nothing because we still need to do the same evaluation of <code>c2</code>.
 	Thus, we are isofunctional with the split condition that precedes this change.
 </p>
@@ -314,7 +325,9 @@ if (c1 &amp;&amp; c2) {
 	This is by definition isofunctional with the initial joined condition, since it <em>is</em> the joined condition itself, and thus isofunctional with the split condition as well.
 </p>
 
+<!--
 <p class="warning">TODO Can be achieved with: invert conditional + split disjunction + else statement to block + invert external conditional + invert internal conditional</p>
+-->
 
 </body>
 </html>
