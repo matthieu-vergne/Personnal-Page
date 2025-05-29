@@ -43,7 +43,7 @@ class BlogPage extends InternalPage {
 			
 			$entryIDs = self::getEntryIDs($entrySequence);
 			$title = self::getEntryTitle($entryIDs);
-			$title = $title === null ? '' : ' title="'.htmlspecialchars(preg_replace("#<br ?/?>#", " ", $title)).'"';
+			$title = $title === null ? '' : ' title="'.strip_tags(preg_replace("#<br ?/?>#", " ", $title)).'"';
 			
 			return $href.$title;
 		}, $content);
