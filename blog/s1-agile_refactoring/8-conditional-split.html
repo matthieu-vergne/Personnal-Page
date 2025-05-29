@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Blog Page</title>
+	
+	<meta charset="utf-8">
+	
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism-okaidia.css" rel="stylesheet" />
+	<link href="../../style.css" rel="stylesheet" type="text/css" />
+	
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			TeX: {
+				extensions: ["color.js"],
+				equationNumbers: { autoNumber: "AMS" },
+			}
+		});
+	</script>
+	<script language="JavaScript" type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-core.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/autoloader/prism-autoloader.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/keep-markup/prism-keep-markup.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/plugins/normalize-whitespace/prism-normalize-whitespace.min.js"></script>
+</head>
+<body id="blog" class="language-java">
+<h1>Agile Refactoring:<br>Conditional Split &amp; Join</h1>
+<h2 id="context">Context</h2>
+
+<p>
+	As per the <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-14.html#jls-14.9.2">Java 8 specification</a>, an <code>if-then-else</code> statement allows to choose between two branches of execution.
+	The condition of the <code>if</code> statement provides the decision criteria between executing the <code>if</code> block (when the condition is satisfied) or the <code>else</code> block (when it is not).
+	This structure with two branches can be split into two separate blocks, giving the ability to move them around independently, and joining them elsewhere if permitted.
+</p>
+
+<h2 id="Action">Conditional split &amp; join</h2>
+
+<p>
+	A conditional split/join can be applied in two situations.
+	Either the instructions to separate are part of the same block (<code>if</code> conditional) or in a separate block (<code>if-else</code> conditional).
+	However, the condition of the conditional <em>must not be impacted</em> by the instructions inside the conditional.
+	A good habit is to extract the condition result into a variable<span class="warning">link to article</span>.
+	By using the variable as the condition, we keep a value that will not change upon executing the instructions.
+</p>
+
+<h3 id="Action-if">Instructions in the same <code>if</code> block</h2>
+
+<p>
+	In this case, we consider a single <code>if</code> block:
+</p>
+<pre><code>
+if (condition) {
+  // code A
+  // code B
+}
+</code></pre>
+<p>
+	A conditional split consists in separating the instructions into several blocks.
+	This can be achieved by distributing the last (or first) instructions into an equivalent conditional after (or before) the initial conditional.
+</p>
+<pre><code>
+if (condition) {
+  // code A
+}
+if (condition) {
+  // code B
+}
+</code></pre>
+<p>
+	Such a split allows to move both blocks around<span class="warning">link to article</span> independently (as long as such moves are allowed).
+	For example, we can move the second block up:
+</p>
+<pre><code>
+if (condition) {
+  // code B
+}
+if (condition) {
+  // code A
+}
+</code></pre>
+<p>
+	A conditional join consists in the reverse operation.
+	Two consecutive <code>if</code> blocks with the same condition are merged into a single <code>if</code> conditional.
+	If we take the last code above, we can join them as is:
+</p>
+<pre><code>
+if (condition) {
+  // code B
+  // code A
+}
+</code></pre>
+<p>
+	This particular example can be achieved more directly with an instructions inversion<span class="warning">link to article</span> directly in the block.
+	However, when the conditional structure becomes more complex, it might be interesting to split and join the conditional <entry id="./7">and the conditions</entry>.
+	It breaks the whole structure into smaller pieces that can be moved around<span class="warning">link to article</span> and recomposed into a more intuitive construction.
+</p>
+
+<h3 id="Action-ifelse">Instructions separated in <code>if-else</code> blocks</h2>
+
+<p>
+	In this case, we consider some instructions in a <code>if</code> block and others in the <code>else</code> block:
+</p>
+<pre><code>
+if (condition) {
+  // code A
+} else {
+  // code B
+}
+</code></pre>
+<p>
+	A conditional split consists in separating the two blocks of the conditional.
+	This can be achieved by transforming the <code>else</code> block into a separate <code>if</code> block.
+	The condition of this new <code>if</code> block is the negation of <code>condition</code>:
+</p>
+<pre><code>
+if (condition) {
+  // code A
+}
+if (!condition) { // Replace "else" by "if" with the opposite condition
+  // code B
+}
+</code></pre>
+<p>
+	Such a split allows to move both blocks around<span class="warning">link to article</span> independently (as long as such moves are allowed).
+	For example, we can move the second block up:
+</p>
+<pre><code>
+if (!condition) {
+  // code B
+}
+if (condition) {
+  // code A
+}
+</code></pre>
+<p>
+	A conditional join consists in the reverse operation.
+	Two consecutive <code>if</code> blocks <em>with complementary conditions</em> are merged into a single <code>if-else</code> conditional.
+	If we take the last code above, we can join them as is:
+</p>
+<pre><code>
+if (!condition) {
+  // code B
+} else { // Replace "if" with the opposite condition by "else"
+  // code A
+}
+</code></pre>
+<p>
+	This particular example can be achieved more directly with a <entry id="./10">conditional inversion</entry>.
+	However, when the conditional structure becomes more complex, it might be interesting to split and join the conditional <entry id="./7">and the conditions</entry>.
+	It breaks the whole structure into smaller pieces that can be moved around<span class="warning">link to article</span> and recomposed into a more intuitive construction.
+</p>
+
+<h2 id="iso-proof">Isofunctionality</h2>
+
+<p>
+	We build here on the basic definition of the conditional.
+	Splitting or joining the elements is just a different way to express the same thing.
+	The main difference is to check again <code>condition</code> in between, which is "useless" because the value didn't change.
+	But let's see in details how it is achieved for each case.
+</p>
+
+<h3 id="iso-proof-if">Instructions in the same <code>if</code> block</h2>
+
+<p>
+	When having a single block, we express that both instructions must be executed when <code>condition</code> holds.
+	Upon splitting it in two blocks, we separately express that each instruction must be executed when <code>condition</code> holds.
+	The only difference is that we check again <code>condition</code> before to execute the second instruction.
+	But since we required <code>condition</code> to not be impacted by the instructions (especially not the first one), it means it is still the same boolean value.
+	So it will trigger if and only if the first block triggered, leading to the same instructions being executed than in the single block version.
+	So both the split and joined versions are equivalent.
+</p>
+
+<h3 id="iso-proof-ifelse">Instructions separated in <code>if-else</code> blocks</h2>
+
+<p>
+	When having an <code>if-else</code> conditional, we express that exactly one of the instructions must be executed depending on <code>condition</code>.
+	Upon splitting it in two <code>if</code> conditionals, we separately express that each instruction must be executed depending on <code>condition</code>.
+	The only difference is that we check again <code>condition</code> before to execute the second instruction.
+	But since we required <code>condition</code> to not be impacted by the instructions (especially not the first one), it means it is still the same boolean value.
+	So it will not trigger if the first conditional triggered (and vice-cersa), leading to the same instructions being executed than in the single conditional version.
+	So both the split and joined versions are equivalent.
+</p>
+
+</body>
+</html>
