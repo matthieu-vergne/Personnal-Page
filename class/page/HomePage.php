@@ -23,7 +23,7 @@ class HomePage extends InternalPage {
 			"Surname" => "Matthieu",
 			"Family name" => "Vergne",
 			"Nationality" => "French",
-			"LinkedIn" => $formatUrl("http://www.linkedin.com/pub/matthieu-vergne/41/832/bb8"),
+			"LinkedIn" => $formatUrl("https://fr.linkedin.com/in/matthieu-vergne-bb883241"),
 			"ResearchGate" => $formatUrl("https://www.researchgate.net/profile/Matthieu_Vergne"),
 			"Google Scholar" => $formatUrl("https://scholar.google.com/citations?user=qpUf7jQAAAAJ"),
 			"OrcidID" => $formatUrl("https://orcid.org/0000-0003-3740-7851"),
